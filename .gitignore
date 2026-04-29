@@ -1,0 +1,32 @@
+node_modules
+.next
+.next*
+.vercel
+.env*
+.DS_Store
+.data
+next-env.d.ts
+scripts/.indexnow-key
+# Static export build output — regenerated on every build.
+# Deployed via `wrangler pages deploy out/` straight from build artifacts;
+# tracking this churns 2500+ files per commit and bloats PR diffs.
+out/
+# Cloudflare Wrangler temp files — ephemeral per deploy.
+.wrangler/
+# `npm run clean` rename-target — atomic move-then-remove pattern works
+# around macOS Finder recreating .DS_Store mid-rmdir. Should never persist
+# past one clean cycle. Pattern inherited from holdlens fleet sibling.
+.stale-out-trash/
+# prebuild-regenerated artifacts. package.json prebuild runs
+# generate-og-images.ts + generate-api-json.ts before every build;
+# tracking these produces only timestamp/byte churn per deploy.
+public/og/
+public/api/v1/
+# TypeScript incremental build cache.
+tsconfig.tsbuildinfo
+# iCloud creates numbered-suffix copies during sync conflicts
+# (e.g. ".next 2", "out 3"). They can contain webpack cache .pack files
+# that exceed GitHub's 100MB per-file limit and block the push.
+*\ 2
+*\ 3
+*\ 4

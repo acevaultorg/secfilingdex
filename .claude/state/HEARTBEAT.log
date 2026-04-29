@@ -1,0 +1,5 @@
+# HEARTBEAT.log — secfilingdex.com
+# Append-only session start/end + compaction log.
+# Format: YYYY-MM-DD HH:MM | session-{start,end,compact} | mode | L1:.. L2:.. L3:.. L4:.. L5:.. | notes
+
+2026-04-28 18:00 | folder-prep | n/a | folder created + .claude/state/ seeded | by operator + AcePilot 19.38

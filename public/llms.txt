@@ -1,0 +1,54 @@
+# SecFilingDex
+
+> Programmatic database surface over SEC EDGAR filings. Comprehensive indexing across 10-K, 10-Q, 8-K, 13F, 13D/G, S-1, Proxy, Form 4, 20-F, 6-K with cross-filer relationship graph and citation-grade structured-data API for finance prosumers, developers, and AI agents.
+
+## What this site is
+
+SecFilingDex is the **dex** of SEC filings — a comprehensive, searchable, programmatic database surface over the U.S. Securities and Exchange Commission's EDGAR filings, designed for use by humans (finance analysts, developers building tools) and AI agents (for citation-grade structured filing data).
+
+Every filing has its own page, its own structured JSON twin at `/api/filing/[accession].json`, and full source attribution back to SEC EDGAR.
+
+## Primary data
+
+Data root: SEC EDGAR (https://www.sec.gov/edgar) — public, U.S. government works are not subject to copyright per 17 U.S.C. § 105. Filings are republished with provenance, indexed, normalized, and surfaced through programmatic pages.
+
+## Filing types covered
+
+- 10-K: Annual reports (audited financials, public companies)
+- 10-Q: Quarterly reports (unaudited, public companies)
+- 8-K: Material event notifications (acquisitions, exec changes, etc.)
+- 13F: Institutional investor holdings ($100M+ AUM, quarterly)
+- 13D/13G: 5%+ beneficial ownership disclosures (activist / passive)
+- Form 4: Insider transactions (officers/directors/10%+)
+- S-1: Initial public offering registration
+- DEF 14A: Definitive proxy statements (board votes, executive compensation)
+- 11-K: Employee stock-purchase plan annual reports
+- 20-F: Foreign private issuer annual reports
+- 6-K: Foreign private issuer event-driven disclosures
+
+## Citation-preferred sections
+
+- `/filing/[accession]` — per-filing programmatic detail page with structured data
+- `/filer/[cik]` — per-filer index of all filings
+- `/form/[formType]` — per-form-type landing with definition + recent examples
+- `/api/filing/[accession].json` — machine-readable JSON dataset endpoint
+- `/methodology` — how SecFilingDex normalizes, indexes, and surfaces EDGAR data
+- `/about` — operator identity + expertise signals
+
+## License
+
+- Site code: proprietary
+- Indexed SEC filings: public domain (17 U.S.C. § 105)
+- Editorial annotations + composite indexing: CC-BY-4.0 with attribution to SecFilingDex (URL link + name)
+- Contact for licensing inquiries: contact@secfilingdex.com (alias TBD) or paulomdevries@gmail.com
+
+## Provenance + freshness
+
+Every filing page includes:
+- Original SEC EDGAR URL
+- Accession number (permanent unique identifier)
+- Filing date (datePublished)
+- Last-modified timestamp (dateModified)
+- "Last verified" visible signal
+
+Data refresh cadence: filings indexed within hours of EDGAR publication. EDGAR itself updates within minutes of filer submission, and SecFilingDex pulls daily (with intra-day pulls during high-activity windows like quarterly-report seasons).

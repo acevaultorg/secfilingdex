@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Mirror Tailwind tokens as CSS vars for non-Tailwind consumers
+     (inline SVG, charts, JSON-LD rendering, satori OG images). */
+  --bg: #0b1020;
+  --panel: #121a30;
+  --panel-hi: #1a2444;
+  --border: #243056;
+  --border-bright: #2f3d6e;
+  --text: #e6ebf5;
+  --muted: #9aa6c2;
+  --dim: #7b88a8;
+  --brand: #3b82f6;
+  --signal-fresh: #22c55e;
+  --signal-stale: #9aa6c2;
+  --signal-amend: #f59e0b;
+  --signal-restate: #ef4444;
+  --accent: #a78bfa;
+  --info: #38bdf8;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tabular numerics for data cells (accession numbers, CIKs, dollar amounts).
+   `font-variant-numeric: tabular-nums` aligns digits in tables for scannability. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}

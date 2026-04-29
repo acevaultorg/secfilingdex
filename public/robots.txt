@@ -1,0 +1,52 @@
+# robots.txt — secfilingdex.com
+# AI-crawler explicit allowlist per ~/.claude/rules/bot-harvest.md Lever 1.
+# 2026 HCU-era sites with explicit allow see 2-3x crawler frequency vs silent.
+# All major LLM crawlers + search engines welcomed. SEC-filings data is
+# inherently citation-eligible content — bots are first-class audience.
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Googlebot-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: Google-CloudVertexBot
+Allow: /
+
+# AdSense + Google search infrastructure (required for monetization Day 7+)
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+# Standard search
+User-agent: *
+Allow: /
+
+Sitemap: https://secfilingdex.com/sitemap.xml
+Sitemap: https://secfilingdex.com/sitemap-ai.xml
