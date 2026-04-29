@@ -21,7 +21,7 @@ out/
 # generate-og-images.ts + generate-api-json.ts before every build;
 # tracking these produces only timestamp/byte churn per deploy.
 public/og/
-public/api/v1/
+public/api/
 # TypeScript incremental build cache.
 tsconfig.tsbuildinfo
 # iCloud creates numbered-suffix copies during sync conflicts

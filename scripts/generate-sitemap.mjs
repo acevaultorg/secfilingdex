@@ -1,52 +1,71 @@
 // scripts/generate-sitemap.mjs
 //
-// Generates out/sitemap.xml after `next build` runs. Day 1: enumerates the
-// hand-authored core pages. Day 3+ extension walks data/filings/*.json and
-// adds per-filing/per-filer/per-form-type URLs.
-//
-// Runs in postbuild (after next build emits out/) so out/sitemap.xml is part
-// of the static export shipped to Cloudflare Pages.
+// Generates out/sitemap.xml after `next build`. Enumerates:
+//   - core hand-authored routes (homepage, about, contact, privacy, terms)
+//   - every filing page from data/filings/*.json
+// Each filing entry's lastmod = the filing's indexedAt (when SecFilingDex
+// last verified against EDGAR), changefreq=weekly, priority weighted by
+// freshness (recent filings filed within 30d get higher priority).
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { loadAllFilingsSync } from "./lib/data-loader.mjs";
 
 const SITE_URL = "https://secfilingdex.com";
 const OUT_DIR = join(process.cwd(), "out");
 const TODAY = new Date().toISOString().slice(0, 10);
+const NOW_MS = Date.now();
 
 const STATIC_ROUTES = [
-  { path: "/", changefreq: "daily", priority: 1.0 },
-  { path: "/about/", changefreq: "monthly", priority: 0.7 },
-  { path: "/contact/", changefreq: "yearly", priority: 0.5 },
-  { path: "/privacy/", changefreq: "yearly", priority: 0.4 },
-  { path: "/terms/", changefreq: "yearly", priority: 0.4 },
+  { path: "/", changefreq: "daily", priority: 1.0, lastmod: TODAY },
+  { path: "/about/", changefreq: "monthly", priority: 0.7, lastmod: TODAY },
+  { path: "/contact/", changefreq: "yearly", priority: 0.5, lastmod: TODAY },
+  { path: "/privacy/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
+  { path: "/terms/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
 ];
 
-function urlEntry({ path, changefreq, priority }) {
+function urlEntry({ path, changefreq, priority, lastmod }) {
   return [
     "  <url>",
     `    <loc>${SITE_URL}${path}</loc>`,
-    `    <lastmod>${TODAY}</lastmod>`,
+    `    <lastmod>${lastmod}</lastmod>`,
     `    <changefreq>${changefreq}</changefreq>`,
     `    <priority>${priority.toFixed(1)}</priority>`,
     "  </url>",
   ].join("\n");
 }
 
+function filingPriority(filedAtIso) {
+  // Filings <30d old → priority 0.8; <90d → 0.6; older → 0.5
+  const ageDays = (NOW_MS - Date.parse(filedAtIso)) / 86_400_000;
+  if (ageDays < 30) return 0.8;
+  if (ageDays < 90) return 0.6;
+  return 0.5;
+}
+
 function main() {
-  if (!existsSync(OUT_DIR)) {
-    mkdirSync(OUT_DIR, { recursive: true });
-  }
+  if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
+  const filings = loadAllFilingsSync();
+
+  const filingEntries = filings.map((f) => ({
+    path: `/filing/${f.accessionNumber}/`,
+    changefreq: "weekly",
+    priority: filingPriority(f.filedAt),
+    lastmod: f.indexedAt.slice(0, 10),
+  }));
+
+  const all = [...STATIC_ROUTES, ...filingEntries];
+
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
-    ...STATIC_ROUTES.map(urlEntry),
+    ...all.map(urlEntry),
     "</urlset>",
     "",
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap.xml"), xml);
   console.log(
-    `[sitemap] wrote out/sitemap.xml with ${STATIC_ROUTES.length} URLs`
+    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${filingEntries.length} filings)`
   );
 }
 

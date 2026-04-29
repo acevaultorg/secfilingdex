@@ -40,13 +40,14 @@ See operator-action handoff at session end. 4 cards:
 
 D1-13 is the only RIGHT-NOW operator action. The other 3 stay queued until Day 7 anyway.
 
-## Project state (unchanged)
+## Project state
 
 - **Domain:** secfilingdex.com (Cloudflare-registered 2026-04-28)
+- **CF account dashboard:** https://dash.cloudflare.com/72bfd26c5f3c935393a25e5c0dea6039/secfilingdex.com (CF account ID: `72bfd26c5f3c935393a25e5c0dea6039` — used for Day 7 CF Pages project creation under this account)
 - **Folder:** `/Users/paulodevries/Local/AceVault 260426/secfilingdex-com/secfilingdex/`
 - **Sibling fleet:** holdlens-com (different lens), Concept Finder, Fermentcalc, sourcescore-org
 - **Stack:** Next.js 15.0.3 + React 19 RC + Tailwind 3.4 + TypeScript 5.6 + Wrangler/CF Pages
-- **Repo:** local main branch, 2 commits, no remote yet
+- **Repo:** local main branch, 3 commits (Day 0 + Day 1 ship + Day 1 state), no remote yet
 
 ## Concept positioning (unchanged)
 
