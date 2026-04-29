@@ -48,8 +48,11 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true },
   },
-  // Day 1 P0 placeholder — operator wires real GSC verification meta tag at D7-02
-  // verification: { google: "REPLACE_WITH_GSC_TOKEN" },
+  verification: {
+    // Operator drops real GSC verification token here when GSC site is verified.
+    // Until then the meta tag is omitted (no broken-token noise in <head>).
+    // google: "REPLACE_WITH_GSC_TOKEN",
+  },
 };
 
 // Schema.org Organization + WebSite — quote-ready, citation-grade, LLM-friendly
@@ -79,19 +82,69 @@ const siteSchema = {
   },
 };
 
+// Day-1 Analytics Mandate (concept-finder-methodology v2.1 Layer 7 + bot-harvest):
+//   Plausible — primary traffic + custom events
+//   Cloudflare Web Analytics — privacy-first beacon (token via CF dashboard)
+//   GSC — verification via metadata.verification field (operator drops token)
+//   GA4 — Consent Mode v2 defaults DENIED until cookie banner accepts
+const PLAUSIBLE_DOMAIN = "secfilingdex.com";
+const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN || "";
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "";
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <head>
-        {/* Day-1 Analytics Mandate (per concept-finder-methodology Layer 7).
-            Operator wires real domain/IDs at D1-02 + D7-02 ship steps.
-            Plausible: data-domain="secfilingdex.com" + outbound-links + tagged-events
-            Cloudflare Web Analytics: data-cf-beacon when CF_ANALYTICS_TOKEN env set
-            GSC verification meta: see metadata.verification above
-            GA4: gtag injection (Consent Mode v2 defaults DENIED) */}
-        {/* Placeholder comments — replace with real analytics during D1-02 ship */}
+        {/* Plausible Analytics — outbound-links + tagged-events variant */}
+        <script
+          defer
+          data-domain={PLAUSIBLE_DOMAIN}
+          src="https://plausible.io/js/script.outbound-links.tagged-events.js"
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }",
+          }}
+        />
 
-        {/* Schema.org JSON-LD (Organization + WebSite) */}
+        {/* Cloudflare Web Analytics (privacy-first; only when CF token present) */}
+        {CF_BEACON_TOKEN && (
+          <script
+            defer
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon={`{"token": "${CF_BEACON_TOKEN}"}`}
+          />
+        )}
+
+        {/* GA4 — Consent Mode v2 with denied defaults; banner upgrades on accept */}
+        {GA4_ID && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  window.dataLayer = window.dataLayer || [];
+                  function gtag(){dataLayer.push(arguments);}
+                  gtag('consent', 'default', {
+                    'ad_storage': 'denied',
+                    'ad_user_data': 'denied',
+                    'ad_personalization': 'denied',
+                    'analytics_storage': 'denied',
+                    'wait_for_update': 500
+                  });
+                  gtag('js', new Date());
+                  gtag('config', '${GA4_ID}', { 'anonymize_ip': true });
+                `,
+              }}
+            />
+          </>
+        )}
+
+        {/* Schema.org JSON-LD (Organization + WebSite) — citation-grade per Aleyda Solis 10-char checklist */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}

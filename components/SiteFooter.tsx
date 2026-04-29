@@ -1,0 +1,61 @@
+import Link from "next/link";
+
+export function SiteFooter() {
+  return (
+    <footer className="border-t border-border mt-24 py-10 text-body-sm text-dim">
+      <div className="max-w-6xl mx-auto px-6 grid gap-6 sm:grid-cols-3">
+        <div>
+          <p className="font-mono text-muted mb-2">SecFilingDex</p>
+          <p className="text-body-sm">
+            Programmatic database surface over SEC EDGAR. Citation-grade
+            structured-data API.
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-muted mb-2">Site</p>
+          <Link href="/about" className="block hover:text-text transition-colors">
+            About
+          </Link>
+          <Link href="/contact" className="block hover:text-text transition-colors">
+            Contact
+          </Link>
+          <Link href="/privacy" className="block hover:text-text transition-colors">
+            Privacy
+          </Link>
+          <Link href="/terms" className="block hover:text-text transition-colors">
+            Terms
+          </Link>
+        </div>
+        <div className="space-y-1">
+          <p className="text-muted mb-2">Source</p>
+          <Link
+            href="https://www.sec.gov/edgar"
+            className="block hover:text-text transition-colors"
+            target="_blank"
+            rel="noopener"
+          >
+            SEC EDGAR ↗
+          </Link>
+          <p className="text-caption text-dim mt-2">
+            U.S. government works are public domain (17 U.S.C. § 105). SEC
+            filings republished with provenance + accession-level citation.
+          </p>
+        </div>
+      </div>
+      <div className="max-w-6xl mx-auto px-6 mt-8 pt-6 border-t border-border/50 flex flex-col sm:flex-row justify-between gap-2 text-caption">
+        <p>© {new Date().getFullYear()} SecFilingDex. Not affiliated with the U.S. SEC.</p>
+        <p className="font-mono">
+          Data source:{" "}
+          <Link
+            href="https://www.sec.gov/edgar"
+            className="hover:text-text"
+            target="_blank"
+            rel="noopener"
+          >
+            sec.gov/edgar
+          </Link>
+        </p>
+      </div>
+    </footer>
+  );
+}
