@@ -3,20 +3,20 @@
 **Created:** 2026-04-28
 **Mode:** sovereign auto (auto = sovereign auto per v17.3)
 
-## Day 1 P0 (auto-execute on next /acepilot auto)
+## Day 1 P0 (SHIPPED in commit f961e67 on 2026-04-29)
 
-- [ ] **D1-01** `npm install` Next.js 15.0.3 + React 19 RC + Tailwind 3.4 + TypeScript 5.6 + wrangler `[oracle:$60/wk peak] [reach:+50 vis/wk] [archetype:infrastructure]`
-- [ ] **D1-02** `app/layout.tsx` with Plausible + Cloudflare Web Analytics + GSC meta + Organization schema + Day-1 analytics mandate `[archetype:analytics_wiring]`
-- [ ] **D1-03** `app/page.tsx` landing — hero + 3-tile feature preview + above-fold positioning (per @craftsman Useful + Clear) `[oracle:$25/wk] [archetype:new_landing_page]`
-- [ ] **D1-04** `app/privacy/page.tsx` AdSense-compliant privacy policy (cookies + AdSense disclosure + GDPR/CCPA + contact email) `[archetype:adsense_compliance_gate]`
-- [ ] **D1-05** `app/about/page.tsx` operator identity + methodology + LLM-citation E-E-A-T signals `[archetype:llm_citation_design]`
-- [ ] **D1-06** `app/contact/page.tsx` real contact email (paulomdevries@gmail.com per fleet convention OR contact@secfilingdex.com if alias set up) `[archetype:adsense_compliance_gate]`
-- [ ] **D1-07** `app/terms/page.tsx` Terms of Service stub (recommended for AdSense, not required) `[archetype:adsense_compliance_gate]`
-- [ ] **D1-08** `public/robots.txt` AI-allowlist per `rules/bot-harvest.md` Lever 1 (10 crawlers explicit) `[reach:+40 vis/wk] [archetype:robots_txt_ai_allowlist]`
-- [ ] **D1-09** `public/llms.txt` manifest per bot-harvest Lever 2 `[reach:+30 vis/wk] [archetype:llms_txt_discoverability]`
-- [ ] **D1-10** `public/ads.txt` AdSense placeholder (replace with real publisher ID after Day 7 approval) `[archetype:adsense_compliance_gate]`
-- [ ] **D1-11** First `next build` — verify static export to `out/` works `[archetype:infrastructure]`
-- [ ] **D1-12** `git init` + `.gitignore` per holdlens pattern + first commit `[archetype:infrastructure]`
+- [x] **D1-01** `npm install` Next.js 15.0.3 + React 19 RC + Tailwind 3.4 + TypeScript 5.6 + wrangler `[oracle:$60/wk peak] [reach:+50 vis/wk] [archetype:infrastructure]` ✓
+- [x] **D1-02** `app/layout.tsx` with Plausible + Cloudflare Web Analytics + GSC meta + Organization schema + Day-1 analytics mandate `[archetype:analytics_wiring]` ✓
+- [x] **D1-03** `app/page.tsx` landing — hero + 3-tile feature preview + above-fold positioning (per @craftsman Useful + Clear) `[oracle:$25/wk] [archetype:new_landing_page]` ✓
+- [x] **D1-04** `app/privacy/page.tsx` AdSense-compliant privacy policy (cookies + AdSense disclosure + GDPR/CCPA + contact email) `[archetype:adsense_compliance_gate]` ✓
+- [x] **D1-05** `app/about/page.tsx` operator identity + methodology + LLM-citation E-E-A-T signals `[archetype:llm_citation_design]` ✓
+- [x] **D1-06** `app/contact/page.tsx` real contact email (contact@secfilingdex.com referenced; alias TBD operator decision) `[archetype:adsense_compliance_gate]` ✓
+- [x] **D1-07** `app/terms/page.tsx` Terms of Service stub (recommended for AdSense, not required) `[archetype:adsense_compliance_gate]` ✓
+- [x] **D1-08** `public/robots.txt` AI-allowlist per `rules/bot-harvest.md` Lever 1 (10 crawlers explicit) — verified Day 0 ship `[reach:+40 vis/wk] [archetype:robots_txt_ai_allowlist]` ✓
+- [x] **D1-09** `public/llms.txt` manifest per bot-harvest Lever 2 — verified Day 0 ship `[reach:+30 vis/wk] [archetype:llms_txt_discoverability]` ✓
+- [x] **D1-10** `public/ads.txt` AdSense placeholder (replace with real publisher ID after Day 7 approval) — verified Day 0 ship `[archetype:adsense_compliance_gate]` ✓
+- [x] **D1-11** First `next build` PASS — 6 static routes, 109 KB First Load JS, 1.2 MB out/ `[archetype:infrastructure]` ✓
+- [x] **D1-12** Day 1 ship commit f961e67 — local main branch `[archetype:infrastructure]` ✓
 - [ ] **D1-13** [👤] **OPERATOR**: create `acevaultorg/secfilingdex` GitHub repo + push first commit (auth-gated, can't auto-create)
 
 ## Day 2-7 P1 (queued; auto-execute as Day 1 completes)
