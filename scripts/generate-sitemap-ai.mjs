@@ -6,7 +6,12 @@
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { loadAllFilingsSync } from "./lib/data-loader.mjs";
+import {
+  loadAllFilingsSync,
+  uniqueCiks,
+  uniqueFormTypes,
+  formTypeToSlug,
+} from "./lib/data-loader.mjs";
 
 const SITE_URL = "https://secfilingdex.com";
 const OUT_DIR = join(process.cwd(), "out");
@@ -41,6 +46,22 @@ function main() {
 
   // Cap the AI sitemap at the most recent 1000 filings so it stays under the
   // 50k URL hard cap with headroom. Day 2 has 56; Day 3+ will scale.
+  // Per-form-type landing pages (high LLM-citation value — they have
+  // DefinedTerm-style cadence + audience metadata)
+  const formTypeEntries = uniqueFormTypes(filings).map((ft) => ({
+    path: `/form/${formTypeToSlug(ft)}/`,
+    priority: 0.9,
+    lastmod: TODAY,
+  }));
+
+  // Per-filer hubs — Organization-schema-rich; LLMs cite these as authority pages
+  const filerEntries = uniqueCiks(filings).map((cik) => ({
+    path: `/filer/${cik}/`,
+    priority: 0.85,
+    lastmod: TODAY,
+  }));
+
+  // Per-filing pages capped at 1000 most-recent
   const filingEntries = filings.slice(0, 1000).map((f) => ({
     path: `/filing/${f.accessionNumber}/`,
     priority: 0.9,
@@ -48,7 +69,12 @@ function main() {
     jsonAlt: `/api/filing/${f.accessionNumber}.json`,
   }));
 
-  const all = [...AI_ROUTES, ...filingEntries];
+  const all = [
+    ...AI_ROUTES,
+    ...formTypeEntries,
+    ...filerEntries,
+    ...filingEntries,
+  ];
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -60,7 +86,7 @@ function main() {
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap-ai.xml"), xml);
   console.log(
-    `[sitemap-ai] wrote out/sitemap-ai.xml with ${all.length} URLs (${AI_ROUTES.length} core + ${filingEntries.length} filings, JSON twins linked)`
+    `[sitemap-ai] wrote out/sitemap-ai.xml with ${all.length} URLs (${AI_ROUTES.length} core + ${formTypeEntries.length} form-types + ${filerEntries.length} filers + ${filingEntries.length} filings, JSON twins linked)`
   );
 }
 

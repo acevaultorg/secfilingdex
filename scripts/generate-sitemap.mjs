@@ -9,7 +9,12 @@
 
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { loadAllFilingsSync } from "./lib/data-loader.mjs";
+import {
+  loadAllFilingsSync,
+  uniqueCiks,
+  uniqueFormTypes,
+  formTypeToSlug,
+} from "./lib/data-loader.mjs";
 
 const SITE_URL = "https://secfilingdex.com";
 const OUT_DIR = join(process.cwd(), "out");
@@ -54,7 +59,31 @@ function main() {
     lastmod: f.indexedAt.slice(0, 10),
   }));
 
-  const all = [...STATIC_ROUTES, ...filingEntries];
+  // Per-form-type landing pages
+  const formTypeEntries = uniqueFormTypes(filings).map((ft) => ({
+    path: `/form/${formTypeToSlug(ft)}/`,
+    changefreq: "weekly",
+    priority: 0.7,
+    lastmod: TODAY,
+  }));
+
+  // Per-filer index pages — priority by filing count
+  const filerEntries = uniqueCiks(filings).map((cik) => {
+    const count = filings.filter((f) => f.cik === cik).length;
+    return {
+      path: `/filer/${cik}/`,
+      changefreq: "weekly",
+      priority: count >= 5 ? 0.7 : count >= 2 ? 0.6 : 0.5,
+      lastmod: TODAY,
+    };
+  });
+
+  const all = [
+    ...STATIC_ROUTES,
+    ...formTypeEntries,
+    ...filerEntries,
+    ...filingEntries,
+  ];
 
   const xml = [
     '<?xml version="1.0" encoding="UTF-8"?>',
@@ -65,7 +94,7 @@ function main() {
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap.xml"), xml);
   console.log(
-    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${filingEntries.length} filings)`
+    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${filerEntries.length} filers + ${filingEntries.length} filings)`
   );
 }
 

@@ -1,27 +1,38 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-
-const FILING_TYPES = [
-  { code: "10-K", desc: "Annual report" },
-  { code: "10-Q", desc: "Quarterly report" },
-  { code: "8-K", desc: "Material event" },
-  { code: "13F", desc: "Institutional holdings" },
-  { code: "13D/G", desc: "5%+ ownership" },
-  { code: "S-1", desc: "IPO registration" },
-  { code: "Form 4", desc: "Insider transaction" },
-  { code: "DEF 14A", desc: "Proxy statement" },
-  { code: "20-F", desc: "Foreign annual" },
-  { code: "6-K", desc: "Foreign event" },
-];
+import {
+  loadAllFilings,
+  loadFilingsByCik,
+  loadFilingsByFormType,
+  uniqueCiks,
+  uniqueFormTypes,
+} from "@/lib/filings";
+import { formTypeToSlug } from "@/lib/types";
+import { formatDateShort, formTypeInfo, pickEnrichments } from "@/lib/format";
 
 export default function Home() {
+  const allFilings = loadAllFilings();
+  const formTypes = uniqueFormTypes();
+  const ciks = uniqueCiks();
+  const recent = allFilings.slice(0, 10);
+
+  // Top filers by count of indexed filings (newest-first ordering preserved)
+  const filerCounts = ciks
+    .map((cik) => {
+      const filings = loadFilingsByCik(cik);
+      const { filerName, ticker } = pickEnrichments(filings[0]);
+      return { cik, filerName, ticker, count: filings.length };
+    })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12);
+
   return (
     <>
       <SiteHeader />
       <main className="min-h-screen">
-        {/* Hero — above-fold positioning + value prop + clear CTA */}
-        <section className="px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 max-w-6xl mx-auto">
+        {/* Hero */}
+        <section className="px-6 pt-16 pb-12 sm:pt-24 sm:pb-16 max-w-6xl mx-auto">
           <p className="text-eyebrow text-brand mb-5">SecFilingDex</p>
           <h1 className="text-display-1 mb-6 max-w-3xl">
             Every SEC filing,{" "}
@@ -33,9 +44,9 @@ export default function Home() {
             twins for AI agents and a freshness-tracked taxonomy across millions
             of historical filings.
           </p>
-          <div className="flex flex-wrap gap-3 mb-10">
+          <div className="flex flex-wrap gap-3">
             <Link
-              href="/about"
+              href="/about/"
               className="px-5 py-2.5 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
             >
               How it works
@@ -49,21 +60,105 @@ export default function Home() {
               View raw EDGAR ↗
             </Link>
           </div>
+        </section>
 
-          {/* Filing-type pills — quote-ready, scannable, taxonomy-disclosed */}
-          <div className="flex flex-wrap gap-2 max-w-3xl">
-            {FILING_TYPES.map((t) => (
-              <span
-                key={t.code}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-pill border border-border bg-panel/40 text-caption tabular"
-              >
-                <span className="font-mono text-text">{t.code}</span>
-                <span className="text-dim">·</span>
-                <span className="text-muted">{t.desc}</span>
-              </span>
-            ))}
+        {/* Live form-type pills with counts — clicks into /form/[type]/ */}
+        <section className="px-6 py-10 max-w-6xl mx-auto">
+          <p className="text-eyebrow text-brand mb-4">
+            Browse by form type · {allFilings.length} filings indexed
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {formTypes.map((ft) => {
+              const count = loadFilingsByFormType(ft).length;
+              const info = formTypeInfo(ft);
+              return (
+                <Link
+                  key={ft}
+                  href={`/form/${formTypeToSlug(ft)}/`}
+                  className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-pill border border-border bg-panel/40 hover:border-border-bright hover:bg-panel-hi transition-colors"
+                >
+                  <span className="font-mono text-data-cell text-text">{ft}</span>
+                  {info?.shortName && (
+                    <span className="text-caption text-muted hidden sm:inline">
+                      {info.shortName}
+                    </span>
+                  )}
+                  <span className="text-caption text-dim font-mono tabular">
+                    {count}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </section>
+
+        {/* Recent filings — live discovery into /filing/[accession]/ */}
+        <section className="px-6 py-10 max-w-6xl mx-auto">
+          <p className="text-eyebrow text-brand mb-4">Recent filings</p>
+          <div className="rounded-card-lg border border-border bg-panel/40 overflow-hidden">
+            <ul className="divide-y divide-border">
+              {recent.map((f) => {
+                const { filerName, ticker } = pickEnrichments(f);
+                return (
+                  <li key={f.accessionNumber}>
+                    <Link
+                      href={`/filing/${f.accessionNumber}/`}
+                      className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 px-5 py-3.5 hover:bg-surface-hover transition-colors"
+                    >
+                      <time
+                        dateTime={f.filedAt}
+                        className="font-mono text-data-cell text-dim sm:w-24 shrink-0 tabular"
+                      >
+                        {formatDateShort(f.filedAt)}
+                      </time>
+                      <span className="font-mono text-data-cell text-brand sm:w-24 shrink-0">
+                        {f.formType}
+                      </span>
+                      <span className="text-text flex-1 break-words">
+                        {filerName}
+                        {ticker && (
+                          <span className="ml-2 font-mono text-data-cell text-muted">
+                            {ticker}
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
+
+        {/* Top filers — live discovery into /filer/[cik]/ */}
+        {filerCounts.length > 0 && (
+          <section className="px-6 py-10 max-w-6xl mx-auto">
+            <p className="text-eyebrow text-brand mb-4">
+              Top filers · {ciks.length} indexed
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {filerCounts.map((f) => (
+                <Link
+                  key={f.cik}
+                  href={`/filer/${f.cik}/`}
+                  className="rounded-card border border-border bg-panel/40 p-4 hover:border-border-bright hover:bg-panel-hi transition-colors flex items-baseline gap-3"
+                >
+                  <span className="font-mono text-data-cell text-dim shrink-0">
+                    {f.count}
+                  </span>
+                  <span className="text-body-sm text-text flex-1 truncate">
+                    {f.filerName}
+                  </span>
+                  {f.ticker && (
+                    <span className="font-mono text-caption text-brand shrink-0">
+                      {f.ticker}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* 3-tile feature preview */}
         <section className="px-6 py-12 max-w-6xl mx-auto">
@@ -76,13 +171,13 @@ export default function Home() {
               </h2>
               <p className="text-body-sm text-muted">
                 10-K, 10-Q, 8-K, 13F, 13D/G, Form 4, S-1, DEF 14A, 20-F, 6-K.
-                Programmatic pages keyed by accession number — every filing
-                has its own URL, schema, and JSON twin.
+                Programmatic pages keyed by accession number — every filing has
+                its own URL, schema, and JSON twin.
               </p>
             </article>
 
             <article className="rounded-card border border-border bg-panel/40 p-6 hover:border-border-bright transition-colors">
-              <p className="text-eyebrow text-brand mb-3">02 · Search</p>
+              <p className="text-eyebrow text-brand mb-3">02 · Pivot</p>
               <h2 className="text-heading-2 mb-3">
                 Filer × form × date, instant
               </h2>
@@ -124,17 +219,6 @@ export default function Home() {
               Indexed SEC filings are public domain (17 U.S.C. § 105).
               SecFilingDex is independent — not affiliated with, endorsed by,
               or sponsored by the U.S. Securities and Exchange Commission.
-            </p>
-          </div>
-        </section>
-
-        {/* Status banner — honest about Day 1 */}
-        <section className="px-6 py-8 max-w-6xl mx-auto">
-          <div className="rounded-card border border-border bg-surface-info/30 p-5 flex flex-col sm:flex-row gap-3 sm:items-center">
-            <span className="text-eyebrow text-info shrink-0">Status</span>
-            <p className="text-body-sm text-muted">
-              Day 1 — site scaffold shipping. First 100+ filings indexing this
-              week. Public ship targeting Day 7. Watch this space.
             </p>
           </div>
         </section>

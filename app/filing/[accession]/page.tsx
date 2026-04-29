@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadAllFilings, loadFilingByAccession } from "@/lib/filings";
+import { formTypeToSlug } from "@/lib/types";
 import {
   bytes,
   formatDate,
@@ -143,13 +144,18 @@ export default async function FilingPage({
           <Link href="/" className="hover:text-text">SecFilingDex</Link>
           <span>›</span>
           <Link
-            href={`/form/${encodeURIComponent(record.formType)}`}
+            href={`/form/${formTypeToSlug(record.formType)}/`}
             className="hover:text-text"
           >
             {record.formType}
           </Link>
           <span>›</span>
-          <span className="text-muted truncate">{filerName}</span>
+          <Link
+            href={`/filer/${record.cik}/`}
+            className="hover:text-text truncate"
+          >
+            {filerName}
+          </Link>
         </nav>
 
         {/* Filing header */}

@@ -207,3 +207,55 @@ export function accessionToSlug(accession: string): string {
 export function slugToAccession(slug: string): string {
   return normalizeAccession(slug);
 }
+
+/** Convert form type to URL-safe slug. "SC 13D" → "sc-13d", "10-K/A" → "10-k-a". */
+export function formTypeToSlug(formType: string): string {
+  return formType
+    .toLowerCase()
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+/** Reverse: URL slug back to canonical form type (best-effort). */
+export function slugToFormType(slug: string): FormType | string {
+  // Look up exact form-type match by re-slugging each known type.
+  const known: (FormType | string)[] = [
+    ...new Set([
+      ...FORM_TYPE_CATALOG.map((f) => f.code),
+      "10-K",
+      "10-K/A",
+      "10-Q",
+      "10-Q/A",
+      "8-K",
+      "8-K/A",
+      "13F-HR",
+      "13F-HR/A",
+      "13F-NT",
+      "SC 13D",
+      "SC 13D/A",
+      "SC 13G",
+      "SC 13G/A",
+      "S-1",
+      "S-1/A",
+      "DEF 14A",
+      "PRE 14A",
+      "DEFA14A",
+      "Form 4",
+      "Form 4/A",
+      "20-F",
+      "20-F/A",
+      "6-K",
+      "11-K",
+      "424B1",
+      "424B2",
+      "424B3",
+      "424B4",
+      "424B5",
+    ]),
+  ];
+  for (const ft of known) {
+    if (formTypeToSlug(ft) === slug.toLowerCase()) return ft;
+  }
+  return slug;
+}

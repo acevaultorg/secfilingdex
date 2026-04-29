@@ -40,3 +40,12 @@ export function uniqueCiks(records) {
 export function uniqueFormTypes(records) {
   return Array.from(new Set(records.map((r) => r.formType))).sort();
 }
+
+/** Mirror of lib/types.ts formTypeToSlug — kept in sync for build scripts. */
+export function formTypeToSlug(formType) {
+  return formType
+    .toLowerCase()
+    .replace(/\//g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
