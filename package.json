@@ -9,7 +9,7 @@
     "generate-api": "npx tsx scripts/generate-api-json.ts",
     "prebuild": "npx tsx scripts/generate-api-json.ts",
     "build": "next build",
-    "postbuild": "node scripts/generate-sitemap.mjs && node scripts/generate-sitemap-ai.mjs",
+    "postbuild": "node scripts/generate-sitemap.mjs && node scripts/generate-sitemap-ai.mjs && npx tsx scripts/ping-indexnow.ts --write-key-only",
     "start": "next start",
     "lint": "next lint",
     "indexnow": "npx tsx scripts/ping-indexnow.ts",

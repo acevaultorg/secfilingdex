@@ -9,8 +9,16 @@
 // Setup (operator, one-time):
 //   1. Generate a 32-char hex key at https://www.bing.com/indexnow OR `openssl rand -hex 16`
 //   2. Drop into `.env.local` as: INDEXNOW_KEY=<the-32-char-key>
-//   3. Run `npm run deploy` — script auto-writes `out/<KEY>.txt` for verification
-//      and POSTs the full sitemap URL list to api.indexnow.org
+//   3. Run `npm run deploy` — postbuild auto-writes `out/<KEY>.txt` for verification
+//      (so it ships in the deploy bundle), and the ping step POSTs the full
+//      sitemap URL list to api.indexnow.org after wrangler completes.
+//
+// Modes:
+//   `--write-key-only`  Only write out/<KEY>.txt verification file. Used in postbuild
+//                       so the key is already on the live site when api.indexnow.org
+//                       tries to verify domain ownership.
+//   (default)           Write the key file (idempotent) AND POST the sitemap URLs.
+//                       Used post-deploy.
 //
 // Graceful degradation: if INDEXNOW_KEY is missing, exits 0 with a notice.
 // Build/deploy never fail due to IndexNow.
@@ -37,32 +45,41 @@ function readKey(): string {
 }
 
 async function main(): Promise<void> {
+  const writeKeyOnly = process.argv.includes("--write-key-only");
   const KEY = readKey();
   if (!KEY) {
     console.log(
-      "[indexnow] INDEXNOW_KEY not set (no env var, no .env.local entry). Skipping ping. See scripts/ping-indexnow.ts header for setup."
+      "[indexnow] INDEXNOW_KEY not set (no env var, no .env.local entry). Skipping. See scripts/ping-indexnow.ts header for setup."
     );
     return;
   }
   if (!/^[a-zA-Z0-9-]{8,128}$/.test(KEY)) {
     console.log(
-      `[indexnow] INDEXNOW_KEY format looks invalid (expect 8-128 alphanumeric/dash chars). Skipping ping.`
-    );
-    return;
-  }
-  if (!existsSync(SITEMAP_PATH)) {
-    console.log(
-      "[indexnow] out/sitemap.xml not found — run `npm run build` first."
+      `[indexnow] INDEXNOW_KEY format looks invalid (expect 8-128 alphanumeric/dash chars). Skipping.`
     );
     return;
   }
 
   // Write verification file at out/<KEY>.txt so IndexNow can verify domain ownership.
   // Required per https://www.indexnow.org/documentation
+  // Done in postbuild (before wrangler deploy) so the file actually ships to the live site.
   const keyFilePath = join(process.cwd(), "out", `${KEY}.txt`);
   if (!existsSync(keyFilePath)) {
     writeFileSync(keyFilePath, KEY, "utf8");
     console.log(`[indexnow] wrote verification file: out/${KEY}.txt`);
+  } else {
+    console.log(`[indexnow] verification file already present: out/${KEY}.txt`);
+  }
+
+  if (writeKeyOnly) {
+    return;
+  }
+
+  if (!existsSync(SITEMAP_PATH)) {
+    console.log(
+      "[indexnow] out/sitemap.xml not found — run `npm run build` first."
+    );
+    return;
   }
 
   // Extract <loc> entries from sitemap.xml

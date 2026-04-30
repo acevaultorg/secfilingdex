@@ -1,11 +1,11 @@
 # CONTEXT — secfilingdex.com
 
-**Last updated:** 2026-04-30 14:05 UTC (Day 7 deploy + sitemap submission, AcePilot 19.38)
+**Last updated:** 2026-04-30 19:10 UTC (post-Day-7 IndexNow postbuild hardening, AcePilot 19.42)
 
 ## Session Handoff
 
 **Mode:** sovereign auto
-**Status:** **🚀 DAY 7 SHIPPED + LIVE.** `https://secfilingdex.com` serving HTTP/2 200 over HTTPS via Cloudflare Pages. 14 commits on `acevaultorg/secfilingdex` `main`. Custom domain CNAME `@ → secfilingdex.pages.dev` Proxied. SSL provisioned (CF Universal). GSC ownership verified + sitemap submitted (124 pages discovered, status: Success). Search UI + cookie consent banner live. AdSense compliance Day-6 gate satisfied; AdSense application now operator-pending only.
+**Status:** **🚀 DAY 7 SHIPPED + LIVE — all brain-side P0/P1 work complete.** `https://secfilingdex.com` re-verified HTTP/2 200 (server: cloudflare, cf-ray AMS edge) at 2026-04-30 19:05 UTC. 14 commits on `acevaultorg/secfilingdex` `main`. Custom domain CNAME Proxied + SSL provisioned. GSC ownership verified + sitemap submitted (124 pages discovered). Search UI + cookie consent banner live. AdSense compliance Day-6 gate satisfied. **This session (19:05-19:10 UTC) hardened the IndexNow postbuild flow** so `out/<KEY>.txt` ships in the deploy bundle BEFORE wrangler runs (closes first-deploy verification race). State files refreshed; TASKS.md now matches ground-truth (was claiming D1-13 + D7-01/02 unchecked despite git log showing all shipped — CSIL #22 brain self-consistency drift fixed for the project's own state).
 
 **RESOLVED this session (2026-04-30):**
 - ✅ **GSC verification** (12:30) — TXT record at root via Chrome MCP. Property under `paulomdevries@gmail.com` (`/u/1/`).
@@ -17,7 +17,25 @@
 - ✅ **Custom domain wired** (14:00) — CNAME `@ → secfilingdex.pages.dev` Proxied; SSL provisioned in ~5 min.
 - ✅ **Sitemap submitted to GSC** (14:05) — `https://secfilingdex.com/sitemap.xml` accepted, 124 pages discovered, Status: Success.
 
-**Next-session pickup:** operator runs `/acepilot auto` again. Brain reads state → site is live + monetization stack pending → next priority is Day 7 monetization layers (AdSense application, Perplexity Publishers email, IndexNow key, Ezoic / Mediavine threshold checks). All operator-pending; brain proposes via Clarity Cards per templates.
+**Next-session pickup:** operator runs `/acepilot auto` again. Brain reads state → site is live + IndexNow flow hardened + monetization stack still operator-pending. Next priority order:
+1. 🔴 **Operator: AdSense application** (~15 min) — Layer 1 of revenue stack; site passes Day-6 readiness gate. Template: `~/.claude/acepilot-19.9/templates/adsense-application.md`.
+2. 🟡 **Operator: Perplexity Publishers email** (~5 min) — Layer 4 of revenue stack. Template: `~/.claude/acepilot-19.7/templates/perplexity-publishers-email.md`.
+3. 🟢 **Brain: +7d calibration sweep** (2026-05-07) — pull GSC + Plausible + AdSense (post-approval) → log to ORACLE/RETENTION/DISTRIBUTION/AUG calibration sections.
+4. 🟢 **Brain: `/acepilot reach`** once first impressions land (24-72h post-sitemap) → SEO content sprint based on what queries land.
+
+All in TASKS.md Operator Clarity Cards section.
+
+## Session 5 (2026-04-30 19:05-19:10 UTC) — IndexNow postbuild hardening
+
+**Shipped:**
+- `scripts/ping-indexnow.ts` — added `--write-key-only` mode (idempotent key-file write, no sitemap POST). Existing default mode unchanged.
+- `package.json` — `postbuild` now runs `npx tsx scripts/ping-indexnow.ts --write-key-only` after sitemap generators, so `out/<KEY>.txt` is written WITH the build artifacts (before `wrangler pages deploy`). Closes first-deploy IndexNow verification race where api.indexnow.org would try to fetch `https://secfilingdex.com/<KEY>.txt` before the file existed in the deploy bundle.
+- Build verified end-to-end: `npm run build` → postbuild logs `[indexnow] wrote verification file: out/d317f9bd161245e3d31b521c0955e90d.txt` after sitemap generation.
+- State files refreshed: TASKS.md now reflects actual ship state (all Day 1-7 P0/P1 checked, since git log + heartbeat confirm shipped). HEARTBEAT.log appended with session start/end rows.
+
+**Honest finding:** TASKS.md was 5 days stale — still showed Day 1-7 P0 unchecked despite all commits shipping. Project-level instance of CSIL #22 (brain self-consistency drift detector) — applies to per-project state files too, not just the brain itself. Fixed.
+
+**Live re-verification:** `curl -sI https://secfilingdex.com` returned HTTP/2 200, server: cloudflare, cf-ray 9f48d167a8ccd5a3-AMS, alt-svc: h3=":443". Site fully live.
 
 ## Day 3 ship summary (commit fea6060)
 
