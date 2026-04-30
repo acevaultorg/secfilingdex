@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { CookieConsent } from "@/components/CookieConsent";
 import "./globals.css";
 
 const SITE_URL = "https://secfilingdex.com";
@@ -167,6 +168,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased">
         {children}
+        <CookieConsent />
       </body>
     </html>
   );
