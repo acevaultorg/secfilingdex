@@ -38,6 +38,7 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `${SITE_URL}/form/${slug}/` },
     openGraph: { type: "website", title, description, siteName: "SecFilingDex" },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

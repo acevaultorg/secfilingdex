@@ -3,6 +3,7 @@ node_modules
 .next*
 .vercel
 .env*
+!.env.example
 .DS_Store
 .data
 next-env.d.ts

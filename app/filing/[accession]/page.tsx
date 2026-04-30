@@ -59,7 +59,7 @@ export async function generateMetadata({
       url: `${SITE_URL}/filing/${record.accessionNumber}/`,
       siteName: "SecFilingDex",
     },
-    twitter: { card: "summary", title, description },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
