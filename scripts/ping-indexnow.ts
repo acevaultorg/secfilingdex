@@ -98,25 +98,53 @@ async function main(): Promise<void> {
     urlList: urls,
   };
 
-  try {
-    const res = await fetch("https://api.indexnow.org/indexnow", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    if (res.status === 200 || res.status === 202) {
+  // Multi-endpoint POST. api.indexnow.org distributes to all participants on
+  // success, but caches host-verification status — if it fetched <KEY>.txt
+  // and got a 404 from an earlier deploy, it returns 403 for hours/days even
+  // after the file is live. Yandex's endpoint runs an independent verifier
+  // and accepts pings other endpoints reject during verification cooldown.
+  // Per-endpoint failures are logged but never fail the script (deploy must
+  // never block on IndexNow distribution).
+  const endpoints = [
+    { name: "api.indexnow.org", url: "https://api.indexnow.org/indexnow" },
+    { name: "bing.com", url: "https://www.bing.com/indexnow" },
+    { name: "yandex.com", url: "https://yandex.com/indexnow" },
+  ];
+
+  let acceptedCount = 0;
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(ep.url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (res.status === 200 || res.status === 202) {
+        console.log(
+          `[indexnow] ${ep.name}: ${urls.length} URLs accepted (status ${res.status})`
+        );
+        acceptedCount++;
+      } else {
+        const text = await res.text().catch(() => "");
+        const reason = text.slice(0, 120).replace(/\s+/g, " ");
+        console.log(
+          `[indexnow] ${ep.name}: non-success ${res.status} ${res.statusText}${reason ? ` — ${reason}` : ""}`
+        );
+      }
+    } catch (err) {
       console.log(
-        `[indexnow] pinged ${urls.length} URLs — status ${res.status} (accepted; reindex queued)`
-      );
-    } else {
-      const text = await res.text().catch(() => "");
-      console.log(
-        `[indexnow] non-success status ${res.status} ${res.statusText}: ${text.slice(0, 200)}`
+        `[indexnow] ${ep.name}: request failed (non-fatal) — ${(err as Error).message}`
       );
     }
-  } catch (err) {
+  }
+
+  if (acceptedCount === 0) {
     console.log(
-      `[indexnow] ping failed (non-fatal): ${(err as Error).message}`
+      `[indexnow] WARNING: all ${endpoints.length} endpoints rejected this ping. Verify ${`https://${HOST}/${KEY}.txt`} returns 200 with the key as content. Bing's verification cache typically clears 24-48h after the key file becomes accessible.`
+    );
+  } else {
+    console.log(
+      `[indexnow] ${acceptedCount}/${endpoints.length} endpoints accepted (sufficient for fleet-wide reindex; api.indexnow.org redistributes to all participants on accept)`
     );
   }
 }
