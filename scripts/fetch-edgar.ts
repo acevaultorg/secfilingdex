@@ -28,14 +28,25 @@ const MIN_REQUEST_GAP_MS = 200; // 5 req/s upper bound (SEC allows 10)
 
 const DEFAULT_FORMS: FormType[] = [
   "10-K",
+  "10-K/A",
   "10-Q",
+  "10-Q/A",
   "8-K",
+  "8-K/A",
   "13F-HR",
+  "13F-HR/A",
   "SC 13D",
+  "SC 13D/A",
   "SC 13G",
+  "SC 13G/A",
   "S-1",
+  "S-1/A",
   "DEF 14A",
+  "PRE 14A",
+  "Form 3",
   "Form 4",
+  "Form 4/A",
+  "Form 5",
   "20-F",
   "6-K",
 ];
@@ -111,6 +122,10 @@ function searchCodeToFormType(code: string): FormType {
   if (code === "3/A") return "Form 3/A" as FormType;
   if (code === "5") return "Form 5" as FormType;
   if (code === "5/A") return "Form 5/A" as FormType;
+  if (code === "SCHEDULE 13D") return "SC 13D" as FormType;
+  if (code === "SCHEDULE 13D/A") return "SC 13D/A" as FormType;
+  if (code === "SCHEDULE 13G") return "SC 13G" as FormType;
+  if (code === "SCHEDULE 13G/A") return "SC 13G/A" as FormType;
   return code as FormType;
 }
 
@@ -154,8 +169,13 @@ function transformHit(hit: EdgarSearchHit): FilingRecord {
 }
 
 // EDGAR full-text search expects the underlying form code, not the human-readable
-// label. Form 3/4/5 (insider trading) are searched as "3"/"4"/"5", not "Form 4".
-// Confirmed 2026-04-30: forms=Form 4 → 0 hits; forms=4 → 1758 hits in 5 days.
+// label. Two known divergences from the FormType union spelling:
+//   - Form 3/4/5 (insider trading): searched as "3"/"4"/"5", not "Form N"
+//   - SC 13D/G family (beneficial-ownership): searched as "SCHEDULE 13D" /
+//     "SCHEDULE 13G" / "SCHEDULE 13D/A" / "SCHEDULE 13G/A". The "SC" prefix
+//     is the SEC's internal abbreviation; EFTS uses the official form name.
+// Confirmed live 2026-05-01: forms=SC 13D → 0 hits; forms=SCHEDULE 13D → 1433
+// hits in 90d. Same for G (10000+ in 90d) + amendments.
 function formToSearchCode(form: FormType): string {
   if (form === "Form 4") return "4";
   if (form === "Form 4/A") return "4/A";
@@ -163,6 +183,10 @@ function formToSearchCode(form: FormType): string {
   if (form === "Form 3/A") return "3/A";
   if (form === "Form 5") return "5";
   if (form === "Form 5/A") return "5/A";
+  if (form === "SC 13D") return "SCHEDULE 13D";
+  if (form === "SC 13D/A") return "SCHEDULE 13D/A";
+  if (form === "SC 13G") return "SCHEDULE 13G";
+  if (form === "SC 13G/A") return "SCHEDULE 13G/A";
   return form;
 }
 

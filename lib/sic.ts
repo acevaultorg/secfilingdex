@@ -86,6 +86,67 @@ const SIC_NAMES: Record<string, string> = {
   "7990": "Services — Amusement & Recreation",
   // Health
   "8011": "Services — Offices & Clinics of Doctors of Medicine",
+  // Agriculture + extraction (additional)
+  "0100": "Agriculture, Forestry & Fishing",
+  // Construction (additional)
+  "1531": "Operative Builders",
+  "1700": "Construction — Special Trade Contractors",
+  // Food + chemicals (additional)
+  "2060": "Sugar & Confectionery Products",
+  "2510": "Household Furniture",
+  "2810": "Industrial Inorganic Chemicals",
+  "2835": "In Vitro & In Vivo Diagnostic Substances",
+  "2860": "Industrial Organic Chemicals",
+  // Stone, glass, metals (additional)
+  "3221": "Glass Containers",
+  "3480": "Ordnance & Accessories",
+  // Industrial machinery (additional)
+  "3523": "Farm Machinery & Equipment",
+  "3531": "Construction Machinery & Equipment",
+  // Electronics (additional)
+  "3621": "Motors & Generators",
+  "3651": "Household Audio & Video Equipment",
+  "3670": "Electronic Components & Accessories",
+  "3679": "Electronic Components",
+  // Instruments (additional)
+  "3823": "Industrial Instruments for Measurement",
+  "3829": "Measuring & Controlling Devices",
+  "3861": "Photographic Equipment & Supplies",
+  // Transportation (additional)
+  "4412": "Deep Sea Foreign Transportation of Freight",
+  "4731": "Arrangement of Transportation of Freight & Cargo",
+  // Communications (additional)
+  "4841": "Cable & Other Pay Television Services",
+  "4899": "Communications Services",
+  // Wholesale (additional)
+  "5090": "Wholesale — Durable Goods",
+  "5094": "Wholesale — Jewelry, Watches & Precious Stones",
+  "5172": "Wholesale — Petroleum & Petroleum Products",
+  // Retail (additional)
+  "5531": "Retail — Auto & Home Supply Stores",
+  "5812": "Retail — Eating Places",
+  "5961": "Retail — Catalog & Mail-Order Houses",
+  // Finance (additional)
+  "6111": "Federal & Federally-Sponsored Credit Agencies",
+  "6141": "Personal Credit Institutions",
+  "6282": "Investment Advice",
+  "6311": "Life Insurance",
+  "6531": "Real Estate Agents & Managers",
+  "6770": "Blank Checks",
+  "6794": "Patent Owners & Lessors",
+  // Hotels + services (additional)
+  "7011": "Hotels & Motels",
+  "7200": "Services — Personal Services",
+  "7310": "Services — Advertising",
+  "7311": "Services — Advertising Agencies",
+  "7340": "Services — Building Maintenance Services",
+  "7350": "Services — Equipment Rental & Leasing",
+  "7363": "Services — Help Supply Services",
+  // Engineering + research (additional)
+  "8711": "Services — Engineering Services",
+  "8731": "Services — Commercial Physical & Biological Research",
+  "8741": "Services — Management Services",
+  "8742": "Services — Management Consulting Services",
 };
 
 export function sicCodeToName(code: string): string {
