@@ -28,6 +28,10 @@ const STATIC_ROUTES = [
   { path: "/contact/", changefreq: "yearly", priority: 0.5, lastmod: TODAY },
   { path: "/privacy/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
   { path: "/terms/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
+  // Hub-index pages — taxonomy entry points (filer/form/industry indexes)
+  { path: "/filer/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
+  { path: "/form/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
+  { path: "/industry/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
 ];
 
 function urlEntry({ path, changefreq, priority, lastmod }) {

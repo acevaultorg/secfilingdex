@@ -22,6 +22,10 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const AI_ROUTES = [
   { path: "/", priority: 1.0, lastmod: TODAY },
   { path: "/about/", priority: 0.9, lastmod: TODAY },
+  // Hub-index pages — high-LLM-citation-value taxonomy entry points
+  { path: "/filer/", priority: 0.9, lastmod: TODAY },
+  { path: "/form/", priority: 0.9, lastmod: TODAY },
+  { path: "/industry/", priority: 0.9, lastmod: TODAY },
 ];
 
 function urlEntry({ path, priority, lastmod, jsonAlt }) {
