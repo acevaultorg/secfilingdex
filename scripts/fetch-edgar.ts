@@ -99,13 +99,28 @@ function pad10(cik: string): string {
   return cik.replace(/^0+/, "").padStart(10, "0");
 }
 
+// Reverse of formToSearchCode — normalizes EDGAR's raw form code back to the
+// canonical FormType union value used everywhere else in the codebase
+// (display strings, slug generation, schema, page routing). EDGAR returns
+// "4" for Form 4 in its search response; we store "Form 4" so existing
+// formTypeToSlug + FORM_TYPE_CATALOG lookups keep working.
+function searchCodeToFormType(code: string): FormType {
+  if (code === "4") return "Form 4" as FormType;
+  if (code === "4/A") return "Form 4/A" as FormType;
+  if (code === "3") return "Form 3" as FormType;
+  if (code === "3/A") return "Form 3/A" as FormType;
+  if (code === "5") return "Form 5" as FormType;
+  if (code === "5/A") return "Form 5/A" as FormType;
+  return code as FormType;
+}
+
 function transformHit(hit: EdgarSearchHit): FilingRecord {
   const accession = normalizeAccession(hit._source.adsh);
   const cik = pad10(hit._source.ciks[0]);
   const filerName = hit._source.display_names?.[0] ?? "Unknown filer";
   const ticker = hit._source.tickers?.[0]?.toUpperCase();
   const sicCode = hit._source.sics?.[0];
-  const formType = hit._source.form as FormType;
+  const formType = searchCodeToFormType(hit._source.form);
   const filedAtRaw = hit._source.file_date;
   const filedAt = new Date(`${filedAtRaw}T00:00:00Z`).toISOString();
   const periodOfReport = hit._source.period_of_report;
@@ -138,12 +153,26 @@ function transformHit(hit: EdgarSearchHit): FilingRecord {
   };
 }
 
+// EDGAR full-text search expects the underlying form code, not the human-readable
+// label. Form 3/4/5 (insider trading) are searched as "3"/"4"/"5", not "Form 4".
+// Confirmed 2026-04-30: forms=Form 4 → 0 hits; forms=4 → 1758 hits in 5 days.
+function formToSearchCode(form: FormType): string {
+  if (form === "Form 4") return "4";
+  if (form === "Form 4/A") return "4/A";
+  if (form === "Form 3") return "3";
+  if (form === "Form 3/A") return "3/A";
+  if (form === "Form 5") return "5";
+  if (form === "Form 5/A") return "5/A";
+  return form;
+}
+
 async function searchByForm(
   form: FormType,
-  max: number
+  max: number,
+  attempt = 1
 ): Promise<FilingRecord[]> {
   const url = new URL("https://efts.sec.gov/LATEST/search-index");
-  url.searchParams.set("forms", form);
+  url.searchParams.set("forms", formToSearchCode(form));
   url.searchParams.set("dateRange", "custom");
   // Last 60 days window — recent filings prioritized for Day 2 seed
   const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
@@ -152,13 +181,29 @@ async function searchByForm(
 
   const res = await throttledFetch(url.toString());
   if (!res.ok) {
+    // Retry once on 5xx (transient EDGAR/AWS upstream issues)
+    if (res.status >= 500 && res.status < 600 && attempt === 1) {
+      console.warn(
+        `[fetch-edgar] form=${form} HTTP ${res.status} — retrying once after 1s`
+      );
+      await new Promise((r) => setTimeout(r, 1000));
+      return searchByForm(form, max, 2);
+    }
     console.warn(
-      `[fetch-edgar] form=${form} HTTP ${res.status} ${res.statusText}`
+      `[fetch-edgar] form=${form} HTTP ${res.status} ${res.statusText}${attempt > 1 ? " (retry exhausted)" : ""}`
     );
     return [];
   }
   const json = (await res.json()) as EdgarSearchResponse;
   const hits = json.hits?.hits ?? [];
+  // Make silent-zero-hits visible — distinguishes legitimately-empty
+  // search windows from form-code mismatches like the Form 4 bug.
+  if (hits.length === 0) {
+    const total = json.hits?.total?.value ?? 0;
+    console.warn(
+      `[fetch-edgar] form=${form} returned 0 hits (total=${total}, search-code="${formToSearchCode(form)}") — verify form code if total=0`
+    );
+  }
   return hits.slice(0, max).map(transformHit);
 }
 
