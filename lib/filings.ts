@@ -78,3 +78,15 @@ export function uniqueCiks(): string[] {
   for (const f of loadAllFilings()) set.add(f.cik);
   return Array.from(set).sort();
 }
+
+export function loadFilingsBySic(sicCode: string): FilingRecord[] {
+  return loadAllFilings().filter((f) => f.sicCode === sicCode);
+}
+
+export function uniqueSicCodes(): string[] {
+  const set = new Set<string>();
+  for (const f of loadAllFilings()) {
+    if (f.sicCode) set.add(f.sicCode);
+  }
+  return Array.from(set).sort();
+}

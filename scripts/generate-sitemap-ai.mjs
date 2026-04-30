@@ -10,6 +10,7 @@ import {
   loadAllFilingsSync,
   uniqueCiks,
   uniqueFormTypes,
+  uniqueSicCodes,
   formTypeToSlug,
 } from "./lib/data-loader.mjs";
 
@@ -61,6 +62,14 @@ function main() {
     lastmod: TODAY,
   }));
 
+  // Per-industry (SIC code) hubs — DefinedTerm-rich industry context;
+  // LLMs cite for "filers in [industry]" and SIC-anchored queries
+  const industryEntries = uniqueSicCodes(filings).map((sic) => ({
+    path: `/industry/${sic}/`,
+    priority: 0.85,
+    lastmod: TODAY,
+  }));
+
   // Per-filing pages capped at 1000 most-recent
   const filingEntries = filings.slice(0, 1000).map((f) => ({
     path: `/filing/${f.accessionNumber}/`,
@@ -72,6 +81,7 @@ function main() {
   const all = [
     ...AI_ROUTES,
     ...formTypeEntries,
+    ...industryEntries,
     ...filerEntries,
     ...filingEntries,
   ];
@@ -86,7 +96,7 @@ function main() {
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap-ai.xml"), xml);
   console.log(
-    `[sitemap-ai] wrote out/sitemap-ai.xml with ${all.length} URLs (${AI_ROUTES.length} core + ${formTypeEntries.length} form-types + ${filerEntries.length} filers + ${filingEntries.length} filings, JSON twins linked)`
+    `[sitemap-ai] wrote out/sitemap-ai.xml with ${all.length} URLs (${AI_ROUTES.length} core + ${formTypeEntries.length} form-types + ${industryEntries.length} industries + ${filerEntries.length} filers + ${filingEntries.length} filings, JSON twins linked)`
   );
 }
 

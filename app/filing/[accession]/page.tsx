@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadAllFilings, loadFilingByAccession } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
+import { sicCodeToName } from "@/lib/sic";
 import {
   bytes,
   formatDate,
@@ -218,7 +219,20 @@ export default async function FilingPage({
               />
             )}
             {record.sicCode && (
-              <FactRow label="SIC code" value={record.sicCode} mono />
+              <div className="flex flex-col sm:flex-row gap-1 sm:gap-4 px-5 py-3 border-t border-border first:border-t-0">
+                <dt className="text-body-sm text-muted sm:w-44 sm:shrink-0">Industry</dt>
+                <dd className="text-body text-text break-all">
+                  <Link
+                    href={`/industry/${record.sicCode}/`}
+                    className="hover:underline"
+                  >
+                    <span className="font-mono text-data-cell mr-2 text-dim">
+                      SIC {record.sicCode}
+                    </span>
+                    <span>{sicCodeToName(record.sicCode)}</span>
+                  </Link>
+                </dd>
+              </div>
             )}
             {record.size && (
               <FactRow label="Filing size" value={bytes(record.size)} />

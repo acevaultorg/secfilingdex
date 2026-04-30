@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadFilingsByCik, uniqueCiks } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
+import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, pickEnrichments } from "@/lib/format";
 
 const SITE_URL = "https://secfilingdex.com";
@@ -95,9 +96,13 @@ export default async function FilerPage({
               CIK <span className="font-mono">{cik}</span>
             </span>
             {sicCode && (
-              <span className="text-caption text-dim">
-                SIC <span className="font-mono">{sicCode}</span>
-              </span>
+              <Link
+                href={`/industry/${sicCode}/`}
+                className="text-caption text-dim hover:text-text transition-colors"
+              >
+                <span className="font-mono mr-1">SIC {sicCode}</span>
+                <span>· {sicCodeToName(sicCode)}</span>
+              </Link>
             )}
           </div>
           <h1 className="text-display-2 mb-3">{filerName}</h1>

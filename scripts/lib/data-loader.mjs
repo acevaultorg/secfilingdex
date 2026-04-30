@@ -41,6 +41,14 @@ export function uniqueFormTypes(records) {
   return Array.from(new Set(records.map((r) => r.formType))).sort();
 }
 
+export function uniqueSicCodes(records) {
+  const set = new Set();
+  for (const r of records) {
+    if (r.sicCode) set.add(r.sicCode);
+  }
+  return Array.from(set).sort();
+}
+
 /** Mirror of lib/types.ts formTypeToSlug — kept in sync for build scripts. */
 export function formTypeToSlug(formType) {
   return formType

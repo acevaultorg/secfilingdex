@@ -13,6 +13,7 @@ import {
   loadAllFilingsSync,
   uniqueCiks,
   uniqueFormTypes,
+  uniqueSicCodes,
   formTypeToSlug,
 } from "./lib/data-loader.mjs";
 
@@ -78,9 +79,21 @@ function main() {
     };
   });
 
+  // Per-industry (SIC code) landing pages — priority by filer count
+  const industryEntries = uniqueSicCodes(filings).map((sic) => {
+    const count = filings.filter((f) => f.sicCode === sic).length;
+    return {
+      path: `/industry/${sic}/`,
+      changefreq: "weekly",
+      priority: count >= 5 ? 0.7 : count >= 2 ? 0.6 : 0.5,
+      lastmod: TODAY,
+    };
+  });
+
   const all = [
     ...STATIC_ROUTES,
     ...formTypeEntries,
+    ...industryEntries,
     ...filerEntries,
     ...filingEntries,
   ];
@@ -94,7 +107,7 @@ function main() {
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap.xml"), xml);
   console.log(
-    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${filerEntries.length} filers + ${filingEntries.length} filings)`
+    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${industryEntries.length} industries + ${filerEntries.length} filers + ${filingEntries.length} filings)`
   );
 }
 
