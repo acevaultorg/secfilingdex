@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 const SITE_URL = "https://secfilingdex.com";
@@ -49,10 +49,20 @@ export const metadata: Metadata = {
     googleBot: { index: true, follow: true },
   },
   verification: {
-    // Operator drops real GSC verification token here when GSC site is verified.
-    // Until then the meta tag is omitted (no broken-token noise in <head>).
-    // google: "REPLACE_WITH_GSC_TOKEN",
+    // GSC ownership verified 2026-04-30 via TXT record at root (DNS-level).
+    // Meta-tag verification not required for Domain properties.
   },
+};
+
+// Viewport — themed for mobile-perfection per `rules/mobile-perfection-default.md`.
+// `themeColor` tints mobile browser chrome to match site bg (cohesive visual identity);
+// `width=device-width, initialScale=1` is the mobile-first default Next emits anyway —
+// declared here for explicitness + auditability.
+export const viewport: Viewport = {
+  themeColor: "#0b1020",
+  width: "device-width",
+  initialScale: 1,
+  colorScheme: "dark",
 };
 
 // Schema.org Organization + WebSite — quote-ready, citation-grade, LLM-friendly
@@ -62,6 +72,7 @@ const orgSchema = {
   "@type": "Organization",
   name: SITE_NAME,
   url: SITE_URL,
+  logo: `${SITE_URL}/icon.svg`,
   description:
     "Programmatic database surface over SEC EDGAR filings, designed for finance prosumers, developers, and AI agents requiring citation-grade structured filing data.",
   founder: { "@type": "Person", name: "Paulo de Vries" },

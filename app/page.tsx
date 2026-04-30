@@ -34,7 +34,7 @@ export default function Home() {
         {/* Hero */}
         <section className="px-6 pt-16 pb-12 sm:pt-24 sm:pb-16 max-w-6xl mx-auto">
           <p className="text-eyebrow text-brand mb-5">SecFilingDex</p>
-          <h1 className="text-display-1 mb-6 max-w-3xl">
+          <h1 className="text-4xl sm:text-display-1 font-bold tracking-tight leading-[1.1] sm:leading-none mb-6 max-w-3xl">
             Every SEC filing,{" "}
             <span className="text-brand">indexed.</span>
           </h1>
@@ -47,7 +47,7 @@ export default function Home() {
           <div className="flex flex-wrap gap-3">
             <Link
               href="/about/"
-              className="px-5 py-2.5 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
+              className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
             >
               How it works
             </Link>
@@ -55,7 +55,7 @@ export default function Home() {
               href="https://www.sec.gov/edgar"
               target="_blank"
               rel="noopener"
-              className="px-5 py-2.5 rounded-btn border border-border text-muted hover:text-text hover:border-border-bright transition-all"
+              className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn border border-border text-muted hover:text-text hover:border-border-bright transition-all"
             >
               View raw EDGAR ↗
             </Link>
@@ -75,7 +75,7 @@ export default function Home() {
                 <Link
                   key={ft}
                   href={`/form/${formTypeToSlug(ft)}/`}
-                  className="group inline-flex items-center gap-2 px-3 py-1.5 rounded-pill border border-border bg-panel/40 hover:border-border-bright hover:bg-panel-hi transition-colors"
+                  className="group inline-flex items-center gap-2 min-h-[40px] px-3.5 py-2 rounded-pill border border-border bg-panel/40 hover:border-border-bright hover:bg-panel-hi transition-colors"
                 >
                   <span className="font-mono text-data-cell text-text">{ft}</span>
                   {info?.shortName && (

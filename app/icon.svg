@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- SecFilingDex mark — EDGAR-blue indexed filing -->
+  <!-- Concept: stylized filing document with corner fold + 3 index rows + brand-blue accent stripe.
+       Rendered intent: a record being indexed (rows = data fields, corner = filing convention,
+       accent stripe = the "indexed" signal). Geometric, finance-native, distinct from holdlens amber. -->
+  <rect x="2" y="2" width="60" height="60" rx="10" fill="#0b1020"/>
+  <!-- Document body -->
+  <path d="M16 14 H44 L52 22 V50 A2 2 0 0 1 50 52 H16 A2 2 0 0 1 14 50 V16 A2 2 0 0 1 16 14 Z"
+        fill="#121a30" stroke="#3b82f6" stroke-width="2"/>
+  <!-- Corner fold -->
+  <path d="M44 14 V20 A2 2 0 0 0 46 22 H52" stroke="#3b82f6" stroke-width="2" fill="none"/>
+  <!-- Index rows (3 horizontal data rows — top one is the brand-accented row) -->
+  <rect x="20" y="28" width="22" height="3" rx="1.5" fill="#3b82f6"/>
+  <rect x="20" y="36" width="26" height="2" rx="1" fill="#9aa6c2" opacity="0.7"/>
+  <rect x="20" y="42" width="18" height="2" rx="1" fill="#9aa6c2" opacity="0.5"/>
+</svg>

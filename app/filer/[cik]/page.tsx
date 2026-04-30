@@ -115,7 +115,7 @@ export default async function FilerPage({
               <Link
                 key={ft}
                 href={`/form/${formTypeToSlug(ft)}/`}
-                className="px-3 py-1.5 rounded-pill border border-border bg-panel/40 hover:border-border-bright transition-colors font-mono text-data-cell text-text"
+                className="inline-flex items-center min-h-[40px] px-3.5 py-2 rounded-pill border border-border bg-panel/40 hover:border-border-bright transition-colors font-mono text-data-cell text-text"
               >
                 {ft}
               </Link>
