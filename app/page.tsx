@@ -44,7 +44,7 @@ export default function Home() {
             twins for AI agents and a freshness-tracked taxonomy across millions
             of historical filings.
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-8">
             <Link
               href="/about/"
               className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
@@ -60,6 +60,35 @@ export default function Home() {
               View raw EDGAR ↗
             </Link>
           </div>
+
+          {/* Search entry — GET to /search/ so the action is shareable
+              + LLM-citable (Schema.org WebSite SearchAction is wired in
+              layout.tsx). Form submit works with JS off too. */}
+          <form
+            role="search"
+            action="/search/"
+            method="get"
+            className="max-w-2xl flex flex-col sm:flex-row gap-3"
+          >
+            <label htmlFor="q" className="sr-only">
+              Search filings
+            </label>
+            <input
+              id="q"
+              name="q"
+              type="search"
+              placeholder="Search filer, ticker, accession, CIK…"
+              spellCheck={false}
+              autoComplete="off"
+              className="flex-1 min-h-[48px] px-4 py-3 rounded-btn border border-border bg-panel/60 text-text text-body placeholder:text-dim focus:outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-colors"
+            />
+            <button
+              type="submit"
+              className="inline-flex items-center justify-center min-h-[48px] px-5 py-3 rounded-btn border border-border-bright text-text font-medium hover:bg-panel-hi transition-all"
+            >
+              Search →
+            </button>
+          </form>
         </section>
 
         {/* Live form-type pills with counts — clicks into /form/[type]/ */}
