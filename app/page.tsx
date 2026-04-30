@@ -5,16 +5,20 @@ import {
   loadAllFilings,
   loadFilingsByCik,
   loadFilingsByFormType,
+  loadFilingsBySic,
   uniqueCiks,
   uniqueFormTypes,
+  uniqueSicCodes,
 } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
+import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, formTypeInfo, pickEnrichments } from "@/lib/format";
 
 export default function Home() {
   const allFilings = loadAllFilings();
   const formTypes = uniqueFormTypes();
   const ciks = uniqueCiks();
+  const sicCodes = uniqueSicCodes();
   const recent = allFilings.slice(0, 10);
 
   // Top filers by count of indexed filings (newest-first ordering preserved)
@@ -24,6 +28,16 @@ export default function Home() {
       const { filerName, ticker } = pickEnrichments(filings[0]);
       return { cik, filerName, ticker, count: filings.length };
     })
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 12);
+
+  // Top industries by filing count
+  const industryCounts = sicCodes
+    .map((sic) => ({
+      sic,
+      name: sicCodeToName(sic),
+      count: loadFilingsBySic(sic).length,
+    }))
     .sort((a, b) => b.count - a.count)
     .slice(0, 12);
 
@@ -183,6 +197,34 @@ export default function Home() {
                       {f.ticker}
                     </span>
                   )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Top industries — live discovery into /industry/[sic]/ */}
+        {industryCounts.length > 0 && (
+          <section className="px-6 py-10 max-w-6xl mx-auto">
+            <p className="text-eyebrow text-brand mb-4">
+              Browse by industry · {sicCodes.length} indexed
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {industryCounts.map((ind) => (
+                <Link
+                  key={ind.sic}
+                  href={`/industry/${ind.sic}/`}
+                  className="rounded-card border border-border bg-panel/40 p-4 hover:border-border-bright hover:bg-panel-hi transition-colors flex items-baseline gap-3"
+                >
+                  <span className="font-mono text-data-cell text-dim shrink-0 tabular">
+                    {ind.count}
+                  </span>
+                  <span className="text-body-sm text-text flex-1">
+                    {ind.name}
+                  </span>
+                  <span className="font-mono text-caption text-muted shrink-0">
+                    {ind.sic}
+                  </span>
                 </Link>
               ))}
             </div>
