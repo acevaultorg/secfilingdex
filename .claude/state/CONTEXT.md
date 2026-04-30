@@ -1,19 +1,23 @@
 # CONTEXT — secfilingdex.com
 
-**Last updated:** 2026-04-29 19:15 (Day 3 ship + GSC add session, AcePilot 19.38)
+**Last updated:** 2026-04-30 14:05 UTC (Day 7 deploy + sitemap submission, AcePilot 19.38)
 
 ## Session Handoff
 
 **Mode:** sovereign auto
-**Status:** **Day 3 SHIPPED.** Hub-spoke discovery surface live. 127 static routes. 56 real EDGAR filings indexed. JSON API twin per filing. Sitemap covers 124 URLs (5 core + 8 form-types + 55 filers + 56 filings). Build PASS. Commit `fea6060`.
+**Status:** **🚀 DAY 7 SHIPPED + LIVE.** `https://secfilingdex.com` serving HTTP/2 200 over HTTPS via Cloudflare Pages. 14 commits on `acevaultorg/secfilingdex` `main`. Custom domain CNAME `@ → secfilingdex.pages.dev` Proxied. SSL provisioned (CF Universal). GSC ownership verified + sitemap submitted (124 pages discovered, status: Success). Search UI + cookie consent banner live. AdSense compliance Day-6 gate satisfied; AdSense application now operator-pending only.
 
-**One operator-only item pending** (see Operator Clarity Cards section below):
-1. 🔴 **D1-13 GitHub repo creation** (~2 min, still queued from Day 1): create `acevaultorg/secfilingdex` repo + wire git remote. Blocks the Day 7 deploy push.
+**RESOLVED this session (2026-04-30):**
+- ✅ **GSC verification** (12:30) — TXT record at root via Chrome MCP. Property under `paulomdevries@gmail.com` (`/u/1/`).
+- ✅ **Day 5 brand identity + mobile-perfection** (commit `f07ea86`) — logo, viewport, 44px tap targets.
+- ✅ **D4-01 search UI** (commit `61f40f2`) — `/search/` route + homepage hero search box.
+- ✅ **D6-03 cookie consent banner** (commit `a28ca13`) — privacy-first Reject/Accept + GA4 Consent Mode v2 wired.
+- ✅ **D1-13 GitHub repo** (14:30) — `acevaultorg/secfilingdex` created via `gh repo create`; 11 commits pushed.
+- ✅ **Day 7 CF Pages deploy** (14:45) — wrangler 4.86.0 → 459 files uploaded → `secfilingdex.pages.dev`.
+- ✅ **Custom domain wired** (14:00) — CNAME `@ → secfilingdex.pages.dev` Proxied; SSL provisioned in ~5 min.
+- ✅ **Sitemap submitted to GSC** (14:05) — `https://secfilingdex.com/sitemap.xml` accepted, 124 pages discovered, Status: Success.
 
-**RESOLVED in 2026-04-30 12:30 UTC session:**
-- ✅ **GSC verification** — brain drove end-to-end via Chrome MCP. Switched verification method from CF auto-OAuth (blocked by Turnstile CAPTCHA + password) to manual TXT record. Operator's CF DNS panel was already signed-in, so brain added `google-site-verification=ruZ85lEft-Hofg8q3JUNMA0wCJkNZnoX7PkpCwv_jP0` TXT record at root (`@`), DNS propagated to 8.8.8.8 + 1.1.1.1 + authoritative within seconds, GSC verifier confirmed → "Ownership verified." Property dashboard live under `paulomdevries@gmail.com` (`/u/1/`).
-
-**Next session pickup:** operator runs `/acepilot auto` again. Brain reads ARCHETYPE → static-reference → loads concept-finder + Profile-7 playbook → continues Day 4 (CSV/JSON download per filing) or pivots to Day 7 if operator wants to deploy + monetize early. State files unchanged; brain advances queue.
+**Next-session pickup:** operator runs `/acepilot auto` again. Brain reads state → site is live + monetization stack pending → next priority is Day 7 monetization layers (AdSense application, Perplexity Publishers email, IndexNow key, Ezoic / Mediavine threshold checks). All operator-pending; brain proposes via Clarity Cards per templates.
 
 ## Day 3 ship summary (commit fea6060)
 
