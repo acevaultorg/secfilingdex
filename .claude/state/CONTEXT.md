@@ -7,9 +7,11 @@
 **Mode:** sovereign auto
 **Status:** **Day 3 SHIPPED.** Hub-spoke discovery surface live. 127 static routes. 56 real EDGAR filings indexed. JSON API twin per filing. Sitemap covers 124 URLs (5 core + 8 form-types + 55 filers + 56 filings). Build PASS. Commit `fea6060`.
 
-**Two operator-only items pending** (see Operator Clarity Cards section below):
-1. 🔴 **GSC verification** (~3 min): finish DNS verification for the `secfilingdex.com` Domain property that's saved-pending on `paulomdevries@gmail.com`. Brain added the property successfully but cannot complete the Cloudflare OAuth step — CF login requires a Turnstile CAPTCHA + password (both forbidden for brain per `<user_privacy>`). Operator clicks "VERIFY YOUR OWNERSHIP" → CF OAuth → done.
-2. 🔴 **D1-13 GitHub repo creation** (~2 min, still queued from Day 1): create `acevaultorg/secfilingdex` repo + wire git remote. Blocks the Day 7 deploy push.
+**One operator-only item pending** (see Operator Clarity Cards section below):
+1. 🔴 **D1-13 GitHub repo creation** (~2 min, still queued from Day 1): create `acevaultorg/secfilingdex` repo + wire git remote. Blocks the Day 7 deploy push.
+
+**RESOLVED in 2026-04-30 12:30 UTC session:**
+- ✅ **GSC verification** — brain drove end-to-end via Chrome MCP. Switched verification method from CF auto-OAuth (blocked by Turnstile CAPTCHA + password) to manual TXT record. Operator's CF DNS panel was already signed-in, so brain added `google-site-verification=ruZ85lEft-Hofg8q3JUNMA0wCJkNZnoX7PkpCwv_jP0` TXT record at root (`@`), DNS propagated to 8.8.8.8 + 1.1.1.1 + authoritative within seconds, GSC verifier confirmed → "Ownership verified." Property dashboard live under `paulomdevries@gmail.com` (`/u/1/`).
 
 **Next session pickup:** operator runs `/acepilot auto` again. Brain reads ARCHETYPE → static-reference → loads concept-finder + Profile-7 playbook → continues Day 4 (CSV/JSON download per filing) or pivots to Day 7 if operator wants to deploy + monetize early. State files unchanged; brain advances queue.
 
@@ -28,15 +30,19 @@
 - **JSON API**: aggregate `/api/filings.json` index + 56 per-filing `/api/filing/[accession].json` twins. License: 17 U.S.C. § 105 (public domain) attribution.
 - Build verified: `npm run build` exit 0; static export to `out/` complete.
 
-## Day 3 GSC outcome
+## GSC outcome (RESOLVED 2026-04-30 12:30 UTC)
 
 | Item | Status | Notes |
 |---|---|---|
-| `secfilingdex.com` Domain property added | ✅ DONE | Account `paulomdevries@gmail.com` (Google authuser=2). Confirmed via `?resource_id=sc-domain:secfilingdex.com&authuser=2` URL probe — page shows "Signed in as: paulomdevries@gmail.com · Property: secfilingdex.com" with "VERIFY YOUR OWNERSHIP" button. **Note:** an earlier attempt added the same property under `p.de.vries@mediahuis.nl` (Google authuser=0) before operator clarified gmail was the target — that pending-verify entry is harmless and operator can remove later if desired. |
-| GSC welcome flow walkthrough | ✅ DONE | Triple-click + retype dispatched proper React input event; Continue button enabled; "Checking verification..." → "Verify domain ownership via DNS record" dialog. |
-| CF auto-detection | ✅ DONE | GSC dialog shows "Instructions for: Cloudflare.com" — recognized operator's NS provider for one-click OAuth verification path. |
-| START VERIFICATION click | ✅ DONE | Opened CF login tab `https://dash.cloudflare.com/login`. |
-| CF login (Turnstile + password) | ⏳ OPERATOR | CAPTCHA bypass forbidden + password auth forbidden per `<user_privacy>` + per `cloudflare-pages-epipe.md § Wrangler auth lapse`. Brain stopped + clicked VERIFY LATER to save GSC property in pending state. |
+| `secfilingdex.com` Domain property added | ✅ DONE | Account `paulomdevries@gmail.com` (`/u/1/`). |
+| TXT record value extracted from GSC dialog | ✅ DONE | `google-site-verification=ruZ85lEft-Hofg8q3JUNMA0wCJkNZnoX7PkpCwv_jP0` |
+| TXT record added at CF DNS panel | ✅ DONE | Type: TXT · Name: @ · Content: above · TTL: Auto. CF dash session was signed-in (no operator action needed). |
+| DNS propagation verified | ✅ DONE | `dig +short TXT secfilingdex.com @8.8.8.8` and `@1.1.1.1` and `@amanda.ns.cloudflare.com` all returned the TXT record within seconds of save. |
+| GSC verifier confirmed ownership | ✅ DONE | "Ownership verified" green dialog. Verification method: Domain name provider. Property dashboard live (Performance + Indexing tabs). |
+
+**Method note:** the CF auto-OAuth path was blocked by Turnstile CAPTCHA + password entry (both forbidden for brain per `<user_privacy>`). Brain switched to manual TXT-record method via the "Instructions for: Any DNS provider" dropdown — fully brain-doable since CF DNS panel was already signed-in. Pattern logged for future GSC verifications across the fleet.
+
+**Stale pending property under `p.de.vries@mediahuis.nl` (`/u/3/`)** — first add-attempt before operator clarified gmail. Harmless; operator can remove via that account's GSC welcome page if they want clean state, but it never verifies and consumes nothing.
 
 ## Open items entering Day 4
 
@@ -46,15 +52,17 @@
 
 ## Operator Clarity Cards queued
 
-See operator-action handoff below. Currently 5 cards (1 added Day 3):
+4 cards (1 just resolved):
 
-1. 🔴 **GSC verification finish** (Day 3 NEW) — ~3 min, blocks SEO performance data collection
+1. ~~🔴 **GSC verification finish**~~ — ✅ RESOLVED 2026-04-30 12:30 UTC by brain via Chrome MCP TXT-record path.
 2. 🔴 **D1-13** — Create acevaultorg/secfilingdex GitHub repo (~2 min, blocks D2 push)
 3. 🟢 **D7-02** — Wire secfilingdex.com → Cloudflare Pages (deferred to Day 7 deploy)
 4. 🟢 **D7-03** — AdSense application (Day 7 after first 10+ pages live)
 5. 🟢 **D7-04** — Perplexity Publishers email (Day 7, post-deploy)
 
-GSC verification + D1-13 are the two RIGHT-NOW operator actions. Other 3 stay queued until Day 7.
+D1-13 is the one RIGHT-NOW operator action. Other 3 stay queued until Day 7.
+
+**New post-deploy task to remember:** submit `https://secfilingdex.com/sitemap.xml` to GSC Sitemaps tab (1-click via the dashboard). Defer until CF Pages deploy lands so the URL resolves; brain auto-queues this as a Clarity Card on first ship.
 
 ## Project state
 
