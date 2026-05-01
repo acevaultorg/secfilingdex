@@ -40,6 +40,9 @@ const STATIC_ROUTES = [
   { path: "/learn/13f/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
   { path: "/learn/form-4/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
   { path: "/learn/s-1/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/s-3/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/def-14a/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/20-f/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
   { path: "/learn/13d-vs-13g/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
 ];
 

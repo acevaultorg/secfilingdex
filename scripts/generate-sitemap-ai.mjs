@@ -34,6 +34,9 @@ const AI_ROUTES = [
   { path: "/learn/13f/", priority: 1.0, lastmod: TODAY },
   { path: "/learn/form-4/", priority: 1.0, lastmod: TODAY },
   { path: "/learn/s-1/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/s-3/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/def-14a/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/20-f/", priority: 1.0, lastmod: TODAY },
   { path: "/learn/13d-vs-13g/", priority: 1.0, lastmod: TODAY },
 ];
 

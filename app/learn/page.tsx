@@ -77,6 +77,30 @@ const TOPICS = [
     formType: null,
     formHref: null,
   },
+  {
+    slug: "def-14a",
+    title: "What is a DEF 14A filing?",
+    blurb:
+      "The definitive proxy statement. Mailed before annual meetings — covers director elections, Say-on-Pay, executive compensation (CD&A), shareholder proposals, and the most candid governance disclosures the company files all year.",
+    formType: "DEF 14A",
+    formHref: "/form/def-14a",
+  },
+  {
+    slug: "20-f",
+    title: "What is a 20-F filing?",
+    blurb:
+      "The annual report for Foreign Private Issuers — non-U.S. companies (Toyota, Novartis, Alibaba, ASML, SAP) listed on U.S. exchanges. The 10-K equivalent, with IFRS accepted and a 4-month deadline.",
+    formType: "20-F",
+    formHref: "/form/20-f",
+  },
+  {
+    slug: "s-3",
+    title: "What is an S-3 filing?",
+    blurb:
+      "The shelf registration. Seasoned issuers pre-register securities for future issuance, then 'take down' from the shelf via 424B prospectus supplements when market conditions allow. Apple, Microsoft, JPMorgan use the WKSI variant (S-3ASR).",
+    formType: null,
+    formHref: null,
+  },
 ];
 
 export default function LearnHubPage() {

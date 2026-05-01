@@ -244,6 +244,9 @@ export default function Home() {
               { slug: "13f", title: "13F", blurb: "Institutional holdings" },
               { slug: "form-4", title: "Form 4", blurb: "Insider trading" },
               { slug: "s-1", title: "S-1", blurb: "IPO prospectus" },
+              { slug: "s-3", title: "S-3", blurb: "Shelf registration" },
+              { slug: "def-14a", title: "DEF 14A", blurb: "Proxy statement" },
+              { slug: "20-f", title: "20-F", blurb: "Foreign issuer annual" },
               { slug: "13d-vs-13g", title: "13D vs. 13G", blurb: "Activist vs. passive" },
             ].map((t) => (
               <Link

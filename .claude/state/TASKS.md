@@ -1,8 +1,38 @@
 # TASKS — secfilingdex.com
 
 **Created:** 2026-04-28
-**Last refreshed:** 2026-04-30 19:10 UTC (post-Day-7 LIVE; brain-side P0/P1 all shipped)
+**Last refreshed:** 2026-05-01 12:30 UTC (post-Clarity v2 + /learn corpus + dashboard config)
 **Mode:** sovereign auto (auto = sovereign auto per v17.3)
+
+---
+
+## 🆕 SHIPPED 2026-05-01
+
+### Microsoft Clarity full install (commits `14999e5` + `1ee43bd`)
+- [x] **CLAR-01** Clarity project created (ID `wk6ur3vm7m`, Financiële dienstverlening branche) ✓
+- [x] **CLAR-02** IIFE loader in `app/layout.tsx` <head> (consent-gated) ✓
+- [x] **CLAR-03** `components/ClarityTags.tsx` — 3 custom tags (page_type, site_version, archetype) per route ✓
+- [x] **CLAR-04** 3 custom events: `search` (debounced ≥3 chars 800ms), `edgar_outbound` (any sec.gov click), `learn_75` (75% scroll on /learn) ✓
+- [x] **CLAR-05** Privacy policy expanded with full Clarity v2 disclosure (taxonomy + events + no-identity) ✓
+- [x] **CLAR-06** Dashboard config verified via Chrome MCP: masking=Gebalanceerd, Copilot=Aan, Team=Beheerder, terms accepted ✓
+
+### /learn corpus (commit `77b11c1`)
+- [x] **LEARN-01** `/learn/` hub index with live filing-count cards + CollectionPage schema ✓
+- [x] **LEARN-02** `/learn/10-k` annual report explainer + Article+DefinedTerm schema + "Our view:" POV ✓
+- [x] **LEARN-03** `/learn/10-q` quarterly report explainer ✓
+- [x] **LEARN-04** `/learn/8-k` material-events explainer with item-taxonomy ✓
+- [x] **LEARN-05** `/learn/13f` institutional-holdings explainer (HR vs NT vs HR/A) ✓
+- [x] **LEARN-06** `/learn/form-4` insider-transactions explainer with code taxonomy ✓
+- [x] **LEARN-07** `/learn/s-1` IPO-prospectus explainer with full timeline ✓
+- [x] **LEARN-08** `/learn/13d-vs-13g` activist-vs-passive comparison page (`comparison_vs_competitor` archetype) ✓
+- [x] **LEARN-09** Learn nav link in SiteHeader + 7-tile Learn section on homepage ✓
+- [x] **LEARN-10** Sitemap (702 URLs, +8) + sitemap-ai (priority 1.0 for /learn topics) + llms.txt ✓
+
+### State this session
+- 2 commits + 2 production deploys (`69e15500` then `a1183f22`)
+- Sitemap: 694 → **702 URLs**
+- /learn corpus: 8 pages live · Article + DefinedTerm + CollectionPage schema everywhere
+- Clarity loader + 3 tags + 3 events live + dashboard fully configured
 
 ---
 
