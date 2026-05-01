@@ -231,6 +231,41 @@ export default function Home() {
           </section>
         )}
 
+        {/* Learn — short explainers, hub for /learn/[topic] pages */}
+        <section className="px-6 py-10 max-w-6xl mx-auto">
+          <p className="text-eyebrow text-brand mb-4">
+            Learn · plain-English explainers
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { slug: "10-k", title: "10-K", blurb: "Annual report" },
+              { slug: "10-q", title: "10-Q", blurb: "Quarterly report" },
+              { slug: "8-k", title: "8-K", blurb: "Material events" },
+              { slug: "13f", title: "13F", blurb: "Institutional holdings" },
+              { slug: "form-4", title: "Form 4", blurb: "Insider trading" },
+              { slug: "s-1", title: "S-1", blurb: "IPO prospectus" },
+              { slug: "13d-vs-13g", title: "13D vs. 13G", blurb: "Activist vs. passive" },
+            ].map((t) => (
+              <Link
+                key={t.slug}
+                href={`/learn/${t.slug}/`}
+                className="rounded-card border border-border bg-panel/40 p-4 hover:border-border-bright hover:bg-panel-hi transition-colors"
+              >
+                <p className="text-heading-3 text-text mb-1">{t.title}</p>
+                <p className="text-body-sm text-muted">{t.blurb}</p>
+              </Link>
+            ))}
+            <Link
+              href="/learn/"
+              className="rounded-card border border-brand-soft bg-surface-brand p-4 hover:border-brand hover:bg-panel-hi transition-colors flex items-center justify-center"
+            >
+              <span className="text-body-sm text-brand font-medium">
+                See all explainers →
+              </span>
+            </Link>
+          </div>
+        </section>
+
         {/* 3-tile feature preview */}
         <section className="px-6 py-12 max-w-6xl mx-auto">
           <p className="text-eyebrow text-dim mb-6">What it does</p>

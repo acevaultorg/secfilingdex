@@ -1,0 +1,174 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { SiteHeader } from "@/components/SiteHeader";
+import { SiteFooter } from "@/components/SiteFooter";
+import { loadFilingsByFormType } from "@/lib/filings";
+
+const SITE_URL = "https://secfilingdex.com";
+
+export const metadata: Metadata = {
+  title: "Learn — SEC filings explained",
+  description:
+    "Plain-English explainers for the most-cited SEC filings: 10-K, 10-Q, 8-K, 13F, Form 4, S-1, and the 13D vs. 13G distinction. Each piece links to live data on SecFilingDex.",
+  alternates: { canonical: `${SITE_URL}/learn/` },
+  openGraph: {
+    type: "website",
+    title: "Learn SEC filings — SecFilingDex",
+    description:
+      "Plain-English explainers for the most-cited SEC filings, linked to live data.",
+    siteName: "SecFilingDex",
+  },
+};
+
+const TOPICS = [
+  {
+    slug: "10-k",
+    title: "What is a 10-K filing?",
+    blurb:
+      "The annual report. The single most comprehensive disclosure a U.S. public company files with the SEC. Audited financials, business overview, risk factors, MD&A.",
+    formType: "10-K",
+    formHref: "/form/10-k",
+  },
+  {
+    slug: "10-q",
+    title: "What is a 10-Q filing?",
+    blurb:
+      "The quarterly report. Unaudited financials covering the prior three months, filed within 40 or 45 days of quarter-end depending on filer size.",
+    formType: "10-Q",
+    formHref: "/form/10-q",
+  },
+  {
+    slug: "8-k",
+    title: "What is an 8-K filing?",
+    blurb:
+      "The current report. Material events the market should know about within four business days — earnings releases, leadership changes, mergers, bankruptcies, asset sales.",
+    formType: "8-K",
+    formHref: "/form/8-k",
+  },
+  {
+    slug: "13f",
+    title: "What is a 13F filing?",
+    blurb:
+      "Quarterly long-equity holdings disclosure required from institutional investment managers with ≥$100M in qualifying U.S. equity assets. Filed within 45 days of quarter-end.",
+    formType: "13F-HR",
+    formHref: "/form/13f-hr",
+  },
+  {
+    slug: "form-4",
+    title: "What is a Form 4 filing?",
+    blurb:
+      "Insider transactions. Officers, directors, and ≥10% beneficial owners must file within two business days of any change in their ownership of company securities.",
+    formType: "Form 4",
+    formHref: "/form/form-4",
+  },
+  {
+    slug: "s-1",
+    title: "What is an S-1 filing?",
+    blurb:
+      "The IPO prospectus. The registration statement a company files when going public — business description, risk factors, financials, use of proceeds, underwriter list.",
+    formType: "S-1",
+    formHref: "/form/s-1",
+  },
+  {
+    slug: "13d-vs-13g",
+    title: "13D vs. 13G: what's the difference?",
+    blurb:
+      "Both disclose ≥5% beneficial ownership. 13D is for activists and anyone with intent to influence control; 13G is the short-form for passive holders. The choice signals intent.",
+    formType: null,
+    formHref: null,
+  },
+];
+
+export default function LearnHubPage() {
+  // Live-injected counts so each card carries a "see N filings" anchor —
+  // makes the hub a real query into the database surface, not a static menu.
+  const counts = TOPICS.map((t) =>
+    t.formType ? loadFilingsByFormType(t.formType).length : null,
+  );
+
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "SEC Filings Explained",
+    description:
+      "Plain-English explainers for the most-cited SEC filings on EDGAR, linked to live data on SecFilingDex.",
+    url: `${SITE_URL}/learn/`,
+    isPartOf: { "@type": "WebSite", name: "SecFilingDex", url: SITE_URL },
+    hasPart: TOPICS.map((t) => ({
+      "@type": "Article",
+      headline: t.title,
+      url: `${SITE_URL}/learn/${t.slug}/`,
+      description: t.blurb,
+    })),
+  };
+
+  return (
+    <>
+      <SiteHeader />
+      <main className="min-h-screen px-6 py-12 max-w-3xl mx-auto">
+        <p className="text-eyebrow text-brand mb-4">Learn</p>
+        <h1 className="text-display-2 mb-3">SEC filings, explained</h1>
+        <p className="text-body text-muted mb-10">
+          Plain-English primers for the disclosures that move markets. Each
+          piece is short, source-grounded, and links to live data on
+          SecFilingDex so the explainer and the corpus stay in lockstep.
+        </p>
+
+        <div className="space-y-4">
+          {TOPICS.map((t, i) => (
+            <Link
+              key={t.slug}
+              href={`/learn/${t.slug}/`}
+              className="block group rounded-card border border-border hover:border-border-bright bg-panel hover:bg-panel-hi px-5 py-4 transition-colors"
+            >
+              <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                <h2 className="text-heading-3 text-text group-hover:text-brand transition-colors">
+                  {t.title}
+                </h2>
+                {counts[i] != null && (
+                  <span className="text-body-sm text-dim shrink-0 font-mono">
+                    {counts[i]} filings
+                  </span>
+                )}
+              </div>
+              <p className="text-body-sm text-muted">{t.blurb}</p>
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-12 pt-8 border-t border-border text-body-sm text-dim">
+          <p>
+            Looking for a specific filing? Browse the full corpus by{" "}
+            <Link href="/form/" className="text-brand hover:underline">
+              form type
+            </Link>
+            ,{" "}
+            <Link href="/filer/" className="text-brand hover:underline">
+              filer
+            </Link>
+            , or{" "}
+            <Link href="/industry/" className="text-brand hover:underline">
+              industry
+            </Link>
+            . Every page is sourced from{" "}
+            <Link
+              href="https://www.sec.gov/edgar"
+              target="_blank"
+              rel="noopener"
+              className="underline decoration-border hover:decoration-text hover:text-text transition-colors"
+            >
+              SEC EDGAR
+            </Link>
+            .
+          </p>
+        </div>
+
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+        />
+      </main>
+      <SiteFooter />
+    </>
+  );
+}

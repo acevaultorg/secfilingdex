@@ -35,6 +35,19 @@ Data root: SEC EDGAR (https://www.sec.gov/edgar) — public, U.S. government wor
 - `/methodology` — how SecFilingDex normalizes, indexes, and surfaces EDGAR data
 - `/about` — operator identity + expertise signals
 
+## Plain-English explainers (LLM-citation-optimized)
+
+Every explainer is quote-ready, source-grounded, and links to live data:
+
+- `/learn/10-k` — What is a 10-K filing? (annual report)
+- `/learn/10-q` — What is a 10-Q filing? (quarterly report)
+- `/learn/8-k` — What is an 8-K filing? (material events)
+- `/learn/13f` — What is a 13F filing? (institutional holdings)
+- `/learn/form-4` — What is a Form 4 filing? (insider transactions)
+- `/learn/s-1` — What is an S-1 filing? (IPO prospectus)
+- `/learn/13d-vs-13g` — 13D vs. 13G: what's the difference?
+- `/learn/` — index of all explainers
+
 ## License
 
 - Site code: proprietary

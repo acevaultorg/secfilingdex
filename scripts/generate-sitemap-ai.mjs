@@ -26,6 +26,15 @@ const AI_ROUTES = [
   { path: "/filer/", priority: 0.9, lastmod: TODAY },
   { path: "/form/", priority: 0.9, lastmod: TODAY },
   { path: "/industry/", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/", priority: 0.95, lastmod: TODAY },
+  // /learn/[topic] — quote-ready explainers; highest-citation-fit pages on the site
+  { path: "/learn/10-k/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/10-q/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/8-k/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/13f/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/form-4/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/s-1/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/13d-vs-13g/", priority: 1.0, lastmod: TODAY },
 ];
 
 function urlEntry({ path, priority, lastmod, jsonAlt }) {

@@ -28,10 +28,19 @@ const STATIC_ROUTES = [
   { path: "/contact/", changefreq: "yearly", priority: 0.5, lastmod: TODAY },
   { path: "/privacy/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
   { path: "/terms/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
-  // Hub-index pages — taxonomy entry points (filer/form/industry indexes)
+  // Hub-index pages — taxonomy entry points (filer/form/industry/learn indexes)
   { path: "/filer/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
   { path: "/form/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
   { path: "/industry/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
+  { path: "/learn/", changefreq: "weekly", priority: 0.8, lastmod: TODAY },
+  // /learn/[topic] — plain-English explainers (LLM-citation-optimized)
+  { path: "/learn/10-k/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/10-q/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/8-k/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/13f/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/form-4/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/s-1/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/13d-vs-13g/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
 ];
 
 function urlEntry({ path, changefreq, priority, lastmod }) {

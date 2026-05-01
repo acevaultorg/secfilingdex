@@ -24,6 +24,12 @@ export function SiteHeader() {
         </Link>
         <nav className="flex items-center gap-5 sm:gap-6 text-body-sm shrink-0">
           <Link
+            href="/learn"
+            className="text-muted hover:text-text transition-colors py-2"
+          >
+            Learn
+          </Link>
+          <Link
             href="/about"
             className="text-muted hover:text-text transition-colors py-2"
           >
@@ -31,7 +37,7 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/contact"
-            className="text-muted hover:text-text transition-colors py-2"
+            className="text-muted hover:text-text transition-colors py-2 hidden sm:inline"
           >
             Contact
           </Link>
