@@ -104,6 +104,20 @@ export function SearchClient() {
     }
   }, [query, router]);
 
+  // Microsoft Clarity custom event — fire `search` once per stable query (≥3 chars,
+  // settled for 800ms). Heuristic for "the user actually intended to search" rather
+  // than every keystroke. Skipped if Clarity not loaded (consent-gated).
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 3) return;
+    const t = setTimeout(() => {
+      if (typeof window !== "undefined" && typeof window.clarity === "function") {
+        window.clarity("event", "search");
+      }
+    }, 800);
+    return () => clearTimeout(t);
+  }, [query]);
+
   const matches = useMemo(() => {
     if (!filings) return [];
     const q = query.trim().toLowerCase();

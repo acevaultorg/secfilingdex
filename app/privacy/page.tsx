@@ -139,10 +139,22 @@ export default function PrivacyPage() {
               </li>
               <li>
                 <strong className="text-text">Microsoft Clarity</strong> —
-                heatmaps and session recordings to identify UX friction.
-                Form-input values are auto-masked. Disabled until you accept
-                via the cookie banner; respects Reject by skipping cookie
-                storage and recording.
+                heatmaps, session recordings, and rage/dead-click detection
+                to identify UX friction. Privacy posture: form-input
+                values are auto-masked at the &ldquo;Balanced&rdquo; mask
+                level, IP addresses are not stored, and Clarity respects
+                the cookie banner via{" "}
+                <code>window.clarity(&apos;consent&apos;, boolean)</code>{" "}
+                — Reject suppresses all cookie storage and disables
+                session-recording capture entirely; the script self-loads
+                but stays inert until consent is granted. We tag sessions
+                with a non-identifying page-type label (home / filing /
+                filer / form / industry / learn / search / meta) for
+                segmentation, plus a build-version tag for deploy
+                tracking. We log anonymous custom events for outbound
+                clicks to SEC EDGAR and for users who scroll past 75%
+                of an explainer page. We do not link Clarity sessions
+                to any user identity (the site has no accounts).
               </li>
               <li>
                 <strong className="text-text">Google Search Console</strong> —
