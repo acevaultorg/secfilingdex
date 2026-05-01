@@ -28,6 +28,7 @@ declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     plausible?: (...args: unknown[]) => void;
+    clarity?: (...args: unknown[]) => void;
   }
 }
 
@@ -43,6 +44,13 @@ function applyConsent(state: Consent): void {
   }
   if (typeof window.plausible === "function") {
     window.plausible("consent", { props: { state } });
+  }
+  // Microsoft Clarity respects consent via window.clarity('consent', boolean).
+  // On Accept → grants cookie storage + session-recording capture.
+  // On Reject → Clarity continues to respect consent: no cookies persisted,
+  // session recordings disabled. The script self-loads but stays inert.
+  if (typeof window.clarity === "function") {
+    window.clarity("consent", state === "granted");
   }
 }
 
@@ -90,8 +98,8 @@ export function CookieConsent() {
           </p>
           <p id="consent-body" className="text-body-sm text-muted">
             We use a cookieless analytics signal (Plausible) by default. With
-            your permission we also enable Google Analytics for product
-            improvement.{" "}
+            your permission we also enable Google Analytics + Microsoft
+            Clarity (heatmaps + session insights) to improve the product.{" "}
             <a
               href="/privacy/"
               className="underline decoration-border hover:decoration-text hover:text-text transition-colors"

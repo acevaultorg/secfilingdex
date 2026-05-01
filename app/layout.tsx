@@ -102,6 +102,11 @@ const siteSchema = {
 const PLAUSIBLE_DOMAIN = "secfilingdex.com";
 const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN || "";
 const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "";
+// Microsoft Clarity — heatmaps + session recordings + UX friction detection.
+// Loads only when project ID is present. Operator drops via NEXT_PUBLIC_CLARITY_ID
+// after creating the project at https://clarity.microsoft.com/projects.
+// Consent-gated: Clarity respects the cookie banner (cookie-set on Accept; cleared on Reject).
+const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID || "";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -154,6 +159,26 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               }}
             />
           </>
+        )}
+
+        {/* Microsoft Clarity — heatmaps, session recordings, dead/rage click detection.
+            Loads only when CLARITY_ID is present. Consent Mode integration:
+            on first load Clarity calls itself with `consent` defaulted via setup;
+            CookieConsent component upgrades cookies on Accept (window.clarity('consent', true)).
+            Privacy: Clarity auto-masks form-input values + can be configured to mask additional
+            selectors via dashboard. Operator setup: clarity.microsoft.com/projects → grab tag. */}
+        {CLARITY_ID && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function(c,l,a,r,i,t,y){
+                    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+                    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+                    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+                })(window, document, "clarity", "script", "${CLARITY_ID}");
+              `,
+            }}
+          />
         )}
 
         {/* Schema.org JSON-LD (Organization + WebSite) — citation-grade per Aleyda Solis 10-char checklist */}

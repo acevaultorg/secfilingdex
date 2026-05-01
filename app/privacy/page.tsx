@@ -138,6 +138,13 @@ export default function PrivacyPage() {
                 are anonymized.
               </li>
               <li>
+                <strong className="text-text">Microsoft Clarity</strong> —
+                heatmaps and session recordings to identify UX friction.
+                Form-input values are auto-masked. Disabled until you accept
+                via the cookie banner; respects Reject by skipping cookie
+                storage and recording.
+              </li>
+              <li>
                 <strong className="text-text">Google Search Console</strong> —
                 aggregated query and click data; no personal data is exchanged.
               </li>
