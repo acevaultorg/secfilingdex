@@ -108,6 +108,14 @@ const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "";
 // after creating the project at https://clarity.microsoft.com/projects.
 // Consent-gated: Clarity respects the cookie banner (cookie-set on Accept; cleared on Reject).
 const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID || "";
+// Google AdSense client ID. Env-var override available for per-site
+// AdSense accounts; fleet-default is the operator's primary account
+// (same ID used on holdlens.com + readinglist.school + readminute.com +
+// fermentcalc.com). Hardcoded fallback because the AdSense client ID
+// is fully public (exposed in served HTML) and CF Pages env var wiring
+// requires dashboard access — fallback ships the snippet without that.
+const ADSENSE_CLIENT =
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT || "ca-pub-7449214764048186";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -191,6 +199,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
         />
+
+        {/* Google AdSense — verification snippet. AdSense application
+            requires this loaded on every page in <head> before review.
+            ADSENSE_CLIENT env-var-conditional; fleet-default fallback. */}
+        {ADSENSE_CLIENT ? (
+          <script
+            async
+            crossOrigin="anonymous"
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          />
+        ) : null}
       </head>
       <body className="font-sans antialiased">
         {children}
