@@ -69,12 +69,60 @@ export default async function FilerPage({
     ...(ticker && { tickerSymbol: ticker }),
   };
 
+  // Dataset schema — every filer's filing-history IS unique structured data.
+  // Per Aleyda Solis 10-char LLM-citation checklist (#4 Extractable + #2 Useful).
+  // Mirrors holdlens.com/investor/[slug] Dataset pattern shipped 2026-05-08.
+  const sortedFilings = [...filings].sort((a, b) => (a.filedAt < b.filedAt ? 1 : -1));
+  const latestFiledAt = sortedFilings[0]?.filedAt;
+  const earliestFiledAt = sortedFilings[sortedFilings.length - 1]?.filedAt;
+  const datasetSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    "@id": `${SITE_URL}/filer/${cik}/#dataset`,
+    name: `${filerName} — SEC EDGAR Filings (CIK ${cik})`,
+    description: `Indexed list of every SEC filing disclosed by ${filerName} (CIK ${cik})${ticker ? ` (ticker: ${ticker})` : ""}, including form type, accession number, filing date, and link back to the original EDGAR document. ${filings.length} filing${filings.length === 1 ? "" : "s"} covered across form types: ${formTypesByCik.join(", ")}.`,
+    url: `${SITE_URL}/filer/${cik}/`,
+    sameAs: [edgarFilerUrl],
+    creator: { "@type": "Organization", name: filerName, identifier: `CIK:${cik}` },
+    publisher: {
+      "@type": "Organization",
+      name: "SecFilingDex",
+      url: SITE_URL,
+    },
+    license: "https://www.sec.gov/foia/about-foia",
+    isAccessibleForFree: true,
+    ...(latestFiledAt ? { dateModified: latestFiledAt } : {}),
+    ...(earliestFiledAt && latestFiledAt && earliestFiledAt !== latestFiledAt
+      ? { temporalCoverage: `${earliestFiledAt}/${latestFiledAt}` }
+      : {}),
+    keywords: [
+      "SEC filing",
+      "EDGAR",
+      "public disclosure",
+      filerName,
+      `CIK ${cik}`,
+      ...(ticker ? [ticker] : []),
+      ...formTypesByCik,
+    ],
+    variableMeasured: [
+      { "@type": "PropertyValue", name: "Form type" },
+      { "@type": "PropertyValue", name: "Accession number" },
+      { "@type": "PropertyValue", name: "Filing date" },
+      { "@type": "PropertyValue", name: "Period of report" },
+      { "@type": "PropertyValue", name: "EDGAR source URL" },
+    ],
+  };
+
   return (
     <>
       <SiteHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetSchema) }}
       />
       <main className="min-h-screen px-6 py-12 max-w-5xl mx-auto">
         {/* Breadcrumb */}

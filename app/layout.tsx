@@ -210,6 +210,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
           />
         ) : null}
+
+        {/* llms.txt advertise per `rules/bot-harvest.md` Day-1 manifest spec.
+            HTML <link> + (in middleware/headers if present) HTTP Link header
+            both signal LLM crawlers that the machine-readable site summary
+            lives at /llms.txt — Anthropic, OpenAI, Perplexity all honor. */}
+        <link rel="llms" type="text/plain" href="/llms.txt" />
       </head>
       <body className="font-sans antialiased">
         {children}
