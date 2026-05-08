@@ -8,6 +8,10 @@ stages:
 
 variables:
   NODE_VERSION: "24"
+  # Microsoft Clarity project ID (public client-side identifier, not a secret).
+  # Baked into static export at build time; layout.tsx loads Clarity script
+  # only when this is set. Project: SecFilingDex (wk6ur3vm7m).
+  NEXT_PUBLIC_CLARITY_ID: "wk6ur3vm7m"
 
 cache:
   key: secfilingdex-cache
