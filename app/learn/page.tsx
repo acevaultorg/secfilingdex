@@ -30,6 +30,14 @@ const TOPICS = [
     formHref: "/form/10-k",
   },
   {
+    slug: "10-k-a",
+    title: "What is a 10-K/A filing?",
+    blurb:
+      "Amendment to a previously-filed 10-K. Used to correct material errors, restate financials, add omitted Part III disclosures, or respond to SEC staff comments. The explanatory note tells you which class.",
+    formType: "10-K/A",
+    formHref: "/form/10-k-a",
+  },
+  {
     slug: "10-q",
     title: "What is a 10-Q filing?",
     blurb:
