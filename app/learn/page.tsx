@@ -94,6 +94,14 @@ const TOPICS = [
     formHref: "/form/20-f",
   },
   {
+    slug: "6-k",
+    title: "What is a 6-K filing?",
+    blurb:
+      "The interim event report for Foreign Private Issuers — the foreign-issuer cousin of an 8-K. Filed whenever an FPI makes any material disclosure to its home-country regulator. The primary channel for ADR earnings releases, M&A announcements, and management changes.",
+    formType: "6-K",
+    formHref: "/form/6-k",
+  },
+  {
     slug: "s-3",
     title: "What is an S-3 filing?",
     blurb:
