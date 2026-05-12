@@ -1,1 +1,41 @@
-static-reference
+static-reference | confidence: 0.95 | source: finite-public-dataset programmatic (EDGAR filings × filer × type × quarter = ~5,000 unique-data records per fiscal cycle, public + structured XBRL + monthly refresh) passing Finite-Public-Dataset Test 5/5; static export Next.js compatible; live sitemap 705 URLs; /learn corpus with comparison + DefinedTerm + Article schema | logged: 2026-04-28 initial
+re-confirmed: 2026-05-12 (audit by `/acepilot auto` from cluster-root)
+
+Sub-archetype: static-reference + LLM-citation-optimized publisher (programmatic SEC-filing data surfaces + editorial /learn corpus). NOT programmatic-seo at scale of holdlens.com (4,436 thin pages) — secfilingdex maintains per-filing substance.
+
+Oracle weighting (per rules/site-archetype-detection.md):
+  Revenue: 0.6 · Retention: 0.7 · Distribution: 1.0 (distribution-first silent-SEO + LLM-citation)
+
+YMYL classification: YMYL_LIGHT (finance data-display only). Per rules/google-policy-compliance.md Tier 1 concept-pick filter:
+  - Verdict labels intended: NO (data display, no BUY/SELL/recommend/target patterns — verified live 2026-05-12)
+  - Operator credentials present: not required (no advisory framing)
+  - Gate result: PASS — proceed normally
+
+Distribution archetypes hit per programmatic page:
+  programmatic_unique_data_page × +100
+  finite_public_dataset_programmatic × +75 (calibrated from holdlens learning)
+  ai_visibility_optimized_page × +70
+  schema_markup_article_person_org × +20
+  freshness_per_page × +30 (filings have datePublished + dateModified)
+  internal_linking_hub_spoke × +15
+
+Stack-count ≥5 → Archetype-Stacking Bonus ×1.50 per rules/concept-finder-methodology.md v2.0.
+
+CSIL #18 archetype drift audit (2026-05-12): NO DRIFT detected. Signals consistent with initial classification:
+  - No auth/subscription added (would shift toward saas-consumer)
+  - No UGC features (would shift toward community-ugc)
+  - No editorial workflow / collaborative editing (would shift toward editorial-knowledge)
+  - Still static-export Next.js, no DB-backed runtime features
+  - Mode unchanged (sovereign auto)
+  - Sitemap stable (702→705 URLs, +3 in last 11 days = organic growth)
+
+Cross-references: IDENTITY.md, BUILD_SPEC.md, MONETIZATION_STACK.md, ../README.md (outer workspace), rules/concept-finder-methodology.md v2.4, rules/google-policy-compliance.md, rules/adsense-thin-content-prevention.md.
+
+## Canonical Good-Pattern Reference (2026-05-12)
+
+secfilingdex.com is the CANONICAL FINANCE-VERTICAL DATA-DISPLAY EXEMPLAR for fleet. When operator executes HoldLens Pivot A (data-display-only refactor per v19.45), reference this site's:
+  - Title pattern: "SecFilingDex — EDGAR's database, modernized." (factual, descriptive, no verdict)
+  - Schema set: Organization + Person + WebSite + SearchAction (no Article/News schema = no recommendation-encoded headlines)
+  - /learn corpus pattern: comparison + DefinedTerm + factual explainer with "Our view:" POV per page
+  - Visual identity: dark-mode-first, navy/white/EDGAR-blue (vs HoldLens's amber+verdict-label aesthetic)
+  - URL structure: /learn/[topic], /filing-type/[type], /filer/[slug] — data routes, no /signal/[ticker] or /recommendation/* patterns
