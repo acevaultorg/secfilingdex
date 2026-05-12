@@ -332,22 +332,37 @@ export default function Learn6KPage() {
           ),
         },
       ]}
-      sources={[
+      ourView="6-K is the foreign-issuer cousin of 8-K but with looser timing and a different center of gravity. The trigger is home-country disclosure parity, not a U.S. enumerated event list — which means a 6-K stream often reads like a translated press-release feed from Tokyo, Frankfurt, or Shanghai. For ADR investors it is the primary current-events channel; for everyone else it is the cleanest window into how non-U.S. issuers actually communicate with their primary markets."
+      liveDataLink={{
+        label: "Browse live 6-K filings",
+        href: "/form/6-k",
+        count: liveCount,
+      }}
+      related={[
+        { slug: "20-f", title: "What is a 20-F filing?" },
+        { slug: "8-k", title: "What is an 8-K filing?" },
+        { slug: "10-k", title: "What is a 10-K filing?" },
+      ]}
+      definedTerms={[
         {
-          label: "SEC — Form 6-K Final Rule",
-          url: "https://www.sec.gov/divisions/corpfin/cffinancialreportingmanual.pdf",
+          term: "6-K",
+          description:
+            "Interim event report filed by foreign private issuers under Exchange Act Rule 13a-16. Forwards material disclosures the issuer made under home-country rules to U.S. investors.",
         },
         {
-          label: "SEC — Exchange Act Rule 13a-16 (Foreign Private Issuer Reports)",
-          url: "https://www.law.cornell.edu/cfr/text/17/240.13a-16",
+          term: "Foreign Private Issuer (FPI)",
+          description:
+            "Non-U.S. company listing securities in the United States. Eligible for the FPI reporting regime (20-F annual + 6-K interim) instead of the domestic 10-K / 10-Q / 8-K regime.",
         },
         {
-          label: "SEC — Definition of Foreign Private Issuer",
-          url: "https://www.sec.gov/divisions/corpfin/internatl/foreign-private-issuers-overview.shtml",
+          term: "American Depositary Receipt (ADR)",
+          description:
+            "U.S.-traded certificate representing shares of a foreign company. ADR sponsors are typically the foreign issuer themselves and file 20-F + 6-K on the underlying shares.",
         },
         {
-          label: "EDGAR Filing — Form 6-K Filer Manual",
-          url: "https://www.sec.gov/info/edgar/edmanuals.htm",
+          term: "Rule 13a-16",
+          description:
+            "SEC rule under the Exchange Act establishing the 6-K reporting obligation: FPIs must furnish to the SEC, on Form 6-K, any material information they make public under home-country rules.",
         },
       ]}
     />
