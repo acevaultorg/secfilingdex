@@ -40,6 +40,20 @@ export async function generateMetadata({
     alternates: { canonical: `${SITE_URL}/filer/${cik}/` },
     openGraph: { type: "website", title, description, siteName: "SecFilingDex" },
     twitter: { card: "summary_large_image", title, description },
+    // 2026-05-12 AdSense thin-content prevention (per rules/adsense-thin-content-prevention.md).
+    // /filer/[cik] pages avg ~145 words/page across 283 pages — far below AdSense's
+    // ≥400-word indexable-page threshold (Low value content rejection class). Each page
+    // is a minimal filer index (filer name + ticker + N filings listed). Pages remain
+    // LIVE for users via internal navigation (filer index + search + filing pages).
+    // To re-enable indexing: expand per-filer commentary to ≥400 unique words
+    // (filer overview + recent material events + filing-pattern analysis) AND flip
+    // robots.index = true here.
+    robots: {
+      index: false,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   };
 }
 

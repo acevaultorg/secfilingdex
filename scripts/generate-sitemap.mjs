@@ -25,6 +25,8 @@ const NOW_MS = Date.now();
 const STATIC_ROUTES = [
   { path: "/", changefreq: "daily", priority: 1.0, lastmod: TODAY },
   { path: "/about/", changefreq: "monthly", priority: 0.7, lastmod: TODAY },
+  { path: "/methodology/", changefreq: "monthly", priority: 0.7, lastmod: TODAY },
+  { path: "/faq/", changefreq: "monthly", priority: 0.6, lastmod: TODAY },
   { path: "/contact/", changefreq: "yearly", priority: 0.5, lastmod: TODAY },
   { path: "/privacy/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
   { path: "/terms/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
@@ -69,14 +71,37 @@ function main() {
   if (!existsSync(OUT_DIR)) mkdirSync(OUT_DIR, { recursive: true });
   const filings = loadAllFilingsSync();
 
-  const filingEntries = filings.map((f) => ({
-    path: `/filing/${f.accessionNumber}/`,
-    changefreq: "weekly",
-    priority: filingPriority(f.filedAt),
-    lastmod: f.indexedAt.slice(0, 10),
-  }));
+  // 2026-05-12 AdSense thin-content prevention (per rules/adsense-thin-content-prevention.md).
+  // /filing/[accession] pages (290 × ~210 words avg) + /filer/[cik] pages (283 × ~145
+  // words avg) are below AdSense's ≥400-word indexable-page threshold. Both surfaces
+  // are noindex'd at page-metadata level (see app/filing/[accession]/page.tsx +
+  // app/filer/[cik]/page.tsx generateMetadata) AND excluded from sitemap below.
+  // Pages remain LIVE for users via internal navigation. Substantive aggregator
+  // surfaces (/form/[formType] + /industry/[sicCode]) STAY indexed — broader pages
+  // with richer per-page value. Same fix pattern as HoldLens v19.44 /insiders/*.
+  //
+  // To re-enable filing / filer indexing: (a) expand per-page commentary to ≥400
+  // unique words, (b) flip robots.index = true in the page.tsx, (c) uncomment the
+  // arrays below.
+  //
+  // const filingEntries = filings.map((f) => ({
+  //   path: `/filing/${f.accessionNumber}/`,
+  //   changefreq: "weekly",
+  //   priority: filingPriority(f.filedAt),
+  //   lastmod: f.indexedAt.slice(0, 10),
+  // }));
+  //
+  // const filerEntries = uniqueCiks(filings).map((cik) => {
+  //   const count = filings.filter((f) => f.cik === cik).length;
+  //   return {
+  //     path: `/filer/${cik}/`,
+  //     changefreq: "weekly",
+  //     priority: count >= 5 ? 0.7 : count >= 2 ? 0.6 : 0.5,
+  //     lastmod: TODAY,
+  //   };
+  // });
 
-  // Per-form-type landing pages
+  // Per-form-type landing pages (KEPT — aggregator surface, substantive content)
   const formTypeEntries = uniqueFormTypes(filings).map((ft) => ({
     path: `/form/${formTypeToSlug(ft)}/`,
     changefreq: "weekly",
@@ -84,18 +109,7 @@ function main() {
     lastmod: TODAY,
   }));
 
-  // Per-filer index pages — priority by filing count
-  const filerEntries = uniqueCiks(filings).map((cik) => {
-    const count = filings.filter((f) => f.cik === cik).length;
-    return {
-      path: `/filer/${cik}/`,
-      changefreq: "weekly",
-      priority: count >= 5 ? 0.7 : count >= 2 ? 0.6 : 0.5,
-      lastmod: TODAY,
-    };
-  });
-
-  // Per-industry (SIC code) landing pages — priority by filer count
+  // Per-industry (SIC code) landing pages — KEPT (substantive aggregator pages, 650+ words avg)
   const industryEntries = uniqueSicCodes(filings).map((sic) => {
     const count = filings.filter((f) => f.sicCode === sic).length;
     return {
@@ -106,12 +120,15 @@ function main() {
     };
   });
 
+  // Suppress unused-imports lint trace
+  void filings;
+  void uniqueCiks;
+  void filingPriority;
+
   const all = [
     ...STATIC_ROUTES,
     ...formTypeEntries,
     ...industryEntries,
-    ...filerEntries,
-    ...filingEntries,
   ];
 
   const xml = [
@@ -123,7 +140,7 @@ function main() {
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap.xml"), xml);
   console.log(
-    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${industryEntries.length} industries + ${filerEntries.length} filers + ${filingEntries.length} filings)`
+    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${industryEntries.length} industries; filing + filer pages excluded per AdSense thin-content prevention)`
   );
 }
 

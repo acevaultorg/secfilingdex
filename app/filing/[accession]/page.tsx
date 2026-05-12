@@ -61,6 +61,21 @@ export async function generateMetadata({
       siteName: "SecFilingDex",
     },
     twitter: { card: "summary_large_image", title, description },
+    // 2026-05-12 AdSense thin-content prevention (per rules/adsense-thin-content-prevention.md).
+    // /filing/[accession] pages avg ~210 words/page across 290 pages — below AdSense's
+    // ≥400-word indexable-page threshold (Low value content rejection class). Each page
+    // is a thin metadata wrapper around a single SEC EDGAR filing (filer + form type +
+    // filed date + accession + link to source). Pages remain LIVE for users via internal
+    // navigation (filer index + form index + industry index + search); only crawler-
+    // indexable surface is suppressed. Same fix as HoldLens /insiders/* + readstacks pulse.
+    // Aggregator pages (/filer/[cik]/, /industry/[sicCode]/, /form/[formType]/) STAY
+    // indexed — broader surfaces with richer per-page value.
+    robots: {
+      index: false,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
   };
 }
 
