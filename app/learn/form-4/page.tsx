@@ -131,6 +131,26 @@ export default function LearnForm4Page() {
         { slug: "13d-vs-13g", title: "13D vs. 13G: what's the difference?" },
         { slug: "8-k", title: "What is an 8-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/form-4-vs-13f",
+          label: "HoldLens: Form 4 vs 13F (the comparison)",
+          description:
+            "When does each filing actually matter? The two-day Form 4 disclosure vs the 45-day-stale 13F snapshot — read together they answer different questions.",
+        },
+        {
+          href: "https://holdlens.com/insiders/",
+          label: "HoldLens: Live insider tracker (InsiderScore)",
+          description:
+            "Scored Form 4 activity across major tickers — clustered insider buying/selling signals, not just the raw filings.",
+        },
+        {
+          href: "https://holdlens.com/learn/insider-score-explained",
+          label: "HoldLens: How InsiderScore is computed",
+          description:
+            "Methodology for turning Form 4 transactions into a scored signal — what gets weighted, what gets ignored, why.",
+        },
+      ]}
       definedTerms={[
         {
           term: "Form 4",

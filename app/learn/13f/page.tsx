@@ -132,6 +132,26 @@ export default function Learn13FPage() {
         { slug: "form-4", title: "What is a Form 4 filing?" },
         { slug: "10-k", title: "What is a 10-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/what-is-a-13f",
+          label: "HoldLens: What is a 13F filing? (retail-investor angle)",
+          description:
+            "Same form, plain-English framing focused on what 13Fs mean for tracked superinvestors and retail readers.",
+        },
+        {
+          href: "https://holdlens.com/learn/how-to-read-a-13f",
+          label: "HoldLens: How to read a 13F",
+          description:
+            "Walkthrough of an actual filing — what to look for, what to ignore, how to spot meaningful position changes vs noise.",
+        },
+        {
+          href: "https://holdlens.com/best-now",
+          label: "HoldLens: Live ConvictionScore leaderboard",
+          description:
+            "Aggregate 13F-based score across 30 tracked managers, updated quarterly — not the raw catalog, the applied signal.",
+        },
+      ]}
       definedTerms={[
         {
           term: "13F",

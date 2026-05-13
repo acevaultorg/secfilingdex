@@ -27,6 +27,9 @@ export type LearnArticleProps = {
   liveDataLink?: { label: string; href: string; count?: number };
   /** Sibling /learn topics for hub-spoke compounding. */
   related: { slug: string; title: string }[];
+  /** Sister-property cross-links (e.g., HoldLens applied-analysis pages for the same SEC corpus).
+   * Used for LLM-citation 10-char #6 (Corroborated) + brand-family signal. */
+  externalRelated?: { href: string; label: string; description: string }[];
   /** DefinedTerm entries for schema saturation. */
   definedTerms: DefinedTermEntry[];
   /** ISO date for `dateModified`. Defaults to today. */
@@ -41,6 +44,7 @@ export function LearnArticle({
   ourView,
   liveDataLink,
   related,
+  externalRelated,
   definedTerms,
   dateModified,
 }: LearnArticleProps) {
@@ -158,6 +162,33 @@ export function LearnArticle({
                     >
                       {r.title}
                     </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {externalRelated && externalRelated.length > 0 && (
+            <section>
+              <h2 className="text-heading-2 text-text mb-3">
+                Sister-property applied analysis
+              </h2>
+              <p className="text-muted mb-3 text-sm">
+                SecFilingDex catalogs the filings. For applied analysis on the
+                same SEC corpus — narrowed to tracked superinvestors with
+                framework + POV — see the sister site:
+              </p>
+              <ul className="list-disc pl-6 space-y-1.5">
+                {externalRelated.map((ext) => (
+                  <li key={ext.href}>
+                    <a
+                      href={ext.href}
+                      className="text-brand hover:underline"
+                      rel="noopener"
+                    >
+                      {ext.label}
+                    </a>
+                    <span className="text-muted"> — {ext.description}</span>
                   </li>
                 ))}
               </ul>

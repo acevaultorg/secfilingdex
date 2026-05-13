@@ -200,6 +200,26 @@ export default function Learn13DVs13GPage() {
         { slug: "form-4", title: "What is a Form 4 filing?" },
         { slug: "8-k", title: "What is an 8-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/13d-vs-13g-activist-filings",
+          label: "HoldLens: 13D vs 13G — the activist angle",
+          description:
+            "Same forms, narrower lens — when the 13D-to-13G transition (or vice versa) is actually a meaningful smart-money signal, and when it's just admin.",
+        },
+        {
+          href: "https://holdlens.com/learn/13f-vs-13d-vs-13g",
+          label: "HoldLens: 13F vs 13D vs 13G",
+          description:
+            "How the three filings differ in timing, threshold, and what they actually tell you — read side-by-side, not in isolation.",
+        },
+        {
+          href: "https://holdlens.com/activist/",
+          label: "HoldLens: Live activist tracker",
+          description:
+            "Real-time 13D filings from tracked managers — the closest thing to live smart-money disclosure in U.S. markets.",
+        },
+      ]}
       definedTerms={[
         {
           term: "Schedule 13D",
