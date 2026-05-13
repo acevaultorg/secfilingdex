@@ -7,6 +7,7 @@ import { loadFilingsByCik, uniqueCiks } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, pickEnrichments } from "@/lib/format";
+import { getHoldLensManagerByCik } from "@/lib/holdlens-tracked";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -71,6 +72,13 @@ export default async function FilerPage({
   const cikInt = parseInt(cik, 10);
   const edgarFilerUrl = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cikInt}&type=&dateb=&owner=include&count=40`;
   const formTypesByCik = [...new Set(filings.map((f) => f.formType))].sort();
+
+  // Sister-property cross-reference. If this CIK matches a HoldLens tracked
+  // superinvestor, render a "Live position analysis on HoldLens" section.
+  // Map: lib/holdlens-tracked.ts. Layer 2 of C1 Finance sister-property
+  // synergy. Captures intent like "berkshire 13f" + "buffett positions" with
+  // both sites' complementary angles.
+  const holdLensManager = getHoldLensManagerByCik(cik);
 
   // Schema.org Organization for the filer
   const organizationSchema = {
@@ -219,6 +227,37 @@ export default async function FilerPage({
             </ul>
           </div>
         </section>
+
+        {/* Sister-property cross-link — only renders for tracked HoldLens managers */}
+        {holdLensManager && (
+          <section className="mb-10">
+            <p className="text-eyebrow text-brand mb-3">Live position analysis (sister property)</p>
+            <div className="rounded-card-lg border border-border bg-panel/40 p-6">
+              <p className="text-body-sm text-muted leading-relaxed">
+                {holdLensManager.name} ({holdLensManager.fund}) is one of 30
+                superinvestors tracked on{" "}
+                <strong className="text-text">HoldLens</strong>, our sister
+                property under the same operator. SecFilingDex catalogs every
+                SEC filing; HoldLens applies a scored signal layer on the same
+                13F corpus.
+              </p>
+              <div className="mt-4">
+                <Link
+                  href={`https://holdlens.com/investor/${holdLensManager.slug}/`}
+                  target="_blank"
+                  rel="noopener"
+                  className="inline-flex items-center text-brand hover:underline font-medium"
+                >
+                  Live ConvictionScore + position dossier on HoldLens ↗
+                </Link>
+              </div>
+              <p className="text-caption text-dim mt-3">
+                Quarterly 13F-based signal across the tracked manager universe.
+                Two sites do not duplicate content — they complement.
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Provenance */}
         <section className="mb-10">
