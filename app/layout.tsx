@@ -78,7 +78,13 @@ const orgSchema = {
   description:
     "Programmatic database surface over SEC EDGAR filings, designed for finance prosumers, developers, and AI agents requiring citation-grade structured filing data.",
   founder: { "@type": "Person", name: "Paulo de Vries" },
-  sameAs: ["https://github.com/acevaultorg"],
+  // Sister property under the same operator (HoldLens). Complementary angle
+  // (catalog vs analysis). Declares brand-family graph for Google + LLM
+  // citation #3 Recognizable + #6 Corroborated.
+  sameAs: [
+    "https://holdlens.com/",
+    "https://github.com/acevaultorg",
+  ],
 };
 
 const siteSchema = {
