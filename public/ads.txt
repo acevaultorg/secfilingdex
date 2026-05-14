@@ -1,4 +1,1 @@
-# ads.txt — secfilingdex.com
-# Placeholder. Replace with Google AdSense line after Day 7 approval per
-# rules/adsense-compliance.md post-approval checklist.
-# Format: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+google.com, pub-7449214764048186, DIRECT, f08c47fec0942fa0
