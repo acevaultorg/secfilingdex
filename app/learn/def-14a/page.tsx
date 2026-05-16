@@ -151,6 +151,14 @@ export default function LearnDef14APage() {
         { slug: "8-k", title: "What is an 8-K filing?" },
         { slug: "13d-vs-13g", title: "13D vs. 13G: what's the difference?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/",
+          label: "HoldLens: Smart-money signals across 30 tracked superinvestors",
+          description:
+            "Proxy voting outcomes shape governance — HoldLens overlays them against fund-manager positioning.",
+        },
+      ]}
       definedTerms={[
         {
           term: "DEF 14A",

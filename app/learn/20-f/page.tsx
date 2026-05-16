@@ -160,6 +160,14 @@ export default function Learn20FPage() {
         { slug: "10-q", title: "What is a 10-Q filing?" },
         { slug: "8-k", title: "What is an 8-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/",
+          label: "HoldLens: Smart-money signals across 30 tracked superinvestors",
+          description:
+            "Applied analysis surface — including the foreign issuers held by tracked managers.",
+        },
+      ]}
       definedTerms={[
         {
           term: "20-F",

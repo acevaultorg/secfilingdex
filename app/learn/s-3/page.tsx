@@ -171,6 +171,14 @@ export default function LearnS3Page() {
         { slug: "10-k", title: "What is a 10-K filing?" },
         { slug: "10-q", title: "What is a 10-Q filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/",
+          label: "HoldLens: Smart-money signals across 30 tracked superinvestors",
+          description:
+            "Secondary offerings as a buying-opportunity signal — HoldLens shows which superinvestors stepped in.",
+        },
+      ]}
       definedTerms={[
         {
           term: "S-3",

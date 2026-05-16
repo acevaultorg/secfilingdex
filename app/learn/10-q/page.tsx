@@ -114,6 +114,14 @@ export default function Learn10QPage() {
         { slug: "10-k", title: "What is a 10-K filing?" },
         { slug: "8-k", title: "What is an 8-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/event-score-explained",
+          label: "HoldLens: Event Score — quantifying material events",
+          description:
+            "10-Qs surface mid-year items that don't rise to 8-K threshold. HoldLens scores them across the tracked-investor universe.",
+        },
+      ]}
       definedTerms={[
         {
           term: "10-Q",

@@ -146,6 +146,20 @@ export default function Learn8KPage() {
         { slug: "10-q", title: "What is a 10-Q filing?" },
         { slug: "form-4", title: "What is a Form 4 filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/event-score-explained",
+          label: "HoldLens: Event Score — 8-K events scored",
+          description:
+            "Every 8-K Item is weighted by HoldLens's Event Score; the scoring framework + the live feed.",
+        },
+        {
+          href: "https://holdlens.com/learn/buybacks-vs-dividends",
+          label: "HoldLens: Buybacks vs Dividends",
+          description:
+            "Item 8.01 buyback events get the same scoring lens as 10-K authorizations — capital return as a single concept.",
+        },
+      ]}
       definedTerms={[
         {
           term: "8-K",

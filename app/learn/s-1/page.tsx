@@ -179,6 +179,14 @@ export default function LearnS1Page() {
         { slug: "10-k", title: "What is a 10-K filing?" },
         { slug: "8-k", title: "What is an 8-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/",
+          label: "HoldLens: Smart-money signals across 30 tracked superinvestors",
+          description:
+            "Track which tracked managers buy IPO secondaries in the 13F quarter following the S-1 effective date.",
+        },
+      ]}
       definedTerms={[
         {
           term: "S-1",

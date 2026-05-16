@@ -136,6 +136,20 @@ export default function Learn10KPage() {
         { slug: "8-k", title: "What is an 8-K filing?" },
         { slug: "s-1", title: "What is an S-1 filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/buybacks-vs-dividends",
+          label: "HoldLens: Buybacks vs Dividends — applied analysis",
+          description:
+            "10-K annual reports authorize buybacks. HoldLens reads them across 30 tracked superinvestors to map capital-return policy shifts.",
+        },
+        {
+          href: "https://holdlens.com/learn/how-to-read-buyback-disclosures",
+          label: "HoldLens: How to read buyback disclosures",
+          description:
+            "Walkthrough of Item 8.01 + Part II buyback authorizations as they appear in real filings.",
+        },
+      ]}
       definedTerms={[
         {
           term: "10-K",

@@ -117,6 +117,46 @@ const TOPICS = [
     formType: null,
     formHref: null,
   },
+  {
+    slug: "11-k",
+    title: "What is an 11-K filing?",
+    blurb:
+      "Annual report for employee stock-purchase, savings, and similar plans (ESPPs, 401(k)s holding employer stock). Filed under Rule 15d-21. The plan is the registrant, not the issuer. Audited plan-asset statements + ERISA-required schedules.",
+    formType: "11-K",
+    formHref: "/form/11-k",
+  },
+  {
+    slug: "13h",
+    title: "What is a Form 13H filing?",
+    blurb:
+      "Large-trader identification under Rule 13h-1. Any person whose securities transactions cross $20M intraday or $200M monthly must register. Adopted after the 2010 Flash Crash. Content is non-public — only the existence of registration is disclosed.",
+    formType: null,
+    formHref: null,
+  },
+  {
+    slug: "nt-10-k",
+    title: "What is an NT 10-K filing?",
+    blurb:
+      "Notification of inability to file a 10-K on time under Rule 12b-25. Grants 15-day extension. Part III narrative usually tells you whether the delay is benign or a material signal — restatement risk, going-concern review, auditor consultation.",
+    formType: "NT 10-K",
+    formHref: "/form/nt-10-k",
+  },
+  {
+    slug: "f-1",
+    title: "What is an F-1 filing?",
+    blurb:
+      "Initial registration statement for foreign private issuers — non-U.S. companies first registering an offering of securities in the U.S. The foreign-issuer equivalent of the S-1. IFRS or home-country GAAP accepted without reconciliation to U.S. GAAP.",
+    formType: "F-1",
+    formHref: "/form/f-1",
+  },
+  {
+    slug: "form-144",
+    title: "What is a Form 144 filing?",
+    blurb:
+      "Notice of proposed sale of restricted or control securities by an issuer affiliate. Filed under Rule 144 when sales exceed 5,000 shares or $50,000 in 3 months. Announces intent; Form 4 confirms execution. Read both filings together.",
+    formType: "144",
+    formHref: "/form/144",
+  },
 ];
 
 export default function LearnHubPage() {

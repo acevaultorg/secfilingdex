@@ -46,6 +46,13 @@ const STATIC_ROUTES = [
   { path: "/learn/def-14a/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
   { path: "/learn/20-f/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
   { path: "/learn/13d-vs-13g/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/6-k/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/10-k-a/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/11-k/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/13h/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/nt-10-k/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/f-1/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
+  { path: "/learn/form-144/", changefreq: "monthly", priority: 0.9, lastmod: TODAY },
 ];
 
 function urlEntry({ path, changefreq, priority, lastmod }) {

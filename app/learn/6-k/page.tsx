@@ -343,6 +343,14 @@ export default function Learn6KPage() {
         { slug: "8-k", title: "What is an 8-K filing?" },
         { slug: "10-k", title: "What is a 10-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/",
+          label: "HoldLens: Smart-money signals across 30 tracked superinvestors",
+          description:
+            "6-K events on foreign issuers — HoldLens tracks superinvestor exposure to these names.",
+        },
+      ]}
       definedTerms={[
         {
           term: "6-K",

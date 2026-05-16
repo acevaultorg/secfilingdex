@@ -262,6 +262,14 @@ export default function Learn10KAPage() {
         { slug: "10-q", title: "What is a 10-Q filing?" },
         { slug: "8-k", title: "What is an 8-K filing?" },
       ]}
+      externalRelated={[
+        {
+          href: "https://holdlens.com/learn/superinvestor-handbook",
+          label: "HoldLens: Superinvestor handbook",
+          description:
+            "Annual report amendments tell you when something was wrong the first time — useful pattern when tracking long-horizon investors.",
+        },
+      ]}
       definedTerms={[
         {
           term: "10-K/A",
