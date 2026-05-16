@@ -64,12 +64,46 @@ export default function FilerIndex() {
     })),
   };
 
+  const dataCatalogSchema = {
+    "@context": "https://schema.org",
+    "@type": "DataCatalog",
+    name: "SecFilingDex filer (CIK) index",
+    description: `Catalog of ${filers.length} public-company SEC filers indexed across ${allFilings.length} EDGAR filings. Each filer entry is a Dataset of that filer's filings keyed by accession number.`,
+    url: `${SITE_URL}/filer/`,
+    creator: { "@type": "Organization", name: "SecFilingDex", url: SITE_URL },
+    license: "https://www.sec.gov/about/sec-website-policies/copyright",
+    isAccessibleForFree: true,
+    dataset: filers.slice(0, 100).map((f) => ({
+      "@type": "Dataset",
+      name: f.filerName,
+      url: `${SITE_URL}/filer/${f.cik}/`,
+      identifier: `filer-${f.cik}`,
+    })),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "SecFilingDex", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Filer index", item: `${SITE_URL}/filer/` },
+    ],
+  };
+
   return (
     <>
       <SiteHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(dataCatalogSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <main className="min-h-screen px-6 py-12 max-w-5xl mx-auto">
         <nav className="text-caption text-dim mb-6 flex flex-wrap gap-1.5 items-center">

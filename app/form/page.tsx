@@ -60,12 +60,46 @@ export default function FormIndex() {
     })),
   };
 
+  const dataCatalogSchema = {
+    "@context": "https://schema.org",
+    "@type": "DataCatalog",
+    name: "SecFilingDex form-type index",
+    description: `Catalog of ${forms.length} SEC form types indexed across ${allFilings.length} filings from SEC EDGAR. Each form-type entry is a Dataset listing the filings of that type with filer, ticker, accession number, and filed-date.`,
+    url: `${SITE_URL}/form/`,
+    creator: { "@type": "Organization", name: "SecFilingDex", url: SITE_URL },
+    license: "https://www.sec.gov/about/sec-website-policies/copyright",
+    isAccessibleForFree: true,
+    dataset: forms.map((f) => ({
+      "@type": "Dataset",
+      name: `${f.formType}${f.shortName ? ` — ${f.shortName}` : ""}`,
+      url: `${SITE_URL}/form/${f.slug}/`,
+      identifier: `form-${f.slug}`,
+    })),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "SecFilingDex", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Form-type index", item: `${SITE_URL}/form/` },
+    ],
+  };
+
   return (
     <>
       <SiteHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(dataCatalogSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <main className="min-h-screen px-6 py-12 max-w-5xl mx-auto">
         <nav className="text-caption text-dim mb-6 flex flex-wrap gap-1.5 items-center">

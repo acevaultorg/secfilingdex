@@ -66,12 +66,46 @@ export default function IndustryIndex() {
     })),
   };
 
+  const dataCatalogSchema = {
+    "@context": "https://schema.org",
+    "@type": "DataCatalog",
+    name: "SecFilingDex industry (SIC) index",
+    description: `Catalog of ${industries.length} Standard Industrial Classification (SIC) industries indexed across ${totalFilings} SEC EDGAR filings. Each industry entry is a Dataset listing the filers + filings classified under that SIC code.`,
+    url: `${SITE_URL}/industry/`,
+    creator: { "@type": "Organization", name: "SecFilingDex", url: SITE_URL },
+    license: "https://www.sec.gov/about/sec-website-policies/copyright",
+    isAccessibleForFree: true,
+    dataset: industries.map((ind) => ({
+      "@type": "Dataset",
+      name: `${ind.name} (SIC ${ind.sic})`,
+      url: `${SITE_URL}/industry/${ind.sic}/`,
+      identifier: `industry-sic-${ind.sic}`,
+    })),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "SecFilingDex", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Industry index", item: `${SITE_URL}/industry/` },
+    ],
+  };
+
   return (
     <>
       <SiteHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(dataCatalogSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <main className="min-h-screen px-6 py-12 max-w-5xl mx-auto">
         <nav className="text-caption text-dim mb-6 flex flex-wrap gap-1.5 items-center">
