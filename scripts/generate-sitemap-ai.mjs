@@ -38,6 +38,18 @@ const AI_ROUTES = [
   { path: "/learn/def-14a/", priority: 1.0, lastmod: TODAY },
   { path: "/learn/20-f/", priority: 1.0, lastmod: TODAY },
   { path: "/learn/13d-vs-13g/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/6-k/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/10-k-a/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/11-k/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/13h/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/nt-10-k/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/f-1/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/form-144/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/n-csr/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/n-px/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/form-d/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/sc-13e3/", priority: 1.0, lastmod: TODAY },
+  { path: "/learn/10-q-a/", priority: 1.0, lastmod: TODAY },
 ];
 
 function urlEntry({ path, priority, lastmod, jsonAlt }) {
