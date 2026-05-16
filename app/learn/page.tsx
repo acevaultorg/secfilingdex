@@ -157,6 +157,46 @@ const TOPICS = [
     formType: "144",
     formHref: "/form/144",
   },
+  {
+    slug: "n-csr",
+    title: "What is an N-CSR filing?",
+    blurb:
+      "Certified annual or semi-annual shareholder report from mutual funds, ETFs, closed-end funds. The 10-K equivalent for registered investment companies — audited financials, schedule of investments, expense ratios, and the advisory-contract review.",
+    formType: "N-CSR",
+    formHref: "/form/n-csr",
+  },
+  {
+    slug: "n-px",
+    title: "What is an N-PX filing?",
+    blurb:
+      "Annual proxy voting record from registered investment companies. Discloses every proxy ballot the fund voted between July 1 and June 30. The cleanest public-record dataset for understanding institutional governance preferences.",
+    formType: "N-PX",
+    formHref: "/form/n-px",
+  },
+  {
+    slug: "form-d",
+    title: "What is a Form D filing?",
+    blurb:
+      "Notice of exempt offering under Regulation D. The public-record trail for private placements — venture rounds, private REIT raises, hedge-fund LP interests. Issuer, offering amount, accreditation status, all within 15 days of first sale.",
+    formType: "D",
+    formHref: "/form/d",
+  },
+  {
+    slug: "sc-13e3",
+    title: "What is a SC 13E3 filing?",
+    blurb:
+      "Going-private transaction disclosure under Rule 13e-3. Filed when an LBO, management buyout, or freezeout merger will deregister the issuer. The substantive fairness analysis driving the going-private price — every factor disclosed.",
+    formType: "SC 13E3",
+    formHref: "/form/sc-13e3",
+  },
+  {
+    slug: "10-q-a",
+    title: "What is a 10-Q/A filing?",
+    blurb:
+      "Amendment to a previously-filed 10-Q quarterly report. Used to restate quarterly financials, correct errors, or add disclosure. The Explanatory Note tells you which category and why — almost never a benign event.",
+    formType: "10-Q/A",
+    formHref: "/form/10-q-a",
+  },
 ];
 
 export default function LearnHubPage() {
