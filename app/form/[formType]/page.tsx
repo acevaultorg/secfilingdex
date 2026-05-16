@@ -68,12 +68,47 @@ export default async function FormTypePage({
     })),
   };
 
+  const datasetSchema = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: `${formType} filings dataset`,
+    description: info
+      ? `${info.definition} ${filings.length} recent ${formType} filings indexed from SEC EDGAR with filer name, ticker, accession number, and filed-date. Cadence: ${info.cadence}.`
+      : `${filings.length} recent ${formType} filings indexed from SEC EDGAR.`,
+    url: `${SITE_URL}/form/${slug}/`,
+    identifier: `form-${slug}`,
+    keywords: [formType, info?.shortName, "SEC EDGAR", "SEC filings", "SecFilingDex"].filter(Boolean),
+    creator: { "@type": "Organization", name: "SecFilingDex", url: SITE_URL },
+    license: "https://www.sec.gov/about/sec-website-policies/copyright",
+    isAccessibleForFree: true,
+    isPartOf: { "@type": "DataCatalog", name: "SecFilingDex filings", url: `${SITE_URL}/form/` },
+    dateModified: filings[0]?.filedAt ?? new Date().toISOString().slice(0, 10),
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "SecFilingDex", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Form types", item: `${SITE_URL}/form/` },
+      { "@type": "ListItem", position: 3, name: formType, item: `${SITE_URL}/form/${slug}/` },
+    ],
+  };
+
   return (
     <>
       <SiteHeader />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(datasetSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       <main className="min-h-screen px-6 py-12 max-w-5xl mx-auto">
         {/* Breadcrumb */}
