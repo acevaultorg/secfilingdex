@@ -224,6 +224,20 @@ export default async function IndustryPage({
             assigned by the SEC. SecFilingDex is independently operated and not
             affiliated with the U.S. Securities and Exchange Commission.
           </p>
+          <p className="mt-3">
+            Sister property:{" "}
+            <a
+              href="https://holdlens.com/"
+              className="underline"
+              rel="noopener"
+            >
+              HoldLens
+            </a>
+            {" "}— applied-analysis surface for tracked superinvestors. Where SecFilingDex
+            indexes every filer in this industry by SIC code, HoldLens reads the
+            tracked-manager 13F positions across the same companies on a −100..+100
+            ConvictionScore.
+          </p>
         </section>
       </main>
       <SiteFooter />

@@ -177,6 +177,19 @@ export default async function FormTypePage({
             affiliated with the U.S. Securities and Exchange Commission. EDGAR
             is the authoritative source for all filings.
           </p>
+          <p className="mt-3">
+            Sister property:{" "}
+            <a
+              href="https://holdlens.com/"
+              className="underline"
+              rel="noopener"
+            >
+              HoldLens
+            </a>
+            {" "}— applied-analysis surface for tracked superinvestors. Where SecFilingDex catalogs
+            every filing, HoldLens reads the {formType} filings of 30 tracked managers on a
+            −100..+100 ConvictionScore.
+          </p>
         </section>
       </main>
       <SiteFooter />
