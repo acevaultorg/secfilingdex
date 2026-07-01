@@ -9,6 +9,32 @@ import { formatDateShort, formTypeInfo, pickEnrichments } from "@/lib/format";
 
 const SITE_URL = "https://secfilingdex.com";
 
+// Cross-link a /form/[type] DB hub to its plain-English /learn/[slug] explainer
+// when one exists. Concentrates internal-link equity within the hub cluster and
+// gives readers (+ AI crawlers) the "what is this?" path. Only the slugs below
+// have a /learn page; unmapped form types render no cross-link (graceful).
+const LEARN_SLUGS = new Set([
+  "10-k-a", "10-k", "10-q-a", "10-q", "11-k", "13d-vs-13g", "13f", "13h",
+  "20-f", "6-k", "8-k", "def-14a", "f-1", "form-144", "form-4", "form-d",
+  "n-csr", "n-px", "nt-10-k", "s-1", "s-3", "sc-13e3",
+]);
+const LEARN_ALIAS: Record<string, string> = {
+  "13f-hr": "13f", "13f-hr-a": "13f", "13f-nt": "13f",
+  "pre-14a": "def-14a", "defa14a": "def-14a",
+  "sc-13d": "13d-vs-13g", "sc-13d-a": "13d-vs-13g",
+  "sc-13g": "13d-vs-13g", "sc-13g-a": "13d-vs-13g",
+};
+function learnSlugForForm(slug: string): string | null {
+  if (LEARN_SLUGS.has(slug)) return slug;
+  if (LEARN_ALIAS[slug]) return LEARN_ALIAS[slug];
+  if (slug.endsWith("-a")) {
+    const base = slug.slice(0, -2);
+    if (LEARN_SLUGS.has(base)) return base;
+    if (LEARN_ALIAS[base]) return LEARN_ALIAS[base];
+  }
+  return null;
+}
+
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -95,6 +121,55 @@ export default async function FormTypePage({
     ],
   };
 
+  const learnSlug = learnSlugForForm(slug);
+
+  const audienceText =
+    info?.audience === "both"
+      ? "both individual investors and regulators"
+      : info?.audience === "investor"
+        ? "investors and analysts"
+        : info?.audience === "regulator"
+          ? "regulators and compliance teams"
+          : "investors and researchers";
+
+  // FAQ answers derive ONLY from the verified FORM_TYPE_CATALOG fields
+  // (definition · cadence · audience) + the real indexed filing count.
+  // Zero fabrication — every fact traces to SEC form definitions or EDGAR.
+  const faqItems = info
+    ? [
+        { q: `What is a ${formType} filing?`, a: info.definition },
+        {
+          q: `How often is a ${formType} filed?`,
+          a: `${formType} filings are filed on ${
+            /^[aeiou]/.test(info.cadence.toLowerCase()) ? "an" : "a"
+          } ${info.cadence.toLowerCase()} cadence.`,
+        },
+        {
+          q: `Who reads ${formType} filings?`,
+          a: `${formType} filings are primarily relevant to ${audienceText}.`,
+        },
+        {
+          q: `Where can I read ${formType} filings?`,
+          a: `Every ${formType} filing is public and filed with the U.S. SEC through EDGAR. SecFilingDex indexes ${filings.length} recent ${formType} filing${
+            filings.length === 1 ? "" : "s"
+          }, each linking back to its original EDGAR source.`,
+        },
+      ]
+    : [];
+
+  const faqSchema =
+    faqItems.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqItems.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
+          })),
+        }
+      : null;
+
   return (
     <>
       <SiteHeader />
@@ -110,6 +185,12 @@ export default async function FormTypePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
+      {faqSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+      )}
       <main className="min-h-screen px-6 py-12 max-w-5xl mx-auto">
         {/* Breadcrumb */}
         <nav className="text-caption text-dim mb-6 flex flex-wrap gap-1.5 items-center">
@@ -147,6 +228,22 @@ export default async function FormTypePage({
             </dl>
           )}
         </header>
+
+        {/* Hub-cluster cross-link → plain-English explainer (equity concentration + reader path) */}
+        {learnSlug && (
+          <div className="mb-10 rounded-card border border-brand-soft bg-surface-brand p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-body-sm text-muted">
+              New to {formType}? Read the plain-English explainer — what it is, who
+              files it, and how to read one.
+            </p>
+            <Link
+              href={`/learn/${learnSlug}/`}
+              className="shrink-0 inline-flex items-center min-h-[40px] text-body-sm text-brand font-medium hover:underline"
+            >
+              {formType} explained →
+            </Link>
+          </div>
+        )}
 
         {/* Filing list */}
         <section className="mb-10">
@@ -187,6 +284,23 @@ export default async function FormTypePage({
             </ul>
           </div>
         </section>
+
+        {/* FAQ — verified SEC facts, FAQPage-schema'd for AEO / AI-citation capture */}
+        {faqItems.length > 0 && (
+          <section className="mb-10">
+            <p className="text-eyebrow text-brand mb-4">Frequently asked</p>
+            <dl className="rounded-card-lg border border-border bg-panel/40 divide-y divide-border overflow-hidden">
+              {faqItems.map((item) => (
+                <div key={item.q} className="px-5 py-4">
+                  <dt className="text-body text-text font-medium mb-1.5">
+                    {item.q}
+                  </dt>
+                  <dd className="text-body-sm text-muted">{item.a}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        )}
 
         {/* Other form types */}
         <section className="mb-10">
