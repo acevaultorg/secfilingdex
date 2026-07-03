@@ -4,10 +4,10 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadFilingsByCik, uniqueCiks } from "@/lib/filings";
-import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, pickEnrichments } from "@/lib/format";
 import { getHoldLensManagerByCik } from "@/lib/holdlens-tracked";
+import { FilerProfile, filerProfileIsSubstantive } from "@/components/FilerProfile";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -32,6 +32,7 @@ export async function generateMetadata({
     return { title: "Filer not found", robots: { index: false, follow: false } };
   }
   const { filerName, ticker } = pickEnrichments(filings[0]);
+  const substantive = filerProfileIsSubstantive(filings);
   const tickerSuffix = ticker ? ` (${ticker})` : "";
   const title = `${filerName}${tickerSuffix} — SEC filings`;
   const description = `${filings.length} SEC EDGAR filings indexed for ${filerName} (CIK ${cik}). Recent forms: ${[...new Set(filings.slice(0, 5).map((f) => f.formType))].join(", ")}.`;
@@ -41,16 +42,16 @@ export async function generateMetadata({
     alternates: { canonical: `${SITE_URL}/filer/${cik}/` },
     openGraph: { type: "website", title, description, siteName: "SecFilingDex" },
     twitter: { card: "summary_large_image", title, description },
-    // 2026-05-12 AdSense thin-content prevention (per rules/adsense-thin-content-prevention.md).
-    // /filer/[cik] pages avg ~145 words/page across 283 pages — far below AdSense's
-    // ≥400-word indexable-page threshold (Low value content rejection class). Each page
-    // is a minimal filer index (filer name + ticker + N filings listed). Pages remain
-    // LIVE for users via internal navigation (filer index + search + filing pages).
-    // To re-enable indexing: expand per-filer commentary to ≥400 unique words
-    // (filer overview + recent material events + filing-pattern analysis) AND flip
-    // robots.index = true here.
+    // 2026-07-03 thin-content REMEDIATED (per rules/adsense-thin-content-prevention.md +
+    // information-gain-standard). Pages now carry a genuine, zero-fabrication per-filer
+    // Filing Profile (disclosure mix + date span + recency + amendment share + most-
+    // frequent form), derived entirely from the indexed filing records. Only filers with
+    // real filing-behaviour to describe (filerProfileIsSubstantive) become indexable —
+    // thin 1-2-filing filers stay noindex so no low-value page enters the index
+    // (GSC-standing thin-index anti-pattern). follow:true throughout → every page passes
+    // link equity to the /form/* hubs (the pos-11 ranking targets).
     robots: {
-      index: false,
+      index: substantive,
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
@@ -182,21 +183,13 @@ export default async function FilerPage({
           </p>
         </header>
 
-        {/* Form-type pills */}
-        <section className="mb-10">
-          <p className="text-eyebrow text-brand mb-3">Form types filed</p>
-          <div className="flex flex-wrap gap-2">
-            {formTypesByCik.map((ft) => (
-              <Link
-                key={ft}
-                href={`/form/${formTypeToSlug(ft)}/`}
-                className="inline-flex items-center min-h-[40px] px-3.5 py-2 rounded-pill border border-border bg-panel/40 hover:border-border-bright transition-colors font-mono text-data-cell text-text"
-              >
-                {ft}
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* Filing profile — genuine per-filer synthesis (supersedes the bare pill row) */}
+        <FilerProfile
+          filings={filings}
+          filerName={filerName}
+          ticker={ticker}
+          sicCode={sicCode ?? undefined}
+        />
 
         {/* Filings list */}
         <section className="mb-10">
