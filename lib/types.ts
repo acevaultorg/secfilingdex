@@ -184,6 +184,46 @@ export const FORM_TYPE_CATALOG: FormTypeInfo[] = [
     cadence: "Annual",
     audience: "regulator",
   },
+  {
+    code: "424B1",
+    shortName: "Prospectus (post-effective)",
+    definition:
+      "Prospectus filed under Rule 424(b)(1), providing information that was omitted from the registration statement at the time it became effective.",
+    cadence: "Event-driven",
+    audience: "both",
+  },
+  {
+    code: "424B2",
+    shortName: "Shelf prospectus",
+    definition:
+      "Prospectus filed under Rule 424(b)(2) for a delayed or continuous (shelf) offering, supplying pricing or other information omitted from an effective registration statement.",
+    cadence: "Event-driven",
+    audience: "both",
+  },
+  {
+    code: "424B3",
+    shortName: "Updated prospectus",
+    definition:
+      "Prospectus filed under Rule 424(b)(3) that reflects substantive changes to, or a material update of, a previously filed prospectus.",
+    cadence: "Event-driven",
+    audience: "both",
+  },
+  {
+    code: "424B4",
+    shortName: "Final prospectus",
+    definition:
+      "Final prospectus filed under Rule 424(b)(4) that includes the pricing and related information omitted from the registration statement at effectiveness — the common final prospectus for IPOs and public offerings.",
+    cadence: "Event-driven",
+    audience: "both",
+  },
+  {
+    code: "424B5",
+    shortName: "Prospectus supplement",
+    definition:
+      "Prospectus supplement filed under Rule 424(b)(5) for a takedown from an existing shelf registration statement.",
+    cadence: "Event-driven",
+    audience: "both",
+  },
 ];
 
 export function isAmendmentForm(formType: string): boolean {

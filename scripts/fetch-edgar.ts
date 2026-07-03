@@ -49,6 +49,11 @@ const DEFAULT_FORMS: FormType[] = [
   "Form 5",
   "20-F",
   "6-K",
+  "424B1",
+  "424B2",
+  "424B3",
+  "424B4",
+  "424B5",
 ];
 const DEFAULT_MAX_PER_FORM = 5;
 
