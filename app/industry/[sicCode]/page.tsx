@@ -7,6 +7,7 @@ import { loadFilingsBySic, uniqueSicCodes } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, pickEnrichments } from "@/lib/format";
+import { IndustrySummary } from "@/components/IndustrySummary";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -176,6 +177,16 @@ export default async function IndustryPage({
             </div>
           </dl>
         </header>
+
+        {/* Filing-landscape summary (derived) */}
+        <IndustrySummary
+          industryName={industryName}
+          sicCode={sicCode}
+          filingsTotal={filings.length}
+          filers={filers}
+          forms={forms}
+          filedDates={filings.map((f) => f.filedAt)}
+        />
 
         {/* Filers in this industry */}
         <section className="mb-10">
