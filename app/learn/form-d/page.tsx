@@ -116,6 +116,28 @@ export default function LearnFormDPage() {
           ),
         },
       ]}
+      faqs={[
+        {
+          q: "When must a company file a Form D?",
+          a: "Within 15 days of the first sale of securities in an offering claiming a Regulation D exemption under Rule 504, 506(b), or 506(c). The deadline runs from the first sale, not from the start of the raise.",
+        },
+        {
+          q: "Does a Form D register securities with the SEC?",
+          a: "No. Form D is a notice of an exempt offering filed under Rule 503 of Regulation D. It documents the issuer's claim that the offering is exempt from registration rather than registering the securities the way an S-1 does.",
+        },
+        {
+          q: "What is the difference between Rule 506(b) and Rule 506(c)?",
+          a: "506(b) permits no general solicitation and allows up to 35 non-accredited investors (rare in practice). 506(c) permits general solicitation — the issuer can publicly market the offering — but all purchasers must be verified accredited investors through specified verification procedures.",
+        },
+        {
+          q: "Who counts as an accredited investor?",
+          a: "Under Rule 501(a): an individual with $1M+ net worth excluding primary residence, or $200K+ individual (or $300K+ joint) income for the two prior years; an entity with $5M+ in assets; and certain regulated entities. Most Reg D offerings limit purchasers to accredited investors.",
+        },
+        {
+          q: "What does a Form D reveal about a private fundraising round?",
+          a: "The issuer's identity, related persons holding 10% or more, the industry group, the total amount offered and sold plus the minimum investment, the count of investors, and a high-level use of proceeds. The data is coarse — no valuation and no investor names beyond officers — but a final Form D amendment often precedes an S-1.",
+        },
+      ]}
       ourView="Form D is the unsung public-record dataset of the U.S. private capital market. Most retail investors don't know it exists; most fund-tracking commercial databases (PitchBook, CB Insights, Crunchbase) reconstruct large portions of their data from it as the SEC primary source. Reading Form Ds directly costs nothing and gives you cleaner timestamps than the secondary databases. The companies that file the largest Form Ds today are the IPO candidates of 2-5 years from now."
       liveDataLink={liveCount > 0 ? {
         label: "Browse live Form D filings",

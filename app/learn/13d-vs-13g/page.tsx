@@ -194,6 +194,28 @@ export default function Learn13DVs13GPage() {
           ),
         },
       ]}
+      faqs={[
+        {
+          q: "What ownership level triggers a 13D or a 13G?",
+          a: "Both are triggered at the same threshold: beneficial ownership of more than 5% of a class of registered voting equity, under Section 13(d) of the Securities Exchange Act of 1934. The choice between the two schedules is about who is filing and why, not about the ownership level.",
+        },
+        {
+          q: "Is a 13D or a 13G filed faster?",
+          a: "A 13D is due within 5 business days of crossing 5% (tightened from 10 calendar days by SEC amendments effective February 2024). A 13G's deadline depends on the filer: institutional filers have until 45 days after the calendar quarter-end, while non-institutional passive investors also file within 5 business days.",
+        },
+        {
+          q: "Who is allowed to use the short-form 13G?",
+          a: "Three categories under SEC Rule 13d-1: qualified institutional investors such as broker-dealers, banks, and investment advisers holding passively (13d-1(b)); passive investors under 20% who certify passive intent (13d-1(c)); and exempt investors with limited grandfathered ownership (13d-1(d)).",
+        },
+        {
+          q: "Why would an investor switch from a 13G to a 13D?",
+          a: "Because 13G is available only to passive holders, switching to a 13D is a public, legally meaningful statement that the holder is no longer passive. Such transitions almost always precede activist campaigns, board pushes, M&A proposals, or other control-seeking activity.",
+        },
+        {
+          q: "What is Item 4 on a Schedule 13D?",
+          a: "Item 4 is the Purpose of Transaction section — where the filer must disclose plans or proposals relating to changes in management, the board, capital structure, or other extraordinary transactions. It is the most-read section of a 13D and has no equivalent on the passive 13G.",
+        },
+      ]}
       ourView="The 13D-to-13G (or vice-versa) transition is one of the most reliable qualitative signals on EDGAR. Long-only managers who hold for years on a 13G and then switch to a 13D are telling you, on the record, that something changed in their thesis. Reading the Item 4 of the new 13D against the prior holdings rarely takes more than 20 minutes and almost always rewards the time."
       related={[
         { slug: "13f", title: "What is a 13F filing?" },

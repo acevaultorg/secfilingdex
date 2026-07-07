@@ -149,6 +149,28 @@ export default function Learn20FPage() {
           ),
         },
       ]}
+      faqs={[
+        {
+          q: "What is the difference between a 20-F and a 10-K?",
+          a: "Both are annual reports, but the 10-K is for U.S. domestic issuers and requires U.S. GAAP, while the 20-F is for foreign private issuers and accepts IFRS or home-country GAAP with a reconciliation. The 10-K is due within 60-90 days of year-end; the 20-F within 4 months.",
+        },
+        {
+          q: "Who has to file a 20-F?",
+          a: "Foreign private issuers — non-U.S. companies with shares listed on a U.S. exchange that do not meet the SEC's definition of a U.S. domestic issuer, such as Toyota, Novartis, Alibaba, ASML, and SAP.",
+        },
+        {
+          q: "Do foreign private issuers file quarterly reports?",
+          a: "No. FPIs are not required to file the 10-Q quarterly. They instead furnish 6-K event-driven reports with material information made public in their home country, and may publish semi-annual or annual results per home-country rules.",
+        },
+        {
+          q: "Can a 20-F use IFRS instead of U.S. GAAP?",
+          a: "Yes. The SEC accepts IFRS as issued by the IASB for FPI 20-F filings without a U.S. GAAP reconciliation. A 20-F may alternatively use U.S. GAAP, or home-country GAAP with a reconciliation.",
+        },
+        {
+          q: "What is a 6-K, and how does it relate to the 20-F?",
+          a: "The 6-K is the FPI equivalent of an 8-K — used to furnish material information made public in the home country between annual 20-F filings, such as interim earnings, M&A, or leadership changes.",
+        },
+      ]}
       ourView="20-Fs are underused by U.S. analysts who default to 10-Ks. The most interesting FPI signal is comparing the 20-F's Operating &amp; Financial Review against the same company's home-country annual report — sometimes management writes more candidly for home-country regulators. The 6-K stream is the better real-time signal for FPI material events; treat it like an 8-K queue."
       liveDataLink={{
         label: "Browse live 20-F filings",

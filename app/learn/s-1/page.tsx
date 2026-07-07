@@ -169,6 +169,28 @@ export default function LearnS1Page() {
           ),
         },
       ]}
+      faqs={[
+        {
+          q: "When does a company file an S-1?",
+          a: "Before it sells securities to the public. Section 5 of the Securities Act of 1933 requires registration first, so the S-1 is filed before the IPO prices and is amended one or more times until the SEC declares the registration effective and shares begin trading.",
+        },
+        {
+          q: "What is the difference between an S-1 and an S-1/A?",
+          a: "The S-1 is the initial IPO registration statement; an S-1/A is an amendment filed during the SEC's review and pricing process. A typical IPO sees several S-1/A filings — including a pricing amendment that adds the price range — before effectiveness.",
+        },
+        {
+          q: "What is the difference between an S-1, an S-3, and an F-1?",
+          a: "The S-1 is the heaviest-disclosure form for a first-time U.S. domestic registration. The S-3 is the shorter shelf registration for already-public seasoned issuers and incorporates the 10-K and 10-Q by reference. The F-1 is the S-1 equivalent for foreign private issuers.",
+        },
+        {
+          q: "What is a lock-up period in an S-1?",
+          a: "A contractual restriction, disclosed in the S-1 underwriting section, that prohibits pre-IPO holders such as founders, employees, and early investors from selling their shares for a defined period — typically 90 to 180 days after the IPO.",
+        },
+        {
+          q: "What comes after the S-1 in the IPO process?",
+          a: "After SEC comment letters and S-1/A amendments (including a pricing amendment with the price range), the company files a final 424B prospectus that locks in the actual offering price and share count once the SEC declares the registration effective and trading begins.",
+        },
+      ]}
       ourView="The S-1 is the most honest document a company will ever file. Risk factors are written when the company most needs to be candid, before public pressure shapes management language. Read the S-1 — and especially the early S-1 vs. final S-1/A diff — for any IPO you're seriously evaluating. The disclosure quality compresses sharply once the company is public."
       liveDataLink={{
         label: "Browse live S-1 filings",

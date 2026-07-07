@@ -140,6 +140,28 @@ export default function LearnDef14APage() {
           ),
         },
       ]}
+      faqs={[
+        {
+          q: "What is the difference between a DEF 14A and a PRE 14A?",
+          a: "A PRE 14A is the preliminary proxy, filed for SEC review when non-routine matters such as M&A or board contests are on the ballot. The DEF 14A is the definitive version mailed or e-delivered to shareholders once any SEC comments are addressed.",
+        },
+        {
+          q: "What do shareholders vote on in a DEF 14A?",
+          a: "Typically director elections, ratification of the auditor, the advisory Say-on-Pay vote on executive compensation, the Say-on-Pay frequency vote, equity-plan approvals, and any Rule 14a-8 shareholder proposals — each with the board's recommended vote.",
+        },
+        {
+          q: "What is Say-on-Pay?",
+          a: "An advisory shareholder vote on executive compensation packages required by Section 14A of the Exchange Act, added by Dodd-Frank in 2010. It is non-binding but politically meaningful.",
+        },
+        {
+          q: "What is a DEFA14A?",
+          a: "Additional definitive proxy soliciting materials — updates, corrections, or supplemental information filed after the initial DEF 14A. They are particularly common during contested votes, when a company responds to activist mailings.",
+        },
+        {
+          q: "Where is executive pay explained in a proxy statement?",
+          a: "In the Compensation Discussion and Analysis (CD&A), the narrative section explaining the rationale for pay decisions, alongside the Summary Compensation Table, the CEO pay-ratio disclosure (mandatory since 2018), and the pay-vs-performance disclosure (mandatory since 2023).",
+        },
+      ]}
       ourView="The proxy is the most underused governance disclosure on EDGAR. Activist campaigns are won and lost on it; shareholder proposals foreshadow regulation; CD&amp;A drift quarter-over-quarter telegraphs board priority shifts. Two practical hacks: (1) compare consecutive years' CD&amp;A diff to see what board emphasis changed; (2) read the Audit Committee Report — its tone tells you how seriously the board takes the auditor relationship."
       liveDataLink={{
         label: "Browse live DEF 14A filings",
