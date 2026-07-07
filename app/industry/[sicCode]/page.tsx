@@ -31,8 +31,10 @@ export async function generateMetadata({
   const filings = loadFilingsBySic(sicCode);
   const filerCount = new Set(filings.map((f) => f.cik)).size;
   const formCount = new Set(filings.map((f) => f.formType)).size;
-  const title = `${industryName} — SIC ${sicCode} filings`;
-  const description = `${filings.length} SEC filings indexed across ${filerCount} filers in ${industryName} (SIC ${sicCode}). ${formCount} form types represented.`;
+  // Title matches the demand query form (GSC: "sic [code] [industry] sec edgar filings")
+  // — adds the "SEC EDGAR" tokens the query carries (title previously said only "filings").
+  const title = `${industryName} — SIC ${sicCode} SEC EDGAR Filings`;
+  const description = `${filings.length} SEC EDGAR filings indexed across ${filerCount} filers in ${industryName} (SIC ${sicCode}). ${formCount} form types represented.`;
   return {
     title,
     description,
