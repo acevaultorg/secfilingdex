@@ -182,6 +182,24 @@ export default function Learn8KPage() {
             "An event that a reasonable investor would consider important in deciding whether to buy or sell securities. The threshold for SEC disclosure obligations.",
         },
       ]}
+      faqs={[
+        {
+          q: "When must a company file an 8-K?",
+          a: "Generally within four business days of the triggering event. The 8-K is the SEC current report, used to disclose material events that arise between periodic filings.",
+        },
+        {
+          q: "What triggers an 8-K?",
+          a: "A material event between periodic filings, categorized by the specific Items in Form 8-K — for example Item 4.02 (non-reliance on prior financials / restatements), Item 5.02 (executive turnover), and Item 1.02 (terminated material agreements).",
+        },
+        {
+          q: "What counts as a 'material' event?",
+          a: "An event that a reasonable investor would consider important in deciding whether to buy or sell securities — that is the threshold for the SEC disclosure obligation.",
+        },
+        {
+          q: "What is an 8-K/A?",
+          a: "An amendment to a previously filed 8-K — commonly used to provide the financial statements of an acquired business after the original 8-K announced the transaction.",
+        },
+      ]}
     />
   );
 }

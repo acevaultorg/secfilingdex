@@ -179,6 +179,28 @@ export default function Learn13FPage() {
             "An exemption a 13F filer can request from the SEC to delay public disclosure of specific positions. Granted positions appear on the 13F only when the confidentiality period ends.",
         },
       ]}
+      faqs={[
+        {
+          q: "Who has to file a 13F?",
+          a: "Institutional investment managers that exercise investment discretion over at least $100 million of Section 13(f) securities. The list of qualifying securities is published by the SEC each quarter.",
+        },
+        {
+          q: "When is a 13F due?",
+          a: "Within 45 days of the end of each calendar quarter. Because of that window, a 13F's positions are already at least 45 days stale by the time they become public.",
+        },
+        {
+          q: "Does a 13F show a manager's short positions?",
+          a: "No. A 13F reports only long positions in qualifying U.S.-listed equities (plus some convertible debt and options). Short positions, foreign-listed equities, cash, fixed income, and most derivatives are excluded, so a 13F is a long-equity slice, not a complete portfolio.",
+        },
+        {
+          q: "What's the difference between a 13F-HR and a 13F-NT?",
+          a: "A 13F-HR (Holdings Report) contains the actual list of positions. A 13F-NT (Notice) is filed by a manager whose holdings are already reported on another manager's 13F-HR — it points to that primary filer instead of re-listing positions. A 13F-HR/A is an amendment to a prior holdings report.",
+        },
+        {
+          q: "Why does a 13F sometimes disclose a position a quarter late?",
+          a: "A manager can request confidential treatment for specific positions, typically during an ongoing accumulation. SEC review can take months; the position appears on the 13F only when the confidentiality period expires — which is why some new positions surface a quarter after they were actually built.",
+        },
+      ]}
     />
   );
 }

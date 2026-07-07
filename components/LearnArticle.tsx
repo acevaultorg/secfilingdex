@@ -14,6 +14,14 @@ export type DefinedTermEntry = {
   description: string;
 };
 
+/** PAA-style Q&A. Answer is plain text so the rendered block IS the FAQPage
+ * schema source (schema == visible). Every answer must restate a fact already
+ * asserted (and EDGAR-cited) elsewhere on the page — no new/unsourced claims. */
+export type LearnFaq = {
+  q: string;
+  a: string;
+};
+
 export type LearnArticleProps = {
   slug: string;
   title: string;
@@ -32,6 +40,10 @@ export type LearnArticleProps = {
   externalRelated?: { href: string; label: string; description: string }[];
   /** DefinedTerm entries for schema saturation. */
   definedTerms: DefinedTermEntry[];
+  /** Common questions — rendered as a visible FAQ block + FAQPage schema source
+   * (AI-extraction / answer-engine lever). Max one block; answers restate
+   * page-asserted, EDGAR-cited facts only. */
+  faqs?: LearnFaq[];
   /** ISO date for `dateModified`. Defaults to today. */
   dateModified?: string;
 };
@@ -46,6 +58,7 @@ export function LearnArticle({
   related,
   externalRelated,
   definedTerms,
+  faqs,
   dateModified,
 }: LearnArticleProps) {
   const today = (dateModified ?? new Date().toISOString().slice(0, 10));
@@ -78,6 +91,19 @@ export function LearnArticle({
     },
     inLanguage: "en-US",
   };
+
+  const faqSchema =
+    faqs && faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.q,
+            acceptedAnswer: { "@type": "Answer", text: f.a },
+          })),
+        }
+      : null;
 
   const definedTermSchema = definedTerms.map((dt) => ({
     "@context": "https://schema.org",
@@ -123,6 +149,22 @@ export function LearnArticle({
               <div className="space-y-3">{s.body}</div>
             </section>
           ))}
+
+          {faqs && faqs.length > 0 && (
+            <section>
+              <h2 className="text-heading-2 text-text mb-3">
+                Frequently asked questions
+              </h2>
+              <dl className="space-y-5">
+                {faqs.map((f, i) => (
+                  <div key={i}>
+                    <dt className="text-heading-3 text-text mb-1.5">{f.q}</dt>
+                    <dd className="text-body text-muted">{f.a}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
 
           <section className="rounded-card border border-brand-soft bg-surface-brand px-5 py-4">
             <h2 className="text-heading-3 text-brand mb-2">Our view</h2>
@@ -214,6 +256,12 @@ export function LearnArticle({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
         />
+        {faqSchema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+          />
+        )}
         {definedTermSchema.map((s, i) => (
           <script
             key={i}

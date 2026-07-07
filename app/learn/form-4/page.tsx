@@ -178,6 +178,24 @@ export default function LearnForm4Page() {
             "Form 4 transaction code indicating an open-market or private sale of securities. Often routine; check whether 10b5-1 box is checked before drawing conclusions.",
         },
       ]}
+      faqs={[
+        {
+          q: "Who has to file a Form 4?",
+          a: "Section 16 reporting persons — a company's officers, directors, and beneficial owners of more than 10% of its stock — must file a Form 4 for any change in their ownership of the company's securities.",
+        },
+        {
+          q: "How quickly must a Form 4 be filed?",
+          a: "Within two business days of the transaction that changed the insider's ownership.",
+        },
+        {
+          q: "Does an insider sale on a Form 4 signal that the stock will fall?",
+          a: "Not necessarily. A sale (transaction code S) is often routine — for diversification, taxes, or under a pre-arranged 10b5-1 plan. Check whether the 10b5-1 box is checked before drawing conclusions. An open-market purchase (code P) is generally read as the stronger insider signal.",
+        },
+        {
+          q: "What is a Rule 10b5-1 trading plan?",
+          a: "A written trading plan an insider pre-establishes during an open window. Trades executed under the plan are protected from insider-trading liability even if they occur during an otherwise-closed window — which is why a sale under a 10b5-1 plan carries less signal than a discretionary one.",
+        },
+      ]}
     />
   );
 }

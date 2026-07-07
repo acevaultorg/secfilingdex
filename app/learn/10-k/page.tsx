@@ -172,6 +172,28 @@ export default function Learn10KPage() {
             "Item 1A of the 10-K. Forward-looking risks the company is required to disclose, written in plain English under SEC plain-English rules.",
         },
       ]}
+      faqs={[
+        {
+          q: "Is a 10-K audited?",
+          a: "Yes. A 10-K is the audited annual report — the single most comprehensive disclosure a U.S. public company produces in a given year, and it includes audited financial statements.",
+        },
+        {
+          q: "How often is a 10-K filed?",
+          a: "Once per fiscal year. It is the annual filing; the quarters in between are covered by three 10-Q reports.",
+        },
+        {
+          q: "What's the difference between a 10-K and a company's annual report?",
+          a: "The 10-K is the SEC-mandated, audited, comprehensive filing. The glossy 'annual report' mailed to shareholders is a marketing document, and the proxy statement (DEF 14A) covers governance and executive pay — they are three different documents.",
+        },
+        {
+          q: "Where are a company's risk factors in a 10-K?",
+          a: "In Item 1A. It sets out the forward-looking risks the company is required to disclose, written in plain English under SEC plain-English rules. Management's narrative on results sits separately in Item 7 (MD&A).",
+        },
+        {
+          q: "What is a 10-K/A?",
+          a: "An amendment to a previously filed 10-K, used to restate prior financials, correct errors, or add deficient information. The amendment does not replace the original — both filings remain on the public record.",
+        },
+      ]}
     />
   );
 }

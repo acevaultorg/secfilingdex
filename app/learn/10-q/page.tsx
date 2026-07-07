@@ -139,6 +139,24 @@ export default function Learn10QPage() {
             "A limited engagement, less rigorous than a full audit. Required for 10-Q financials. Provides negative assurance: the auditor states they are not aware of material modifications needed.",
         },
       ]}
+      faqs={[
+        {
+          q: "Is a 10-Q audited?",
+          a: "No. A 10-Q's financials are unaudited but auditor-reviewed — a limited engagement, less rigorous than a full audit, that provides negative assurance rather than a full audit opinion.",
+        },
+        {
+          q: "How many 10-Qs does a company file each year?",
+          a: "Three — one for each of the first three fiscal quarters. The fourth quarter is folded into the annual 10-K, so no separate Q4 10-Q is filed.",
+        },
+        {
+          q: "What's the difference between a 10-Q and a 10-K?",
+          a: "A 10-Q is the quarterly report — unaudited (auditor-reviewed) and less comprehensive, filed three times a year. A 10-K is the annual report — audited and the most comprehensive disclosure a company produces.",
+        },
+        {
+          q: "What is a 10-Q/A?",
+          a: "An amendment to a previously filed 10-Q, used to restate, correct, or add disclosure to a quarterly report.",
+        },
+      ]}
     />
   );
 }
