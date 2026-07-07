@@ -34,7 +34,9 @@ export async function generateMetadata({
   const { filerName, ticker } = pickEnrichments(filings[0]);
   const substantive = filerProfileIsSubstantive(filings);
   const tickerSuffix = ticker ? ` (${ticker})` : "";
-  const title = `${filerName}${tickerSuffix} — SEC filings`;
+  // Title matches the exact demand query form (GSC: "[company] sec EDGAR filings",
+  // "[company] cik sec edgar") — adds the "EDGAR" + "CIK" tokens the SERP query carries.
+  const title = `${filerName}${tickerSuffix} — SEC EDGAR Filings (CIK ${cik})`;
   const description = `${filings.length} SEC EDGAR filings indexed for ${filerName} (CIK ${cik}). Recent forms: ${[...new Set(filings.slice(0, 5).map((f) => f.formType))].join(", ")}.`;
   return {
     title,
@@ -178,7 +180,8 @@ export default async function FilerPage({
           </div>
           <h1 className="text-display-2 mb-3">{filerName}</h1>
           <p className="text-body-lg text-muted">
-            {filings.length} SEC filings indexed across {formTypesByCik.length}{" "}
+            {filings.length} SEC EDGAR filings indexed (CIK{" "}
+            <span className="font-mono">{cik}</span>) across {formTypesByCik.length}{" "}
             {formTypesByCik.length === 1 ? "form type" : "form types"}.
           </p>
         </header>
