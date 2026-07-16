@@ -25,7 +25,7 @@ Run-from-clean wrapper: scripts/deploy-cf-chunked.sh (build + prune + this).
 import base64, hashlib, json, mimetypes, os, pathlib, sys, time, uuid, urllib.request, urllib.error
 
 ACCOUNT = "72bfd26c5f3c935393a25e5c0dea6039"
-PROJECT = "secfilingdex"
+PROJECT = os.environ.get("CF_PAGES_PROJECT", "secfilingdex")
 BRANCH = "main"
 OUT_DIR = pathlib.Path(os.environ.get("OUT_DIR",
     str(pathlib.Path(__file__).resolve().parent.parent / "out"))).resolve()
