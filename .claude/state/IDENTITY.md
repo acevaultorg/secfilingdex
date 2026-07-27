@@ -4,7 +4,7 @@
 **Operator:** Paulo de Vries (paulomdevries@gmail.com)
 **Domain:** secfilingdex.com (Cloudflare-registered 2026-04-28, ~€9.59/yr)
 **Archetype:** static-reference (finite-public-dataset programmatic)
-**Fleet:** AceVault 260426 (sibling to holdlens, fermentcalc, sourcescore, readinglist)
+**Fleet:** VAULT-AceVault (sibling to holdlens, fermentcalc, sourcescore, readinglist)
 **Build tier:** Easy (2-3 days holdlens-playbook replay)
 
 ## What this site is

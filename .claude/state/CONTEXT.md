@@ -91,7 +91,7 @@ D1-13 is the one RIGHT-NOW operator action. Other 3 stay queued until Day 7.
 - **Domain:** secfilingdex.com (Cloudflare-registered 2026-04-28)
 - **CF account dashboard:** https://dash.cloudflare.com/72bfd26c5f3c935393a25e5c0dea6039/secfilingdex.com (CF account ID: `72bfd26c5f3c935393a25e5c0dea6039` — used for Day 7 CF Pages project creation under this account)
 - **GSC account:** `paulomdevries@gmail.com` (operator's personal Gmail, Google authuser=2; secfilingdex.com Domain property added pending verification). Note: sculptclub.nl is on `paulo.devries@mediahuis.nl` (authuser=1) — separate work account, out of scope this session.
-- **Folder:** `/Users/paulodevries/Local/AceVault 260426/secfilingdex-com/secfilingdex/`
+- **Folder:** `/Users/paulodevries/Local/VAULT-AceVault/finance/35-secfilingdex-com/secfilingdex/`
 - **Sibling fleet:** holdlens-com (different lens), Concept Finder, Fermentcalc, sourcescore-org
 - **Stack:** Next.js 15.0.3 + React 19 RC + Tailwind 3.4 + TypeScript 5.6 + Wrangler/CF Pages
 - **Repo:** local main branch, 5 commits (Day 0 + Day 1 ship + Day 1 state + Day 2 ship + Day 3 ship), no remote yet (D1-13 still pending)

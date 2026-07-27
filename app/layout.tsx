@@ -161,12 +161,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 __html: `
                   window.dataLayer = window.dataLayer || [];
                   function gtag(){dataLayer.push(arguments);}
+                  // Deny by default ONLY where consent is legally required, then
+                  // grant elsewhere. The previous version denied analytics_storage
+                  // globally with nothing to ever grant it, so GA4 counted almost
+                  // nobody — 3 visitors/30d reported against ~770 from CF-RUM.
                   gtag('consent', 'default', {
                     'ad_storage': 'denied',
                     'ad_user_data': 'denied',
                     'ad_personalization': 'denied',
                     'analytics_storage': 'denied',
-                    'wait_for_update': 500
+                    'functionality_storage': 'granted',
+                    'security_storage': 'granted',
+                    'wait_for_update': 500,
+                    'region': ['BE','BG','CZ','DK','DE','EE','IE','EL','GR','ES','FR','HR','IT','CY','LV','LT','LU','HU','MT','NL','AT','PL','PT','RO','SI','SK','FI','SE','IS','LI','NO','GB','CH','US-CA']
+                  });
+                  gtag('consent', 'default', {
+                    'ad_storage': 'granted',
+                    'ad_user_data': 'granted',
+                    'ad_personalization': 'granted',
+                    'analytics_storage': 'granted',
+                    'functionality_storage': 'granted',
+                    'security_storage': 'granted'
                   });
                   gtag('js', new Date());
                   gtag('config', '${GA4_ID}', { 'anonymize_ip': true });

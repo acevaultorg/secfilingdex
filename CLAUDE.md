@@ -7,7 +7,7 @@ This file is the project-level override. AcePilot reads it at ABSORB step 2 BEFO
 **secfilingdex.com** — a programmatic database surface over SEC EDGAR filings, designed for finance prosumers + developer-data audiences who need a faster, more searchable, more LLM-citable source than EDGAR's own UI.
 
 **Archetype:** static-reference (finite-public-dataset programmatic).
-**Fleet:** AceVault 260426. Sibling: holdlens (different lens — signal-spectrum on superinvestor 13Fs).
+**Fleet:** VAULT-AceVault. Sibling: holdlens (different lens — signal-spectrum on superinvestor 13Fs).
 **Stack:** Next.js 15.0.3 + React 19 RC + Tailwind 3.4 + TypeScript 5.6 + static export + Cloudflare Pages.
 
 ## Operating principles for this project
