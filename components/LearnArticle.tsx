@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { FilingsReading } from "@/components/FilingsReading";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -236,6 +237,15 @@ export function LearnArticle({
               </ul>
             </section>
           )}
+
+          {/* Reading shelf on every form explainer. Measured reason (2026-07-28):
+              Bing WMT "AI Performance" shows ~2,500 of this site's ~2,800
+              Copilot/ChatGPT grounding citations land on THIS template, and it
+              carried no monetization at all. See lib/books.ts for the citation
+              breakdown and the full compliance contract. */}
+          <FilingsReading
+            sub={`Understanding the form is step one; reading one is step two. These are the references that help with the second part.`}
+          />
 
           {definedTerms.length > 0 && (
             <section>
