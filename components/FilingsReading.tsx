@@ -1,4 +1,9 @@
-import { FILINGS_READING, FTC_DISCLOSURE, amazonUrl } from "@/lib/books";
+import {
+  AUDIBLE_TRIAL_URL,
+  FILINGS_READING,
+  FTC_DISCLOSURE,
+  amazonUrl,
+} from "@/lib/books";
 
 /**
  * FilingsReading — the reading shelf rendered at the end of every /learn/[form]
@@ -40,6 +45,28 @@ export function FilingsReading({
           </li>
         ))}
       </ul>
+
+      {/* Audible trial. Placed after the list because it is an alternative
+          format for the same references, not a separate pitch — a filings
+          reader commutes too. Factual framing only: no advice, no verdicts,
+          no claim about outcomes (this is a finance site; see the YMYL note
+          in lib/books.ts). */}
+      <p className="mt-4">
+        <a
+          href={AUDIBLE_TRIAL_URL}
+          target="_blank"
+          rel="sponsored nofollow noopener"
+          data-event="amazon_click"
+          data-book="Audible trial"
+          className="text-brand hover:underline font-medium"
+        >
+          Several of these are on Audible — free trial
+        </a>
+        <span className="text-muted text-sm">
+          {" "}
+          — Graham and Fridson both read well as audio if you are commuting.
+        </span>
+      </p>
 
       <p className="text-muted text-xs mt-4">{FTC_DISCLOSURE}</p>
     </section>

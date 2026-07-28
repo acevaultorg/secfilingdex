@@ -23,12 +23,19 @@
  *    implication of investment advice — that framing is exactly what triggered
  *    the HoldLens AdSense rejection (see rules/google-policy-compliance.md).
  *
- * NOTE ON THE AUDIBLE BOUNTY: deliberately absent. The $20 Audible trial bounty
- * must use an operator SiteStripe-generated link; a hand-built ?tag= Audible URL
- * earns $0. secfilingdex-20 was created 2026-07-28 and Amazon warns a new
- * tracking ID takes up to 24h to appear in SiteStripe, so the bounty CTA is a
- * follow-up rather than a fabricated link.
+ * AUDIBLE BOUNTY: the flat trial bounty is worth far more per conversion than
+ * a book commission, so it belongs on the most-cited template. The URL below is
+ * operator SiteStripe output, copied VERBATIM — including the `_r=1` that
+ * Amazon itself echoed into it. Do not tidy that parameter away: the linkId is
+ * issued against this exact string, and hand-editing a SiteStripe link is what
+ * silently zeroed readminute's bounty attribution (found 2026-07-27). If the
+ * link ever needs changing, regenerate it in SiteStripe under secfilingdex-20
+ * rather than editing this line.
  */
+
+/** Audible free-trial bounty — SiteStripe output under secfilingdex-20, verbatim. */
+export const AUDIBLE_TRIAL_URL =
+  "https://www.amazon.com/hz/audible/arya/mlp?purchaseType=MTRIAL&_r=1&linkCode=ll2&tag=secfilingdex-20&linkId=429c6ed87c263b92e2729cea179bc999&language=en_US&ref_=as_li_ss_tl";
 
 const TAG = process.env.NEXT_PUBLIC_AMAZON_AFFILIATE_TAG || "secfilingdex-20";
 
