@@ -123,7 +123,7 @@ export default function PrivacyPage() {
             </p>
             <ul className="list-disc pl-6 space-y-1.5">
               <li>
-                <strong className="text-text">Plausible Analytics</strong> —
+                <strong className="text-text">Cloudflare Web Analytics</strong> —
                 privacy-friendly, cookieless, no personal data; does not track
                 users across sites.
               </li>
@@ -205,7 +205,7 @@ export default function PrivacyPage() {
             <p>
               We share aggregated, non-personal usage data with the third-party
               services described above (Google AdSense, Google Analytics,
-              Plausible, Cloudflare). We do not sell personal information. We
+              Microsoft Clarity, Cloudflare). We do not sell personal information. We
               may disclose information when required by law or to protect our
               rights.
             </p>

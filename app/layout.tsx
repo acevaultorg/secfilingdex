@@ -106,9 +106,12 @@ const siteSchema = {
 //   Cloudflare Web Analytics — privacy-first beacon (token via CF dashboard)
 //   GSC — verification via metadata.verification field (operator drops token)
 //   GA4 — Consent Mode v2 defaults DENIED until cookie banner accepts
-const PLAUSIBLE_DOMAIN = "secfilingdex.com";
 const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN || "";
-const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "";
+// Shared Fleet GA4 property; the fleet worker splits it per-site by hostName. Defaulted
+// (not just env-read) so GA4 always loads — it replaced Plausible, retired fleet-wide when
+// the subscription was cancelled 2026-06. Consumed ONLY by the Consent Mode v2 block below;
+// never hardcode a second gtag init, which would double-count and bypass the consent gate.
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-5BVWDL3M45";
 // Microsoft Clarity — heatmaps + session recordings + UX friction detection.
 // Loads only when project ID is present. Operator drops via NEXT_PUBLIC_CLARITY_ID
 // after creating the project at https://clarity.microsoft.com/projects.
@@ -127,19 +130,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <head>
-        {/* Plausible Analytics — outbound-links + tagged-events variant */}
-        <script
-          defer
-          data-domain={PLAUSIBLE_DOMAIN}
-          src="https://plausible.io/js/script.outbound-links.tagged-events.js"
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }",
-          }}
-        />
-
         {/* Cloudflare Web Analytics (privacy-first; only when CF token present) */}
         {CF_BEACON_TOKEN && (
           <script

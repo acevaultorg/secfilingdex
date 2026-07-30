@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
  * Per `~/.claude/rules/adsense-compliance.md` Day 6 gate:
  *   - First visitors see clear Accept / Reject options
  *   - GA4 + AdSense cookies do NOT fire until accept
- *   - Plausible (cookieless) runs unconditionally — no consent needed
+ *   - Cloudflare Web Analytics (cookieless) runs unconditionally — no consent needed
  *   - Choice persisted to localStorage; banner doesn't re-show
  *   - Privacy-default: rejecting is one click, equally weighted with accept
  *
@@ -27,7 +27,6 @@ type Consent = "granted" | "denied";
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
-    plausible?: (...args: unknown[]) => void;
     clarity?: (...args: unknown[]) => void;
   }
 }
@@ -42,8 +41,12 @@ function applyConsent(state: Consent): void {
       analytics_storage: state,
     });
   }
-  if (typeof window.plausible === "function") {
-    window.plausible("consent", { props: { state } });
+  if (typeof window.clarity === "function") {
+    window.clarity("event", "consent");
+    window.clarity("set", "consent_state", state);
+  }
+  if (typeof window.gtag === "function") {
+    window.gtag("event", "consent", { consent_state: state });
   }
   // Microsoft Clarity respects consent via window.clarity('consent', boolean).
   // On Accept → grants cookie storage + session-recording capture.
@@ -97,7 +100,8 @@ export function CookieConsent() {
             Cookies
           </p>
           <p id="consent-body" className="text-body-sm text-muted">
-            We use a cookieless analytics signal (Plausible) by default. With
+            We use a cookieless analytics signal (Cloudflare Web Analytics) by
+            default. With
             your permission we also enable Google Analytics + Microsoft
             Clarity (heatmaps + session insights) to improve the product.{" "}
             <a
