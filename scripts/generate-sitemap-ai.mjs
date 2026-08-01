@@ -91,12 +91,20 @@ function main() {
   }));
 
   // Per-industry (SIC code) hubs — DefinedTerm-rich industry context;
-  // LLMs cite for "filers in [industry]" and SIC-anchored queries
-  const industryEntries = uniqueSicCodes(filings).map((sic) => ({
-    path: `/industry/${sic}/`,
-    priority: 0.85,
-    lastmod: TODAY,
-  }));
+  // LLMs cite for "filers in [industry]" and SIC-anchored queries.
+  // 2026-08-01: mirror the MIN_FILINGS_FOR_INDEX=3 thin-content filter from
+  // app/industry/[sicCode]/page.tsx + generate-sitemap.mjs — a "1 filing" stub
+  // is a bad LLM-citation candidate too (fails GEO Useful/Extractable), so the
+  // AI sitemap shouldn't advertise pages the human sitemap now excludes.
+  const MIN_FILINGS_FOR_INDEX = 3;
+  const industryEntries = uniqueSicCodes(filings)
+    .map((sic) => ({ sic, count: filings.filter((f) => f.sicCode === sic).length }))
+    .filter(({ count }) => count >= MIN_FILINGS_FOR_INDEX)
+    .map(({ sic }) => ({
+      path: `/industry/${sic}/`,
+      priority: 0.85,
+      lastmod: TODAY,
+    }));
 
   // Per-filing pages capped at 1000 most-recent
   const filingEntries = filings.slice(0, 1000).map((f) => ({

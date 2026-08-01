@@ -122,15 +122,18 @@ function main() {
   }));
 
   // Per-industry (SIC code) landing pages — KEPT (substantive aggregator pages, 650+ words avg)
-  const industryEntries = uniqueSicCodes(filings).map((sic) => {
-    const count = filings.filter((f) => f.sicCode === sic).length;
-    return {
+  // 2026-08-01: exclude thin SICs (<3 filings) — noindex'd at page level in
+  // app/industry/[sicCode]/page.tsx (MIN_FILINGS_FOR_INDEX). Keep values in sync.
+  const MIN_FILINGS_FOR_INDEX = 3;
+  const industryEntries = uniqueSicCodes(filings)
+    .map((sic) => ({ sic, count: filings.filter((f) => f.sicCode === sic).length }))
+    .filter(({ count }) => count >= MIN_FILINGS_FOR_INDEX)
+    .map(({ sic, count }) => ({
       path: `/industry/${sic}/`,
       changefreq: "weekly",
-      priority: count >= 5 ? 0.7 : count >= 2 ? 0.6 : 0.5,
+      priority: count >= 5 ? 0.7 : 0.6,
       lastmod: TODAY,
-    };
-  });
+    }));
 
   // Suppress unused-imports lint trace
   void filings;

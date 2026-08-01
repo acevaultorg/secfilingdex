@@ -11,6 +11,18 @@ import { IndustrySummary } from "@/components/IndustrySummary";
 
 const SITE_URL = "https://secfilingdex.com";
 
+// 2026-08-01 AdSense/HCU thin-content fix (per rules/adsense-thin-content-prevention.md +
+// rules/information-gain-standard.md). 81 of 111 /industry/[sicCode]/ pages carry <3
+// filings — e.g. "1 SEC EDGAR filing indexed across 1 filer" is not a page, it's a stub.
+// Live GSC per-page pull (2026-08-01, 30d window) confirmed ZERO of these 81 pages had
+// any click; the one thin page that DID get a click (SIC 6798, 1 click/391 impr) already
+// clears the filing-depth floor anyway (13 filings), so nothing indexed today loses
+// traffic. Pages stay LIVE for users via internal nav; only search-indexing is suppressed.
+// Same fix pattern already applied to /filing/[accession] + /filer/[cik] (see
+// scripts/generate-sitemap.mjs comment). Mirror this constant in generate-sitemap.mjs +
+// generate-sitemap-ai.mjs if it ever changes.
+const MIN_FILINGS_FOR_INDEX = 3;
+
 export const dynamicParams = false;
 
 export async function generateStaticParams() {
@@ -35,12 +47,14 @@ export async function generateMetadata({
   // — adds the "SEC EDGAR" tokens the query carries (title previously said only "filings").
   const title = `${industryName} — SIC ${sicCode} SEC EDGAR Filings`;
   const description = `${filings.length} SEC EDGAR filings indexed across ${filerCount} filers in ${industryName} (SIC ${sicCode}). ${formCount} form types represented.`;
+  const isThin = filings.length < MIN_FILINGS_FOR_INDEX;
   return {
     title,
     description,
     alternates: { canonical: `${SITE_URL}/industry/${sicCode}/` },
     openGraph: { type: "website", title, description, siteName: "SecFilingDex" },
     twitter: { card: "summary_large_image", title, description },
+    ...(isThin ? { robots: { index: false, follow: true } } : {}),
   };
 }
 
