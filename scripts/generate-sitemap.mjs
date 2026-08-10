@@ -28,6 +28,8 @@ const STATIC_ROUTES = [
   { path: "/methodology/", changefreq: "monthly", priority: 0.7, lastmod: TODAY },
   { path: "/faq/", changefreq: "monthly", priority: 0.6, lastmod: TODAY },
   { path: "/contact/", changefreq: "yearly", priority: 0.5, lastmod: TODAY },
+  { path: "/partners/", changefreq: "monthly", priority: 0.5, lastmod: TODAY },
+  { path: "/disclosure/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
   { path: "/privacy/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
   { path: "/terms/", changefreq: "yearly", priority: 0.4, lastmod: TODAY },
   // Hub-index pages — taxonomy entry points (filer/form/industry/learn indexes)

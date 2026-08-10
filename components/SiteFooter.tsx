@@ -19,6 +19,12 @@ export function SiteFooter() {
           <Link href="/contact" className="block hover:text-text transition-colors">
             Contact
           </Link>
+          <Link href="/partners" className="block hover:text-text transition-colors">
+            Partners
+          </Link>
+          <Link href="/disclosure" className="block hover:text-text transition-colors">
+            Affiliate Disclosure
+          </Link>
           <Link href="/privacy" className="block hover:text-text transition-colors">
             Privacy
           </Link>

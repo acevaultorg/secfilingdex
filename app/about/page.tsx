@@ -258,6 +258,12 @@ export default function AboutPage() {
               &mdash; a signal-spectrum lens on superinvestor 13F filings,
               complementary to but distinct from this database lens.
             </p>
+            <p className="mb-3">
+              SecFilingDex is published by{" "}
+              <strong className="text-text">Caslon Media</strong>, a registered
+              Dutch media company operating a network of independent data and
+              reference websites.
+            </p>
             <p>
               Contact: <Link href="/contact" className="text-brand hover:underline">contact page</Link>.
             </p>
