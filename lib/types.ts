@@ -152,12 +152,35 @@ export const FORM_TYPE_CATALOG: FormTypeInfo[] = [
     cadence: "Annual (pre-meeting)",
     audience: "investor",
   },
+  // Section 16 insider-ownership set. Form 4 was catalogued; Forms 3 and 5 were
+  // not, and because slugToFormType() resolves a slug only against this catalog
+  // plus a hand-kept literal list, /form/form-3/, /form/form-3-a/ and
+  // /form/form-5/ never resolved — they fell through to notFound() and served a
+  // soft 404 (HTTP 200 + noindex + no h1) while still sitting in the sitemap,
+  // hiding 19, 1 and 10 real filings respectively. Definitions below are the
+  // SEC's own descriptions of each form's purpose and deadline.
+  {
+    code: "Form 3",
+    shortName: "Initial insider ownership",
+    definition:
+      "Initial statement of beneficial ownership filed by a company's officers, directors, and 10%+ owners when they first become an insider.",
+    cadence: "Within 10 days of becoming an insider",
+    audience: "investor",
+  },
   {
     code: "Form 4",
     shortName: "Insider transaction",
     definition:
       "Statement of changes in beneficial ownership filed by company officers, directors, and 10%+ owners.",
     cadence: "Within 2 business days of transaction",
+    audience: "investor",
+  },
+  {
+    code: "Form 5",
+    shortName: "Annual insider summary",
+    definition:
+      "Annual statement of changes in beneficial ownership, covering insider transactions that were exempt from Form 4 reporting during the fiscal year.",
+    cadence: "Within 45 days of fiscal year end",
     audience: "investor",
   },
   {
@@ -281,8 +304,12 @@ export function slugToFormType(slug: string): FormType | string {
       "DEF 14A",
       "PRE 14A",
       "DEFA14A",
+      "Form 3",
+      "Form 3/A",
       "Form 4",
       "Form 4/A",
+      "Form 5",
+      "Form 5/A",
       "20-F",
       "20-F/A",
       "6-K",

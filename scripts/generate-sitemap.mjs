@@ -7,7 +7,7 @@
 // last verified against EDGAR), changefreq=weekly, priority weighted by
 // freshness (recent filings filed within 30d get higher priority).
 
-import { writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   loadAllFilingsSync,
@@ -116,6 +116,39 @@ function main() {
   // });
 
   // Per-form-type landing pages (KEPT — aggregator surface, substantive content)
+  //
+  // GUARD: /form/[formType] resolves its slug back to a raw form type via
+  // slugToFormType() in lib/types.ts, which matches ONLY against
+  // FORM_TYPE_CATALOG plus a hand-kept literal list. A form type present in the
+  // data but absent from both never resolves, so the page calls notFound() and
+  // serves a soft 404 — HTTP 200, `noindex`, no <h1> — while this generator
+  // happily lists it in the sitemap. That is exactly what happened to
+  // "Form 3", "Form 3/A" and "Form 5" (2026-08-11): 30 real filings unreachable,
+  // 3 dead URLs advertised to Google on a site with ~25k impressions.
+  //
+  // The list is hand-maintained and EDGAR keeps adding form types, so drift is a
+  // matter of when. Rather than trust it, re-derive what the app can resolve and
+  // refuse to advertise anything it can't. Fail loudly — a silent skip would just
+  // hide the next drift instead of the last one.
+  const typesSrc = readFileSync(join(process.cwd(), "lib", "types.ts"), "utf8");
+  const resolvable = new Set([
+    ...[...typesSrc.matchAll(/code:\s*"([^"]+)"/g)].map((m) => m[1]),
+    ...[...typesSrc
+      .split("export function slugToFormType")[1]
+      .split("];")[0]
+      .matchAll(/"([^"]+)"/g)].map((m) => m[1]),
+  ]);
+  const unresolvable = uniqueFormTypes(filings).filter((ft) => !resolvable.has(ft));
+  if (unresolvable.length) {
+    throw new Error(
+      `generate-sitemap: ${unresolvable.length} form type(s) in the data cannot be resolved by ` +
+        `slugToFormType() and would ship as soft 404s in the sitemap: ` +
+        `${unresolvable.map((t) => `${JSON.stringify(t)} -> /form/${formTypeToSlug(t)}/`).join(", ")}. ` +
+        `Add each to FORM_TYPE_CATALOG (preferred — the page then renders a real definition) ` +
+        `or to the literal list in slugToFormType().`,
+    );
+  }
+
   const formTypeEntries = uniqueFormTypes(filings).map((ft) => ({
     path: `/form/${formTypeToSlug(ft)}/`,
     changefreq: "weekly",
