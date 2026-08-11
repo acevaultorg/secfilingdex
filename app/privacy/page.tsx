@@ -43,7 +43,10 @@ export default function PrivacyPage() {
             <ul className="list-disc pl-6 space-y-1.5">
               <li>
                 <strong className="text-text">Server logs:</strong> IP address,
-                user-agent, referrer, request timestamp, requested URL.
+                user-agent, referrer, request timestamp, requested URL. The Site
+                is hosted and served by{" "}
+                <strong className="text-text">Cloudflare</strong>, which
+                processes these request logs as our hosting and CDN provider.
               </li>
               <li>
                 <strong className="text-text">Cookies and identifiers:</strong>{" "}
@@ -122,15 +125,6 @@ export default function PrivacyPage() {
               Site is used:
             </p>
             <ul className="list-disc pl-6 space-y-1.5">
-              <li>
-                <strong className="text-text">Cloudflare Web Analytics</strong> —
-                privacy-friendly, cookieless, no personal data; does not track
-                users across sites.
-              </li>
-              <li>
-                <strong className="text-text">Cloudflare Web Analytics</strong>{" "}
-                — privacy-first; no cookies; aggregated only.
-              </li>
               <li>
                 <strong className="text-text">Google Analytics 4 (GA4)</strong>{" "}
                 — used with Consent Mode v2: analytics cookies are denied by
@@ -235,10 +229,10 @@ export default function PrivacyPage() {
             <p>
               For privacy questions, data-rights requests, or to opt out, email:{" "}
               <Link
-                href="mailto:contact@secfilingdex.com"
+                href="mailto:hello@caslonmedia.com"
                 className="text-brand hover:underline"
               >
-                contact@secfilingdex.com
+                hello@caslonmedia.com
               </Link>
               .
             </p>

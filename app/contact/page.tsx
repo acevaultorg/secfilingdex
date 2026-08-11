@@ -27,10 +27,10 @@ export default function ContactPage() {
             <p className="text-eyebrow text-brand mb-3">Email</p>
             <p className="mb-4">
               <Link
-                href="mailto:contact@secfilingdex.com"
+                href="mailto:hello@caslonmedia.com"
                 className="text-heading-2 text-text font-mono hover:text-brand transition-colors"
               >
-                contact@secfilingdex.com
+                hello@caslonmedia.com
               </Link>
             </p>
             <p className="text-body-sm">

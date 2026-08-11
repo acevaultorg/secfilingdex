@@ -23,7 +23,11 @@ import type { FilingRecord, FormType } from "../lib/types.js";
 import { normalizeAccession, isAmendmentForm } from "../lib/types.js";
 
 const DATA_DIR = join(process.cwd(), "data", "filings");
-const USER_AGENT = "SecFilingDex contact@secfilingdex.com";
+// SEC fair-access policy requires a REACHABLE contact address here so they can
+// reach the operator if this crawler misbehaves. secfilingdex.com has no MX
+// record, so the previous contact@secfilingdex.com hard-bounced — i.e. the site
+// was non-compliant with SEC guidance in practice. Publisher address instead.
+const USER_AGENT = "SecFilingDex hello@caslonmedia.com";
 const MIN_REQUEST_GAP_MS = 200; // 5 req/s upper bound (SEC allows 10)
 
 const DEFAULT_FORMS: FormType[] = [

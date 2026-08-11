@@ -283,8 +283,8 @@ export default function MethodologyPage() {
           </h2>
           <p>
             Spot a factual error on any SecFilingDex page? Email{" "}
-            <a href="mailto:hello@secfilingdex.com" className="text-accent hover:underline">
-              hello@secfilingdex.com
+            <a href="mailto:hello@caslonmedia.com" className="text-accent hover:underline">
+              hello@caslonmedia.com
             </a>{" "}
             with the URL of the page and a description of the issue. Corrections
             post within 5 business days; the page&rsquo;s <code>dateModified</code>{" "}

@@ -90,10 +90,10 @@ export default function DisclosurePage() {
               This disclosure is made in line with the FTC&apos;s endorsement
               guides (16 CFR Part 255). If anything here is unclear, email{" "}
               <Link
-                href="mailto:contact@secfilingdex.com"
+                href="mailto:hello@caslonmedia.com"
                 className="text-brand font-mono hover:underline"
               >
-                contact@secfilingdex.com
+                hello@caslonmedia.com
               </Link>{" "}
               or see the{" "}
               <Link href="/partners" className="text-brand hover:underline">

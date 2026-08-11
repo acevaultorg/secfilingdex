@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { PartnerTools } from "@/components/PartnerTools";
 import { loadAllFilings, loadFilingByAccession } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
@@ -210,6 +211,13 @@ export default async function FilingPage({
             </p>
           )}
         </header>
+
+        {/* Zero-lag activation layer. Renders NOTHING until a NEXT_PUBLIC_AFF_*
+            env var is set — see lib/partners.ts. Sits directly below the filing
+            header because that is the highest-intent moment on the site: the
+            reader has just landed on one specific document for one specific
+            company. Above the facts table so it never reads as a footer ad. */}
+        <PartnerTools subject={ticker} />
 
         {/* Data table — facts at a glance */}
         <section className="mb-10">

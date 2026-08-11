@@ -38,6 +38,46 @@ import { usePathname } from "next/navigation";
 declare global {
   interface Window {
     clarity?: (...args: unknown[]) => void;
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
+  }
+}
+
+/**
+ * Fire an affiliate outbound click into the analytics the site ALREADY loads.
+ * No new vendor: Microsoft Clarity + GA4, both already in app/layout.tsx.
+ *
+ * Clarity's `event` API takes a name only — it carries no properties — so the
+ * partner slug goes on as a session tag immediately before the event, which is
+ * the documented pattern and matches how page_type is tagged above.
+ *
+ * GA4 gets the slug as a real event parameter. `gtag` is declared inside an
+ * inline <script> in layout.tsx, so it lands on window; the dataLayer.push
+ * fallback covers the case where the gtag shim has not evaluated yet (the
+ * consent block queues on dataLayer anyway, so nothing is lost).
+ *
+ * Every call site is guarded: a missing vendor must never throw inside a click
+ * handler, because that would break navigation on the link the user clicked.
+ */
+function trackAffiliateClick(partner: string, href: string) {
+  try {
+    if (typeof window.clarity === "function") {
+      window.clarity("set", "affiliate_partner", partner);
+      window.clarity("event", "affiliate_click");
+    }
+    if (typeof window.gtag === "function") {
+      window.gtag("event", "affiliate_click", {
+        partner,
+        link_url: href,
+        // GA4 marks outbound clicks non-interaction-free by default; this keeps
+        // the event in engagement reporting where conversion analysis reads it.
+        transport_type: "beacon",
+      });
+    } else if (Array.isArray(window.dataLayer)) {
+      window.dataLayer.push(["event", "affiliate_click", { partner, link_url: href }]);
+    }
+  } catch {
+    // Analytics must never interfere with the outbound navigation.
   }
 }
 
@@ -85,9 +125,23 @@ export function ClarityTags() {
       const target = (e.target as HTMLElement | null)?.closest?.("a");
       if (!target) return;
       const href = target.getAttribute("href") || "";
+
+      // Affiliate outbound — every monetised anchor on the site is marked with
+      // `data-affiliate="<slug>"`, so this one delegated listener covers the
+      // Amazon shelf on /learn/[form] AND the PartnerTools box on filing pages.
+      //
+      // This closes a real measurement gap: FilingsReading has always emitted
+      // `data-event="amazon_click"`, but nothing ever read that attribute, so
+      // affiliate clicks were reaching Amazon completely untracked on both
+      // Clarity and GA4.
+      const partner = target.getAttribute("data-affiliate");
+      if (partner) {
+        trackAffiliateClick(partner, href);
+        return;
+      }
+
       if (
         href.startsWith("https://www.sec.gov") ||
-        href.startsWith("https://efts.sec.gov") ||
         href.startsWith("https://efts.sec.gov")
       ) {
         window.clarity?.("event", "edgar_outbound");

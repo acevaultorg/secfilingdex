@@ -37,7 +37,7 @@ npm run fetch-edgar  # pull latest SEC EDGAR filings index (no API key needed)
 
 ## Data source
 
-[SEC EDGAR](https://www.sec.gov/edgar) — public, no API key required for filings index. Identify with `User-Agent: secfilingdex.com paulomdevries@gmail.com` per SEC guidance. Rate limit: 10 req/sec/IP.
+[SEC EDGAR](https://www.sec.gov/edgar) — public, no API key required for filings index. Identify with `User-Agent: SecFilingDex hello@caslonmedia.com` per SEC guidance (must be a reachable address; see `scripts/fetch-edgar.ts`). Rate limit: 10 req/sec/IP.
 
 ## Fleet context
 

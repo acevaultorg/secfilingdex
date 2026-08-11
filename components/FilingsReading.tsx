@@ -35,6 +35,10 @@ export function FilingsReading({
               target="_blank"
               rel="sponsored nofollow noopener"
               data-event="amazon_click"
+              // Read by the delegated listener in ClarityTags → fires
+              // affiliate_click on Clarity + GA4. `data-event` above was never
+              // wired to anything; this attribute is what actually reports.
+              data-affiliate="amazon-book"
               data-book={book.title}
               className="text-brand hover:underline font-medium"
             >
@@ -57,6 +61,10 @@ export function FilingsReading({
           target="_blank"
           rel="sponsored nofollow noopener"
           data-event="amazon_click"
+          // Separate slug from the book links: the flat Audible trial bounty is
+          // worth far more per conversion than a book commission, so it has to
+          // be attributable on its own in Clarity/GA4.
+          data-affiliate="amazon-audible"
           data-book="Audible trial"
           className="text-brand hover:underline font-medium"
         >

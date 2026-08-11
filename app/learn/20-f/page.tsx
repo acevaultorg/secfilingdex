@@ -127,11 +127,23 @@ export default function Learn20FPage() {
               <ul className="list-disc pl-6 space-y-1.5">
                 <li>
                   <strong className="text-text">20-F/A:</strong> amendment
-                  to a previously filed 20-F. SecFilingDex tracks{" "}
-                  <a href="/form/20-f-a" className="text-brand hover:underline">
-                    {amendCount} 20-F/A filings
-                  </a>
-                  .
+                  to a previously filed 20-F.
+                  {/* Count-gated: /form/20-f-a only exists when the index holds
+                      20-F/A filings. Unconditional it rendered "tracks 0 20-F/A
+                      filings" as a link to a 404. */}
+                  {amendCount > 0 && (
+                    <>
+                      {" "}
+                      SecFilingDex tracks{" "}
+                      <a
+                        href="/form/20-f-a"
+                        className="text-brand hover:underline"
+                      >
+                        {amendCount} 20-F/A filings
+                      </a>
+                      .
+                    </>
+                  )}
                 </li>
                 <li>
                   <strong className="text-text">6-K:</strong> the FPI

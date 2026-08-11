@@ -114,12 +114,23 @@ export default function LearnDef14APage() {
                 proxy materials. Used to provide updates, corrections, or
                 supplemental information after the initial DEF 14A —
                 particularly common during contested votes when the
-                company responds to activist mailings. SecFilingDex
-                tracks{" "}
-                <a href="/form/defa14a" className="text-brand hover:underline">
-                  {additionalCount} DEFA14A filings
-                </a>
-                .
+                company responds to activist mailings.
+                {/* Count-gated: /form/defa14a only exists when the index holds
+                    DEFA14A filings. Unconditional it rendered "tracks 0 DEFA14A
+                    filings" as a link to a 404. */}
+                {additionalCount > 0 && (
+                  <>
+                    {" "}
+                    SecFilingDex tracks{" "}
+                    <a
+                      href="/form/defa14a"
+                      className="text-brand hover:underline"
+                    >
+                      {additionalCount} DEFA14A filings
+                    </a>
+                    .
+                  </>
+                )}
               </li>
             </ul>
           ),

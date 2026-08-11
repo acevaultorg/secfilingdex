@@ -84,10 +84,10 @@ export default function PartnersPage() {
             <p>
               Contact:{" "}
               <Link
-                href="mailto:contact@secfilingdex.com"
+                href="mailto:hello@caslonmedia.com"
                 className="text-brand font-mono hover:underline"
               >
-                contact@secfilingdex.com
+                hello@caslonmedia.com
               </Link>
             </p>
           </section>
@@ -171,10 +171,10 @@ export default function PartnersPage() {
             </p>
             <p>
               <Link
-                href="mailto:contact@secfilingdex.com"
+                href="mailto:hello@caslonmedia.com"
                 className="text-brand font-mono hover:underline"
               >
-                contact@secfilingdex.com
+                hello@caslonmedia.com
               </Link>{" "}
               &middot;{" "}
               <Link href="/contact" className="text-brand hover:underline">

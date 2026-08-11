@@ -146,10 +146,10 @@ export default function TermsPage() {
             <p>
               Questions about these Terms? Email{" "}
               <Link
-                href="mailto:contact@secfilingdex.com"
+                href="mailto:hello@caslonmedia.com"
                 className="text-brand hover:underline"
               >
-                contact@secfilingdex.com
+                hello@caslonmedia.com
               </Link>
               .
             </p>

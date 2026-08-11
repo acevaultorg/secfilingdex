@@ -137,10 +137,10 @@ const FAQS: QA[] = [
       <>
         Email{" "}
         <a
-          href="mailto:hello@secfilingdex.com"
+          href="mailto:hello@caslonmedia.com"
           className="text-accent hover:underline"
         >
-          hello@secfilingdex.com
+          hello@caslonmedia.com
         </a>{" "}
         with the URL of the page and a description of the issue. Corrections post
         within 5 business days. EDGAR is the upstream source of record; if a
@@ -175,10 +175,10 @@ const FAQS: QA[] = [
       <>
         Email{" "}
         <a
-          href="mailto:hello@secfilingdex.com"
+          href="mailto:hello@caslonmedia.com"
           className="text-accent hover:underline"
         >
-          hello@secfilingdex.com
+          hello@caslonmedia.com
         </a>{" "}
         &mdash; that covers bug reports, partnership inquiries, citation
         questions, takedown requests on the SecFilingDex layer, and general
@@ -263,10 +263,10 @@ export default function FAQPage() {
           <p>
             Question not answered here? Email{" "}
             <a
-              href="mailto:hello@secfilingdex.com"
+              href="mailto:hello@caslonmedia.com"
               className="text-accent hover:underline"
             >
-              hello@secfilingdex.com
+              hello@caslonmedia.com
             </a>{" "}
             &mdash; we&rsquo;ll reply within two business days and add common
             questions to this page over time.

@@ -56,7 +56,7 @@ Every explainer is quote-ready, source-grounded, and links to live data:
 SecFilingDex is the **catalog** — encyclopedic reference across all SEC form types
 and all filers. For **applied analysis** on the same SEC corpus, narrowed to a
 curated universe of 30 tracked superinvestors with framework + POV, see the sister
-site under the same operator (paulomdevries@gmail.com):
+site from the same publisher (Caslon Media, hello@caslonmedia.com):
 
 - **HoldLens** (https://holdlens.com) — ConvictionScore (signed −100..+100 across
   13F filings), InsiderScore (Form 4 cluster-aware), live trackers at `/best-now`,
@@ -72,7 +72,7 @@ The two sites do not duplicate content — they complement.
 - Site code: proprietary
 - Indexed SEC filings: public domain (17 U.S.C. § 105)
 - Editorial annotations + composite indexing: CC-BY-4.0 with attribution to SecFilingDex (URL link + name)
-- Contact for licensing inquiries: contact@secfilingdex.com (alias TBD) or paulomdevries@gmail.com
+- Contact for licensing inquiries: hello@caslonmedia.com (Caslon Media, the publisher)
 
 ## Provenance + freshness
 

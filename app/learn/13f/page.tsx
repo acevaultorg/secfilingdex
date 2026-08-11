@@ -92,11 +92,22 @@ export default function Learn13FPage() {
                 filing. A manager whose holdings are already reported on
                 another manager&apos;s 13F-HR (e.g., a sub-adviser
                 relationship) files a 13F-NT pointing to the primary
-                report. SecFilingDex tracks{" "}
-                <a href="/form/13f-nt" className="text-brand hover:underline">
-                  {ntCount} 13F-NT filings
-                </a>
-                .
+                report.
+                {/* Only claim coverage — and only link — when the index actually
+                    holds filings of this type. /form/[formType] is generated from
+                    uniqueFormTypes(), so a 0 count means that page does not exist:
+                    the old unconditional link rendered "tracks 0 13F-NT filings"
+                    pointing at a 404. */}
+                {ntCount > 0 && (
+                  <>
+                    {" "}
+                    SecFilingDex tracks{" "}
+                    <a href="/form/13f-nt" className="text-brand hover:underline">
+                      {ntCount} 13F-NT filings
+                    </a>
+                    .
+                  </>
+                )}
               </li>
               <li>
                 <strong className="text-text">13F-HR/A:</strong> Amendment
