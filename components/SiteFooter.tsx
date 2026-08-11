@@ -49,7 +49,14 @@ export function SiteFooter() {
         </div>
       </div>
       <div className="max-w-6xl mx-auto px-6 mt-8 pt-6 border-t border-border/50 flex flex-col sm:flex-row justify-between gap-2 text-caption">
-        <p>© {new Date().getFullYear()} SecFilingDex. Not affiliated with the U.S. SEC.</p>
+        <p>
+          © {new Date().getFullYear()} SecFilingDex. Not affiliated with the U.S. SEC. Published
+          by{" "}
+          <a href="https://caslonmedia.com/" className="underline hover:text-text">
+            Caslon Media
+          </a>
+          , Amsterdam.
+        </p>
         <p className="font-mono">
           Data source:{" "}
           <Link

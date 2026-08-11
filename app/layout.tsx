@@ -83,8 +83,17 @@ const orgSchema = {
   // citation #3 Recognizable + #6 Corroborated.
   sameAs: [
     "https://holdlens.com/",
+    "https://caslonmedia.com/",
     "https://github.com/acevaultorg",
   ],
+  // Publisher attribution — lets partners and networks verify common
+  // ownership across the Caslon Media network (mirrors holdlens/sourcescore).
+  parentOrganization: {
+    "@type": "Organization",
+    "@id": "https://caslonmedia.com/#organization",
+    name: "Caslon Media",
+    url: "https://caslonmedia.com/",
+  },
 };
 
 const siteSchema = {
