@@ -8,7 +8,8 @@ import { useEffect, useState } from "react";
  * Per `~/.claude/rules/adsense-compliance.md` Day 6 gate:
  *   - First visitors see clear Accept / Reject options
  *   - GA4 + AdSense cookies do NOT fire until accept
- *   - Cloudflare Web Analytics (cookieless) runs unconditionally — no consent needed
+ *   - No analytics cookies before consent (the CF Web Analytics beacon this
+ *     originally referenced is NOT wired on this site — see banner copy note)
  *   - Choice persisted to localStorage; banner doesn't re-show
  *   - Privacy-default: rejecting is one click, equally weighted with accept
  *
@@ -100,10 +101,15 @@ export function CookieConsent() {
             Cookies
           </p>
           <p id="consent-body" className="text-body-sm text-muted">
-            We use a cookieless analytics signal (Cloudflare Web Analytics) by
-            default. With
-            your permission we also enable Google Analytics + Microsoft
-            Clarity (heatmaps + session insights) to improve the product.{" "}
+            {/* Do not re-add a "cookieless Cloudflare Web Analytics" claim here:
+                the CF beacon is not injected on this site (no
+                NEXT_PUBLIC_CF_BEACON_TOKEN — verify with
+                `curl -s https://secfilingdex.com/ | grep -c cloudflareinsights`).
+                This banner is on every page, so a service named here that does
+                not run is the most-seen false statement on the site. */}
+            No analytics cookies are set until you accept. With your permission
+            we enable Google Analytics + Microsoft Clarity (heatmaps + session
+            insights) to improve the product.{" "}
             <a
               href="/privacy/"
               className="underline decoration-border hover:decoration-text hover:text-text transition-colors"
