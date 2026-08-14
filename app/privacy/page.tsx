@@ -75,9 +75,13 @@ export default function PrivacyPage() {
               Third-party advertising (Google AdSense)
             </h2>
             <p className="mb-3">
-              SecFilingDex is supported by advertising. We use{" "}
+              SecFilingDex loads{" "}
               <strong className="text-text">Google AdSense</strong>, a
-              third-party advertising service operated by Google LLC.
+              third-party advertising service operated by Google LLC. No ad
+              units are being served on the Site at present — the AdSense
+              script is present for account verification — but it can set
+              cookies, so the disclosure below applies today and will continue
+              to apply if ads begin serving.
             </p>
             <ul className="list-disc pl-6 space-y-1.5">
               <li>
