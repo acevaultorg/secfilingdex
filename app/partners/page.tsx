@@ -41,9 +41,9 @@ export default function PartnersPage() {
             <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-body-sm mb-3">
               <div className="rounded-card border border-border bg-panel/40 p-4">
                 <dt className="text-eyebrow text-dim mb-1">
-                  Human visitors / 30 days
+                  Search impressions / 30 days
                 </dt>
-                <dd className="text-text text-heading-2 tabular">285</dd>
+                <dd className="text-text text-heading-2 tabular">25,007</dd>
               </div>
               <div className="rounded-card border border-border bg-panel/40 p-4">
                 <dt className="text-eyebrow text-dim mb-1">Geography</dt>
@@ -55,10 +55,13 @@ export default function PartnersPage() {
               </div>
             </dl>
             <p className="text-caption text-dim">
-              Visitor count is human traffic measured in Google Analytics 4
-              over the trailing 30 days (August 2026). SecFilingDex also serves
-              a substantial AI-crawler and API audience via its JSON endpoints;
-              the number above counts humans only.
+              Figures are Google Search Console, trailing 30 days (August
+              2026): 25,007 impressions and 7 clicks across 40 indexed pages —
+              wide search visibility, low click-through, which is our current
+              focus. We quote search data rather than a GA4 visitor count
+              because SecFilingDex serves a substantial AI-crawler and API
+              audience through its JSON endpoints, and a raw session total
+              would overstate the human readership.
             </p>
             <p className="mt-3">
               The typical reader arrives on a specific filing, form-type
