@@ -46,3 +46,38 @@ AUG_v3 = (1 × 4 × 5 × 2 × 1 × 1 × 8)^(1/7) ÷ 10 × 10 = ~1.7
 ## Corrections
 
 (None yet.)
+
+## 2026-08-26 — EDGAR depth pass + sitemap fix (Acquisition/Discover lever)
+
+Cross-session effort (multiple parallel autopilot sessions, reconciled via git):
+- Deepened all 352 pre-existing filers via SEC `data.sec.gov/submissions/CIK*.json`
+  (1 call/filer, 200ms throttle, identifying UA). Filing corpus 434 -> 11,227 records
+  (capped 40/filer, 8/form-type, diversity-prioritized — bounded, not scaled-thin).
+- 325/352 filers (92.3%) now cross `filerProfileIsSubstantive()` (>=3 filings, >=2
+  form types) -> auto-flipped `noindex` -> `index, follow` with zero code changes to
+  the gate itself (Appalachian Power: 186w/1 filing -> 2,352w/41 filings; General
+  Mills: 184w -> 2,789w).
+- Fixed a real build-bloat risk found along the way: per-filing OpenGraph-image
+  render (11,227 renders for pages that are `noindex`) disabled — cut `out/` from
+  2.2GB/48,422 files to 936MB/35,197.
+- Fixed a real discoverability gap: `generate-sitemap.mjs` still hard-excluded ALL
+  `/filer/[cik]` pages (stale pre-depth-pass comment) even after 325 of them flipped
+  to index-eligible at the page level. Wired the same substantive gate into the
+  sitemap generator (matches the existing `/industry/` MIN_FILINGS_FOR_INDEX
+  pattern). sitemap.xml: 173 -> 498 URLs.
+- Pruned RSC `.txt` prefetch payloads + per-filing JSON API twins from the deploy
+  bundle to fit Cloudflare Pages' 20,000-file/deployment cap (12,211 files shipped).
+  KNOWN LIMITATION: the "Machine-readable JSON twin" link on `/filing/[accession]/`
+  pages (themselves noindex, internal-nav-only) now 404s — narrow UX defect,
+  documented, not yet fixed (would need R2/KV-hosted JSON or a further filing cap).
+- Deployed via chunked uploader (bare wrangler EPIPEs past ~56MB/connection).
+  Live: https://secfilingdex.com — verified 200, sitemap 498 URLs, 2 sampled
+  filers confirmed flipped live.
+- IndexNow ping: 498 URLs, 200/200/202 across api.indexnow.org / bing.com /
+  yandex.com. Bing is the live click channel here (71 clicks/0.82% CTR vs 5
+  Google per the task's fleet-data snapshot) — this ping IS the practical
+  equivalent of a WMT sitemap resubmit; no Bing WMT API key or Chrome MCP
+  available in-session to also do the dashboard action.
+- Expect: GSC/Bing click lift lags indexing by days-weeks — not measurable
+  this session. Re-check `gsc_clicks_30d` against the 24,215 impression pool
+  in a future session.
