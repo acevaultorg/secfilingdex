@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0000897101-26-000101",
+  "cik": "0000040704",
+  "filerName": "GENERAL MILLS INC",
+  "ticker": "GIS",
+  "sicCode": "2040",
+  "formType": "Form 3",
+  "filedAt": "2026-03-24T00:00:00.000Z",
+  "periodOfReport": "2026-03-16",
+  "primaryDocument": "xslF345X06/edgardoc.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/40704/000089710126000101/0000897101-26-000101-index.htm",
+  "size": 599075,
+  "indexedAt": "2026-08-26T18:24:44.468Z",
+  "isAmendment": false
+}

@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001193125-26-207701",
+  "cik": "0001816007",
+  "filerName": "Lufax Holding Ltd",
+  "ticker": "LU",
+  "sicCode": "6199",
+  "formType": "Form 3",
+  "filedAt": "2026-05-06T00:00:00.000Z",
+  "periodOfReport": "2026-05-06",
+  "primaryDocument": "xslF345X06/ownership.xml",
+  "primaryDocDescription": "3",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1816007/000119312526207701/0001193125-26-207701-index.htm",
+  "size": 3365,
+  "indexedAt": "2026-08-26T18:25:52.467Z",
+  "isAmendment": false
+}

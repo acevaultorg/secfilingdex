@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001207955-08-000020",
+  "cik": "0001015650",
+  "filerName": "SK TELECOM CO LTD",
+  "ticker": "SKM",
+  "sicCode": "4812",
+  "formType": "Form 3",
+  "filedAt": "2008-09-09T00:00:00.000Z",
+  "periodOfReport": "2008-08-22",
+  "primaryDocument": "xslF345X02/edgar.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1015650/000120795508000020/0001207955-08-000020-index.htm",
+  "size": 11880,
+  "indexedAt": "2026-08-26T18:25:02.834Z",
+  "isAmendment": false
+}

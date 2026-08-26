@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001193125-26-283082",
+  "cik": "0002096861",
+  "filerName": "Sinda Ltd.",
+  "ticker": "SIND",
+  "sicCode": "1040",
+  "formType": "Form 3",
+  "filedAt": "2026-06-25T00:00:00.000Z",
+  "periodOfReport": "2026-06-25",
+  "primaryDocument": "xslF345X06/ownership.xml",
+  "primaryDocDescription": "3",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/2096861/000119312526283082/0001193125-26-283082-index.htm",
+  "size": 15765,
+  "indexedAt": "2026-08-26T18:26:19.913Z",
+  "isAmendment": false
+}

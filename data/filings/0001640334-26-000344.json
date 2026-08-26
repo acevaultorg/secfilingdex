@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001640334-26-000344",
+  "cik": "0000894556",
+  "filerName": "CitroTech Inc.",
+  "ticker": "CITR",
+  "sicCode": "2800",
+  "formType": "Form 3/A",
+  "filedAt": "2026-02-18T00:00:00.000Z",
+  "periodOfReport": "2025-03-01",
+  "primaryDocument": "xslF345X02/form3a.xml",
+  "primaryDocDescription": "FORM 3A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/894556/000164033426000344/0001640334-26-000344-index.htm",
+  "size": 5577,
+  "indexedAt": "2026-08-26T18:24:58.448Z",
+  "isAmendment": true
+}

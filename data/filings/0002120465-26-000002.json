@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0002120465-26-000002",
+  "cik": "0000096021",
+  "filerName": "SYSCO CORP",
+  "ticker": "SYY",
+  "sicCode": "5140",
+  "formType": "Form 3",
+  "filedAt": "2026-03-16T00:00:00.000Z",
+  "periodOfReport": "2026-03-06",
+  "primaryDocument": "xslF345X02/wk-form3_1773694702.xml",
+  "primaryDocDescription": "FORM 3",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/96021/000212046526000002/0002120465-26-000002-index.htm",
+  "size": 85911,
+  "indexedAt": "2026-08-26T18:24:46.296Z",
+  "isAmendment": false
+}

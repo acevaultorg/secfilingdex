@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001466026-25-000076",
+  "cik": "0001466026",
+  "filerName": "Midland States Bancorp, Inc.",
+  "ticker": "MSBI",
+  "sicCode": "6022",
+  "formType": "Form 3",
+  "filedAt": "2025-12-04T00:00:00.000Z",
+  "periodOfReport": "2025-12-02",
+  "primaryDocument": "xslF345X02/primary_01.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1466026/000146602625000076/0001466026-25-000076-index.htm",
+  "size": 9956,
+  "indexedAt": "2026-08-26T18:25:19.547Z",
+  "isAmendment": false
+}

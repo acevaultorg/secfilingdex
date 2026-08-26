@@ -63,15 +63,23 @@ async function throttledFetch(url: string): Promise<Response> {
   });
 }
 
-// The exact set of FormType union members (lib/types.ts). Kept as a literal
-// list (not `keyof`) because FormType is a string-literal union, not an
-// object type — TS gives no runtime reflection over it.
+// The FormType union members (lib/types.ts) PLUS "Form 3"/"Form 3/A"/
+// "Form 5"/"Form 5/A" — real, common insider-ownership forms that a sibling
+// commit (db225a7, landed on origin/main while this script was mid-flight)
+// added to FORM_TYPE_CATALOG + slugToFormType's known-list, but did NOT add
+// to the strict `FormType` string-literal union (FormTypeInfo.code is typed
+// `FormType | string`, so the catalog didn't need the union widened). Cast
+// with `as FormType` below rather than leaving them out — /form/form-3/ and
+// /form/form-5/ now resolve correctly per that commit, so skipping them here
+// would keep real, common Section-16 filings invisible for no reason.
 const KNOWN_FORM_TYPES = new Set<FormType>([
   "10-K", "10-K/A", "10-Q", "10-Q/A", "8-K", "8-K/A",
   "13F-HR", "13F-HR/A", "13F-NT",
   "SC 13D", "SC 13D/A", "SC 13G", "SC 13G/A",
   "S-1", "S-1/A", "DEF 14A", "PRE 14A", "DEFA14A",
   "Form 4", "Form 4/A",
+  "Form 3" as FormType, "Form 3/A" as FormType,
+  "Form 5" as FormType, "Form 5/A" as FormType,
   "20-F", "20-F/A", "6-K", "11-K",
   "424B1", "424B2", "424B3", "424B4", "424B5",
 ]);
@@ -83,8 +91,12 @@ const KNOWN_FORM_TYPES = new Set<FormType>([
 // needed "SCHEDULE 13D").
 function rawFormToFormType(raw: string): FormType | null {
   const map: Record<string, FormType> = {
+    "3": "Form 3" as FormType,
+    "3/A": "Form 3/A" as FormType,
     "4": "Form 4",
     "4/A": "Form 4/A",
+    "5": "Form 5" as FormType,
+    "5/A": "Form 5/A" as FormType,
   };
   const mapped = map[raw] ?? (raw as FormType);
   return KNOWN_FORM_TYPES.has(mapped) ? mapped : null;
