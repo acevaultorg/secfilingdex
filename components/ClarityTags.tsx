@@ -61,9 +61,24 @@ declare global {
  */
 function trackAffiliateClick(partner: string, href: string) {
   try {
+    // Is this an Amazon-family slug? FilingsReading emits `amazon-book` and
+    // `amazon-audible`; PartnerTools emits data/research/education slugs.
+    const isAmazon = /^amazon/.test(partner);
+    // The flat Audible free-trial bounty converts without a purchase and is the
+    // top-$ action here, so it must be separable from book commission downstream.
+    const isBounty = /audible|MTRIAL/i.test(href) || partner === "amazon-audible";
+    // Our own automation must be subtractable, not silently dropped.
+    const isAgent =
+      typeof window !== "undefined" &&
+      ((window as unknown as { __FLEET_AGENT__?: unknown }).__FLEET_AGENT__ === 1 ||
+        (typeof navigator !== "undefined" && navigator.webdriver === true));
+
     if (typeof window.clarity === "function") {
       window.clarity("set", "affiliate_partner", partner);
       window.clarity("event", "affiliate_click");
+      // Clarity's fleet-standard event name, so this site is nameable alongside
+      // the rest of the fleet rather than showing as untracked.
+      if (isAmazon) window.clarity("event", "amazon_click");
     }
     if (typeof window.gtag === "function") {
       window.gtag("event", "affiliate_click", {
@@ -73,8 +88,37 @@ function trackAffiliateClick(partner: string, href: string) {
         // the event in engagement reporting where conversion analysis reads it.
         transport_type: "beacon",
       });
+      // ⚠️ LOAD-BEARING EVENT NAME. The fleet metrics layer pulls GA4 with
+      // inListFilter ['amazon_click','click'] (tooling/55-fleet-dashboard/worker
+      // /index.mjs). Emitting ONLY `affiliate_click` meant every click here was
+      // dropped at the filter, so amazon_clicks_30d read null and this site
+      // ranked as unmonetized despite a live, compliant Amazon shelf.
+      if (isAmazon) {
+        window.gtag("event", "amazon_click", {
+          partner,
+          link_url: href,
+          cta_position: partner,
+          transport_type: "beacon",
+        });
+      }
     } else if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push(["event", "affiliate_click", { partner, link_url: href }]);
+      if (isAmazon) {
+        window.dataLayer.push(["event", "amazon_click", { partner, link_url: href }]);
+      }
+    }
+
+    // First-party beacon. Without this the fleet dashboard has no click column
+    // for this site at all, which is what makes the gate/no-gate decision in
+    // affiliate-link-gate.md uncomputable (that rule triggers on a DROP in the
+    // click-capture ratio, and a null ratio can never drop).
+    if (isAmazon && typeof navigator !== "undefined" && navigator.sendBeacon) {
+      const q =
+        "https://fleet.promptprio.com/c?s=secfilingdex.com&f=" +
+        encodeURIComponent(partner) +
+        (isBounty ? "&t=b" : "") +
+        (isAgent ? "&a=1" : "");
+      navigator.sendBeacon(q);
     }
   } catch {
     // Analytics must never interfere with the outbound navigation.
@@ -148,6 +192,10 @@ export function ClarityTags() {
       }
     }
 
+    function onAuxClick(e: MouseEvent) {
+      if (e.button === 1) onClick(e);
+    }
+
     let learnScrollFired = false;
     function onScroll() {
       if (learnScrollFired) return;
@@ -161,11 +209,17 @@ export function ClarityTags() {
       }
     }
 
-    document.addEventListener("click", onClick, { passive: true });
+    // Capture phase + auxclick is the fleet standard. Bubble-phase alone loses a
+    // click whose handler stops propagation, and without auxclick every
+    // middle-click — the natural gesture for "open this book in a new tab" on a
+    // reference site — went uncounted.
+    document.addEventListener("click", onClick, true);
+    document.addEventListener("auxclick", onAuxClick, true);
     window.addEventListener("scroll", onScroll, { passive: true });
 
     return () => {
-      document.removeEventListener("click", onClick);
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("auxclick", onAuxClick, true);
       window.removeEventListener("scroll", onScroll);
     };
   }, []);

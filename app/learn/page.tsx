@@ -3,6 +3,7 @@ import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadFilingsByFormType } from "@/lib/filings";
+import { FilingsReading } from "@/components/FilingsReading";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -282,6 +283,16 @@ export default function LearnHubPage() {
             .
           </p>
         </div>
+
+        {/* The hub is the one page in this tree with genuine choose-what-to-read
+            intent: a reader here is picking which SEC form to understand next.
+            The 22 /learn/[form] articles already render this shelf via
+            LearnArticle; the hub was the only page with that intent and no
+            affordance. Reused verbatim — no new links, no new tag, no new copy,
+            so the rel, the FTC disclosure and the no-price rule all come with it. */}
+        <FilingsReading
+          sub={`Working out which filing to read first? These are the references that make the forms legible.`}
+        />
 
         <script
           type="application/ld+json"
