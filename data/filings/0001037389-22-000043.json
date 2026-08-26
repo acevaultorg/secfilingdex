@@ -1,0 +1,14 @@
+{
+  "accessionNumber": "0001037389-22-000043",
+  "cik": "0000069891",
+  "filerName": "NATIONAL BEVERAGE CORP",
+  "ticker": "FIZZ",
+  "sicCode": "2086",
+  "formType": "SC 13G/A",
+  "filedAt": "2022-02-10T00:00:00.000Z",
+  "primaryDocument": "fizz-13g_20211231.txt",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/69891/000103738922000043/0001037389-22-000043-index.htm",
+  "size": 13382,
+  "indexedAt": "2026-08-26T18:15:58.101Z",
+  "isAmendment": true
+}

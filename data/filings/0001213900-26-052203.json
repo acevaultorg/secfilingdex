@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001213900-26-052203",
+  "cik": "0002014254",
+  "filerName": "FST Corp.",
+  "ticker": "KBSX",
+  "sicCode": "3949",
+  "formType": "6-K",
+  "filedAt": "2026-05-05T00:00:00.000Z",
+  "periodOfReport": "2026-03-31",
+  "primaryDocument": "ea0288097-6k_fstcorp.htm",
+  "primaryDocDescription": "REPORT OF FOREIGN PRIVATE ISSUER",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/2014254/000121390026052203/0001213900-26-052203-index.htm",
+  "size": 1048846,
+  "indexedAt": "2026-08-26T18:17:14.875Z",
+  "isAmendment": false
+}

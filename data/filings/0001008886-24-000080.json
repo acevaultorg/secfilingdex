@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001008886-24-000080",
+  "cik": "0000070487",
+  "filerName": "NRC HEALTH",
+  "ticker": "NRC",
+  "sicCode": "8731",
+  "formType": "SC 13D/A",
+  "filedAt": "2024-03-05T00:00:00.000Z",
+  "primaryDocument": "schedule13da.htm",
+  "primaryDocDescription": "SCHEDULE 13D/A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/70487/000100888624000080/0001008886-24-000080-index.htm",
+  "size": 61916,
+  "indexedAt": "2026-08-26T18:15:58.271Z",
+  "isAmendment": true
+}

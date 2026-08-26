@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001835771-23-000003",
+  "cik": "0001722731",
+  "filerName": "FDCTECH, INC.",
+  "ticker": "FDCT",
+  "sicCode": "7372",
+  "formType": "Form 4",
+  "filedAt": "2023-12-14T00:00:00.000Z",
+  "periodOfReport": "2023-12-12",
+  "primaryDocument": "xslF345X05/primary_doc.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1722731/000183577123000003/0001835771-23-000003-index.htm",
+  "size": 6042,
+  "indexedAt": "2026-08-26T18:16:51.697Z",
+  "isAmendment": false
+}

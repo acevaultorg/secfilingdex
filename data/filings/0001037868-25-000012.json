@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001037868-25-000012",
+  "cik": "0001037868",
+  "filerName": "AMETEK INC/",
+  "ticker": "AME",
+  "sicCode": "3823",
+  "formType": "10-K",
+  "filedAt": "2025-02-20T00:00:00.000Z",
+  "periodOfReport": "2024-12-31",
+  "primaryDocument": "ame-20241231.htm",
+  "primaryDocDescription": "10-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1037868/000103786825000012/0001037868-25-000012-index.htm",
+  "size": 14327770,
+  "indexedAt": "2026-08-26T18:16:13.957Z",
+  "isAmendment": false
+}

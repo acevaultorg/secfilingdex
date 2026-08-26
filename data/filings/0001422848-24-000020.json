@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001422848-24-000020",
+  "cik": "0001003935",
+  "filerName": "NICE Ltd.",
+  "ticker": "NICE",
+  "sicCode": "7372",
+  "formType": "SC 13G/A",
+  "filedAt": "2024-02-09T00:00:00.000Z",
+  "primaryDocument": "SEC13G_Filing.htm",
+  "primaryDocDescription": "SEC SCHEDULE 13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1003935/000142284824000020/0001422848-24-000020-index.htm",
+  "size": 18484,
+  "indexedAt": "2026-08-26T18:16:12.130Z",
+  "isAmendment": true
+}

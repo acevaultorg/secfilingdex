@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001437749-23-005305",
+  "cik": "0000070487",
+  "filerName": "NRC HEALTH",
+  "ticker": "NRC",
+  "sicCode": "8731",
+  "formType": "10-K",
+  "filedAt": "2023-03-03T00:00:00.000Z",
+  "periodOfReport": "2022-12-31",
+  "primaryDocument": "nrc20221231_10k.htm",
+  "primaryDocDescription": "FORM 10-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/70487/000143774923005305/0001437749-23-005305-index.htm",
+  "size": 9459175,
+  "indexedAt": "2026-08-26T18:15:58.271Z",
+  "isAmendment": false
+}

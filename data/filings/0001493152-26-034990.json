@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001493152-26-034990",
+  "cik": "0001083522",
+  "filerName": "JONES SODA CO.",
+  "ticker": "JSDA",
+  "sicCode": "2080",
+  "formType": "8-K/A",
+  "filedAt": "2026-07-28T00:00:00.000Z",
+  "periodOfReport": "2026-07-07",
+  "primaryDocument": "form8-ka.htm",
+  "primaryDocDescription": "8-K/A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1083522/000149315226034990/0001493152-26-034990-index.htm",
+  "size": 625534,
+  "indexedAt": "2026-08-26T18:16:16.321Z",
+  "isAmendment": true
+}

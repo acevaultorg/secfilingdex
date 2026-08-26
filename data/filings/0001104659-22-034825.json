@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001104659-22-034825",
+  "cik": "0001116578",
+  "filerName": "PRUDENTIAL PLC",
+  "ticker": "PUK",
+  "sicCode": "6311",
+  "formType": "20-F",
+  "filedAt": "2022-03-17T00:00:00.000Z",
+  "periodOfReport": "2021-12-31",
+  "primaryDocument": "puk-20211231x20f.htm",
+  "primaryDocDescription": "20F",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1116578/000110465922034825/0001104659-22-034825-index.htm",
+  "size": 64497270,
+  "indexedAt": "2026-08-26T18:16:17.975Z",
+  "isAmendment": false
+}

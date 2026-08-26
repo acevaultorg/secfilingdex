@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001210708-24-000019",
+  "cik": "0001210708",
+  "filerName": "Star Equity Holdings, Inc.",
+  "ticker": "STRR",
+  "sicCode": "7363",
+  "formType": "8-K/A",
+  "filedAt": "2024-03-21T00:00:00.000Z",
+  "periodOfReport": "2024-03-11",
+  "primaryDocument": "hson-20240311.htm",
+  "primaryDocDescription": "8-K/A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1210708/000121070824000019/0001210708-24-000019-index.htm",
+  "size": 214349,
+  "indexedAt": "2026-08-26T18:16:19.651Z",
+  "isAmendment": true
+}

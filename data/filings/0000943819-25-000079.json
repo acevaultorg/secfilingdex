@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0000943819-25-000079",
+  "cik": "0000943819",
+  "filerName": "RESMED INC",
+  "ticker": "RMD",
+  "sicCode": "3841",
+  "formType": "DEF 14A",
+  "filedAt": "2025-10-02T00:00:00.000Z",
+  "periodOfReport": "2025-06-30",
+  "primaryDocument": "rmd-20251001.htm",
+  "primaryDocDescription": "DEF 14A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/943819/000094381925000079/0000943819-25-000079-index.htm",
+  "size": 21104930,
+  "indexedAt": "2026-08-26T18:16:11.629Z",
+  "isAmendment": false
+}

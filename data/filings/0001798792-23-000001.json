@@ -1,0 +1,14 @@
+{
+  "accessionNumber": "0001798792-23-000001",
+  "cik": "0001196298",
+  "filerName": "NEPHROS INC",
+  "ticker": "NEPH",
+  "sicCode": "3841",
+  "formType": "SC 13G/A",
+  "filedAt": "2023-01-06T00:00:00.000Z",
+  "primaryDocument": "schedule13gneph23.txt",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1196298/000179879223000001/0001798792-23-000001-index.htm",
+  "size": 144303,
+  "indexedAt": "2026-08-26T18:16:19.452Z",
+  "isAmendment": true
+}

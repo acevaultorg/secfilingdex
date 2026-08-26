@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0000902219-24-000207",
+  "cik": "0000096021",
+  "filerName": "SYSCO CORP",
+  "ticker": "SYY",
+  "sicCode": "5140",
+  "formType": "SC 13G/A",
+  "filedAt": "2024-02-08T00:00:00.000Z",
+  "primaryDocument": "SEC13G_Filing.htm",
+  "primaryDocDescription": "SEC SCHEDULE 13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/96021/000090221924000207/0000902219-24-000207-index.htm",
+  "size": 33073,
+  "indexedAt": "2026-08-26T18:15:58.668Z",
+  "isAmendment": true
+}

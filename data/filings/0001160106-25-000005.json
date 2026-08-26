@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001160106-25-000005",
+  "cik": "0001160106",
+  "filerName": "Lloyds Banking Group plc",
+  "ticker": "LYG",
+  "sicCode": "6029",
+  "formType": "20-F",
+  "filedAt": "2025-02-20T00:00:00.000Z",
+  "periodOfReport": "2024-12-31",
+  "primaryDocument": "lyg-20241231_d2.htm",
+  "primaryDocDescription": "20-F",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1160106/000116010625000005/0001160106-25-000005-index.htm",
+  "size": 264996593,
+  "indexedAt": "2026-08-26T18:16:18.542Z",
+  "isAmendment": false
+}

@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001009012-24-000002",
+  "cik": "0001058623",
+  "filerName": "CUMULUS MEDIA INC",
+  "ticker": "CMLS",
+  "sicCode": "4832",
+  "formType": "SC 13G/A",
+  "filedAt": "2024-01-10T00:00:00.000Z",
+  "primaryDocument": "cumulus13g123123.txt",
+  "primaryDocDescription": "SCHEDULE 13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1058623/000100901224000002/0001009012-24-000002-index.htm",
+  "size": 14011,
+  "indexedAt": "2026-08-26T18:16:15.759Z",
+  "isAmendment": true
+}

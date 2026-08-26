@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001610520-26-000093",
+  "cik": "0001114446",
+  "filerName": "UBS AG",
+  "ticker": "AMUB",
+  "sicCode": "6021",
+  "formType": "6-K",
+  "filedAt": "2026-07-31T00:00:00.000Z",
+  "periodOfReport": "2026-06-30",
+  "primaryDocument": "edgar2q26kubsagct.htm",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1114446/000161052026000093/0001610520-26-000093-index.htm",
+  "size": 28358,
+  "indexedAt": "2026-08-26T18:16:17.689Z",
+  "isAmendment": false
+}

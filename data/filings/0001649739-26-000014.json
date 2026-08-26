@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001649739-26-000014",
+  "cik": "0001649739",
+  "filerName": "BayFirst Financial Corp.",
+  "ticker": "BAFN",
+  "sicCode": "6022",
+  "formType": "10-K",
+  "filedAt": "2026-03-27T00:00:00.000Z",
+  "periodOfReport": "2025-12-31",
+  "primaryDocument": "bafn-20251231.htm",
+  "primaryDocDescription": "10-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1649739/000164973926000014/0001649739-26-000014-index.htm",
+  "size": 18190375,
+  "indexedAt": "2026-08-26T18:16:45.182Z",
+  "isAmendment": false
+}

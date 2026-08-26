@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001410578-25-000892",
+  "cik": "0001725033",
+  "filerName": "X Financial",
+  "ticker": "XYF",
+  "sicCode": "6199",
+  "formType": "20-F",
+  "filedAt": "2025-04-25T00:00:00.000Z",
+  "periodOfReport": "2024-12-31",
+  "primaryDocument": "xyf-20241231x20f.htm",
+  "primaryDocDescription": "20-F",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1725033/000141057825000892/0001410578-25-000892-index.htm",
+  "size": 31614052,
+  "indexedAt": "2026-08-26T18:16:52.258Z",
+  "isAmendment": false
+}

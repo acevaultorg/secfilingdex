@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001628280-26-042508",
+  "cik": "0000921582",
+  "filerName": "IMAX CORP",
+  "ticker": "IMAX",
+  "sicCode": "3861",
+  "formType": "8-K",
+  "filedAt": "2026-06-11T00:00:00.000Z",
+  "periodOfReport": "2026-06-10",
+  "primaryDocument": "imax-20260610.htm",
+  "primaryDocDescription": "8-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/921582/000162828026042508/0001628280-26-042508-index.htm",
+  "size": 208529,
+  "indexedAt": "2026-08-26T18:16:09.848Z",
+  "isAmendment": false
+}

@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001437749-23-009608",
+  "cik": "0000070487",
+  "filerName": "NRC HEALTH",
+  "ticker": "NRC",
+  "sicCode": "8731",
+  "formType": "DEF 14A",
+  "filedAt": "2023-04-06T00:00:00.000Z",
+  "primaryDocument": "nrc20230329_def14a.htm",
+  "primaryDocDescription": "FORM DEF 14A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/70487/000143774923009608/0001437749-23-009608-index.htm",
+  "size": 2473324,
+  "indexedAt": "2026-08-26T18:15:58.271Z",
+  "isAmendment": false
+}

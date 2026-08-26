@@ -1,0 +1,14 @@
+{
+  "accessionNumber": "0000350797-17-000063",
+  "cik": "0001338561",
+  "filerName": "Nuveen S&P 500 Dynamic Overwrite Fund",
+  "ticker": "SPXX",
+  "formType": "SC 13G/A",
+  "filedAt": "2017-02-15T00:00:00.000Z",
+  "primaryDocument": "nuveensp500dynamic13ga1.txt",
+  "primaryDocDescription": "NUVEENSP500DYNAMIC",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1338561/000035079717000063/0000350797-17-000063-index.htm",
+  "size": 10507,
+  "indexedAt": "2026-08-26T18:16:22.602Z",
+  "isAmendment": true
+}

@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001775734-26-000012",
+  "cik": "0001775734",
+  "filerName": "Beneficient",
+  "ticker": "BENF",
+  "sicCode": "6199",
+  "formType": "10-Q",
+  "filedAt": "2026-02-17T00:00:00.000Z",
+  "periodOfReport": "2025-12-31",
+  "primaryDocument": "ben-20251231.htm",
+  "primaryDocDescription": "10-Q",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1775734/000177573426000012/0001775734-26-000012-index.htm",
+  "size": 19059001,
+  "indexedAt": "2026-08-26T18:16:55.193Z",
+  "isAmendment": false
+}

@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001193125-26-085390",
+  "cik": "0000275880",
+  "filerName": "PARSONS CORP",
+  "ticker": "PSN",
+  "sicCode": "7373",
+  "formType": "DEF 14A",
+  "filedAt": "2026-03-02T00:00:00.000Z",
+  "periodOfReport": "2026-03-02",
+  "primaryDocument": "psn-20260302.htm",
+  "primaryDocDescription": "DEF 14A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/275880/000119312526085390/0001193125-26-085390-index.htm",
+  "size": 26288144,
+  "indexedAt": "2026-08-26T18:15:59.879Z",
+  "isAmendment": false
+}

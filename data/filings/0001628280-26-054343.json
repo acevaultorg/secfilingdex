@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001628280-26-054343",
+  "cik": "0000019617",
+  "filerName": "JPMORGAN CHASE & CO",
+  "ticker": "JPM",
+  "sicCode": "6021",
+  "formType": "10-Q",
+  "filedAt": "2026-08-06T00:00:00.000Z",
+  "periodOfReport": "2026-06-30",
+  "primaryDocument": "jpm-20260630.htm",
+  "primaryDocDescription": "10-Q",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/19617/000162828026054343/0001628280-26-054343-index.htm",
+  "size": 50707093,
+  "indexedAt": "2026-08-26T18:15:57.062Z",
+  "isAmendment": false
+}

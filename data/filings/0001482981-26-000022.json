@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001482981-26-000022",
+  "cik": "0001482981",
+  "filerName": "Vita Coco Company, Inc.",
+  "ticker": "COCO",
+  "sicCode": "2080",
+  "formType": "10-K",
+  "filedAt": "2026-02-18T00:00:00.000Z",
+  "periodOfReport": "2025-12-31",
+  "primaryDocument": "coco-20251231.htm",
+  "primaryDocDescription": "10-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1482981/000148298126000022/0001482981-26-000022-index.htm",
+  "size": 11489169,
+  "indexedAt": "2026-08-26T18:16:29.125Z",
+  "isAmendment": false
+}

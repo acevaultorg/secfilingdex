@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0000047111-26-000230",
+  "cik": "0000047111",
+  "filerName": "HERSHEY CO",
+  "ticker": "HSY",
+  "sicCode": "2060",
+  "formType": "Form 4",
+  "filedAt": "2026-08-07T00:00:00.000Z",
+  "periodOfReport": "2026-08-06",
+  "primaryDocument": "xslF345X06/form4.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/47111/000004711126000230/0000047111-26-000230-index.htm",
+  "size": 4875,
+  "indexedAt": "2026-08-26T18:15:57.649Z",
+  "isAmendment": false
+}

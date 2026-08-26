@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001707547-18-000003",
+  "cik": "0001026662",
+  "filerName": "EURO TECH HOLDINGS CO LTD",
+  "ticker": "CLWT",
+  "sicCode": "5040",
+  "formType": "SC 13G/A",
+  "filedAt": "2018-01-08T00:00:00.000Z",
+  "primaryDocument": "SCTF_CLWT_Exit_13G.txt",
+  "primaryDocDescription": "EXIT FILING",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1026662/000170754718000003/0001707547-18-000003-index.htm",
+  "size": 7106,
+  "indexedAt": "2026-08-26T18:16:13.078Z",
+  "isAmendment": true
+}

@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0000895421-23-000502",
+  "cik": "0000897448",
+  "filerName": "AMARIN CORP PLC\\UK",
+  "ticker": "AMRN",
+  "sicCode": "2834",
+  "formType": "SC 13G/A",
+  "filedAt": "2023-12-08T00:00:00.000Z",
+  "primaryDocument": "AmarinAMRN.txt",
+  "primaryDocDescription": "MS AMENDMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/897448/000089542123000502/0000895421-23-000502-index.htm",
+  "size": 13064,
+  "indexedAt": "2026-08-26T18:16:08.187Z",
+  "isAmendment": true
+}

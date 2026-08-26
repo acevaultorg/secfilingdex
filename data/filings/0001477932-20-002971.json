@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001477932-20-002971",
+  "cik": "0001603345",
+  "filerName": "Agentix Corp.",
+  "ticker": "AGTX",
+  "sicCode": "2836",
+  "formType": "Form 4",
+  "filedAt": "2020-05-21T00:00:00.000Z",
+  "periodOfReport": "2019-11-22",
+  "primaryDocument": "xslF345X03/form4.xml",
+  "primaryDocDescription": "FORM 4",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1603345/000147793220002971/0001477932-20-002971-index.htm",
+  "size": 6396,
+  "indexedAt": "2026-08-26T18:16:40.761Z",
+  "isAmendment": false
+}

@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001593538-26-000030",
+  "cik": "0001593538",
+  "filerName": "NAVIENT CORP",
+  "ticker": "NAVI",
+  "sicCode": "6211",
+  "formType": "Form 4",
+  "filedAt": "2026-06-05T00:00:00.000Z",
+  "periodOfReport": "2026-06-04",
+  "primaryDocument": "xslF345X06/form4.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1593538/000159353826000030/0001593538-26-000030-index.htm",
+  "size": 18157,
+  "indexedAt": "2026-08-26T18:16:39.651Z",
+  "isAmendment": false
+}

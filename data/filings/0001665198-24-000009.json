@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001665198-24-000009",
+  "cik": "0001560293",
+  "filerName": "Tenon Medical, Inc.",
+  "ticker": "TNON",
+  "sicCode": "3841",
+  "formType": "SC 13G",
+  "filedAt": "2024-10-04T00:00:00.000Z",
+  "primaryDocument": "kovitztnon13g100424.txt",
+  "primaryDocDescription": "TENON MEDICAL 13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1560293/000166519824000009/0001665198-24-000009-index.htm",
+  "size": 8117,
+  "indexedAt": "2026-08-26T18:16:36.601Z",
+  "isAmendment": false
+}

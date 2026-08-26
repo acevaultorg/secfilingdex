@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0000895421-05-000052",
+  "cik": "0000930157",
+  "filerName": "RENTOKIL INITIAL PLC /FI",
+  "ticker": "RTO",
+  "sicCode": "8741",
+  "formType": "SC 13G/A",
+  "filedAt": "2005-02-15T00:00:00.000Z",
+  "primaryDocument": "rentokilinitial.txt",
+  "primaryDocDescription": "GET OUT - ASSET MANAGEMENT - MS",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/930157/000089542105000052/0000895421-05-000052-index.htm",
+  "size": 11744,
+  "indexedAt": "2026-08-26T18:16:10.125Z",
+  "isAmendment": true
+}

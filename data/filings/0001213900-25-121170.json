@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001213900-25-121170",
+  "cik": "0001680139",
+  "filerName": "HealthLynked Corp",
+  "ticker": "HLYK",
+  "sicCode": "8011",
+  "formType": "8-K",
+  "filedAt": "2025-12-12T00:00:00.000Z",
+  "periodOfReport": "2025-12-01",
+  "primaryDocument": "ea0269326-8k_health.htm",
+  "primaryDocDescription": "CURRENT REPORT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1680139/000121390025121170/0001213900-25-121170-index.htm",
+  "size": 240169,
+  "indexedAt": "2026-08-26T18:16:47.749Z",
+  "isAmendment": false
+}

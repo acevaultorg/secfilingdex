@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0000096223-26-000012",
+  "cik": "0000096223",
+  "filerName": "Jefferies Financial Group Inc.",
+  "ticker": "JEF",
+  "sicCode": "6211",
+  "formType": "8-K",
+  "filedAt": "2026-03-25T00:00:00.000Z",
+  "periodOfReport": "2026-03-25",
+  "primaryDocument": "jef-20260325.htm",
+  "primaryDocDescription": "8-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/96223/000009622326000012/0000096223-26-000012-index.htm",
+  "size": 536323,
+  "indexedAt": "2026-08-26T18:15:58.894Z",
+  "isAmendment": false
+}

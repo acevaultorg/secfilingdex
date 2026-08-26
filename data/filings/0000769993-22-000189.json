@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0000769993-22-000189",
+  "cik": "0001842827",
+  "filerName": "Kanzhun Ltd",
+  "ticker": "BZ",
+  "sicCode": "7370",
+  "formType": "SC 13G",
+  "filedAt": "2022-02-11T00:00:00.000Z",
+  "primaryDocument": "KANZHUN_13G.txt",
+  "primaryDocDescription": "13G KANZHUN LTD",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1842827/000076999322000189/0000769993-22-000189-index.htm",
+  "size": 20014,
+  "indexedAt": "2026-08-26T18:17:00.587Z",
+  "isAmendment": false
+}

@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001562230-24-000036",
+  "cik": "0000047111",
+  "filerName": "HERSHEY CO",
+  "ticker": "HSY",
+  "sicCode": "2060",
+  "formType": "SC 13G",
+  "filedAt": "2024-11-13T00:00:00.000Z",
+  "primaryDocument": "SEC13G_Filing.htm",
+  "primaryDocDescription": "SEC SCHEDULE 13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/47111/000156223024000036/0001562230-24-000036-index.htm",
+  "size": 18422,
+  "indexedAt": "2026-08-26T18:15:57.649Z",
+  "isAmendment": false
+}

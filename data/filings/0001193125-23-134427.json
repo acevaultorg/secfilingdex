@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001193125-23-134427",
+  "cik": "0001759546",
+  "filerName": "Stark Novus Financial Inc.",
+  "ticker": "NRDE",
+  "sicCode": "3711",
+  "formType": "SC 13D/A",
+  "filedAt": "2023-05-03T00:00:00.000Z",
+  "primaryDocument": "d279964dsc13da.htm",
+  "primaryDocDescription": "SC 13D/A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1759546/000119312523134427/0001193125-23-134427-index.htm",
+  "size": 155822,
+  "indexedAt": "2026-08-26T18:16:54.070Z",
+  "isAmendment": true
+}

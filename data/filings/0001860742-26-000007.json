@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001860742-26-000007",
+  "cik": "0001860742",
+  "filerName": "Bausch & Lomb Corp",
+  "ticker": "BLCO",
+  "sicCode": "3851",
+  "formType": "10-K",
+  "filedAt": "2026-02-18T00:00:00.000Z",
+  "periodOfReport": "2025-12-31",
+  "primaryDocument": "blco-20251231.htm",
+  "primaryDocDescription": "10-K",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1860742/000186074226000007/0001860742-26-000007-index.htm",
+  "size": 20920545,
+  "indexedAt": "2026-08-26T18:17:03.074Z",
+  "isAmendment": false
+}

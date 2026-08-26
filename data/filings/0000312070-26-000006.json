@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0000312070-26-000006",
+  "cik": "0000312070",
+  "filerName": "BARCLAYS BANK PLC",
+  "ticker": "ATMP",
+  "sicCode": "6029",
+  "formType": "20-F",
+  "filedAt": "2026-02-10T00:00:00.000Z",
+  "periodOfReport": "2025-12-31",
+  "primaryDocument": "bbplc-20251231.htm",
+  "primaryDocDescription": "20-F",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/312070/000031207026000006/0000312070-26-000006-index.htm",
+  "size": 125448648,
+  "indexedAt": "2026-08-26T18:16:00.112Z",
+  "isAmendment": false
+}

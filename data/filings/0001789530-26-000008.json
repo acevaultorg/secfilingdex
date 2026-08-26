@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001789530-26-000008",
+  "cik": "0000775215",
+  "filerName": "HBT Financial, Inc.",
+  "ticker": "HBT",
+  "sicCode": "6022",
+  "formType": "Form 4",
+  "filedAt": "2026-04-30T00:00:00.000Z",
+  "periodOfReport": "2026-04-28",
+  "primaryDocument": "xslF345X06/wk-form4_1777581363.xml",
+  "primaryDocDescription": "FORM 4",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/775215/000178953026000008/0001789530-26-000008-index.htm",
+  "size": 9319,
+  "indexedAt": "2026-08-26T18:16:02.205Z",
+  "isAmendment": false
+}

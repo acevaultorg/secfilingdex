@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001562230-20-000031",
+  "cik": "0001648257",
+  "filerName": "HUTCHMED (China) Ltd",
+  "ticker": "HCM",
+  "sicCode": "2834",
+  "formType": "SC 13G",
+  "filedAt": "2020-02-14T00:00:00.000Z",
+  "primaryDocument": "edghcm1.txt",
+  "primaryDocDescription": "SC 13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1648257/000156223020000031/0001562230-20-000031-index.htm",
+  "size": 9138,
+  "indexedAt": "2026-08-26T18:16:44.936Z",
+  "isAmendment": false
+}

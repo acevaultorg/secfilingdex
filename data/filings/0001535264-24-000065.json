@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001535264-24-000065",
+  "cik": "0001976443",
+  "filerName": "Silynxcom Ltd.",
+  "ticker": "SYNX",
+  "sicCode": "3651",
+  "formType": "SC 13G/A",
+  "filedAt": "2024-11-14T00:00:00.000Z",
+  "primaryDocument": "Silynxcom13g093024t.txt",
+  "primaryDocDescription": "SYNX 13G/A",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1976443/000153526424000065/0001535264-24-000065-index.htm",
+  "size": 9167,
+  "indexedAt": "2026-08-26T18:17:12.312Z",
+  "isAmendment": true
+}

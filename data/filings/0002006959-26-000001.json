@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0002006959-26-000001",
+  "cik": "0001113169",
+  "filerName": "PRICE T ROWE GROUP INC",
+  "ticker": "TROW",
+  "sicCode": "6282",
+  "formType": "Form 4/A",
+  "filedAt": "2026-01-02T00:00:00.000Z",
+  "periodOfReport": "2025-12-10",
+  "primaryDocument": "xslF345X05/primarydocument.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/1113169/000200695926000001/0002006959-26-000001-index.htm",
+  "size": 9669,
+  "indexedAt": "2026-08-26T18:16:17.283Z",
+  "isAmendment": true
+}

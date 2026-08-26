@@ -1,0 +1,16 @@
+{
+  "accessionNumber": "0001633632-26-000001",
+  "cik": "0002071778",
+  "filerName": "Fermi Inc.",
+  "ticker": "FRMI",
+  "sicCode": "6798",
+  "formType": "Form 4",
+  "filedAt": "2026-07-02T00:00:00.000Z",
+  "periodOfReport": "2026-06-30",
+  "primaryDocument": "xslF345X06/primary_doc.xml",
+  "primaryDocDescription": "PRIMARY DOCUMENT",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/2071778/000163363226000001/0001633632-26-000001-index.htm",
+  "size": 4887,
+  "indexedAt": "2026-08-26T18:17:21.158Z",
+  "isAmendment": false
+}

@@ -1,0 +1,15 @@
+{
+  "accessionNumber": "0001512162-24-000029",
+  "cik": "0000812074",
+  "filerName": "O-I Glass, Inc. /DE/",
+  "ticker": "OI",
+  "sicCode": "3221",
+  "formType": "SC 13G",
+  "filedAt": "2024-11-20T00:00:00.000Z",
+  "primaryDocument": "OI13G2024Q3.txt",
+  "primaryDocDescription": "OI13G",
+  "edgarFilingUrl": "https://www.sec.gov/Archives/edgar/data/812074/000151216224000029/0001512162-24-000029-index.htm",
+  "size": 9683,
+  "indexedAt": "2026-08-26T18:16:04.630Z",
+  "isAmendment": false
+}
