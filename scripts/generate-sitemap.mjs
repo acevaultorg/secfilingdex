@@ -86,34 +86,33 @@ function main() {
   const filings = loadAllFilingsSync();
 
   // 2026-05-12 AdSense thin-content prevention (per rules/adsense-thin-content-prevention.md).
-  // /filing/[accession] pages (290 × ~210 words avg) + /filer/[cik] pages (283 × ~145
-  // words avg) are below AdSense's ≥400-word indexable-page threshold. Both surfaces
-  // are noindex'd at page-metadata level (see app/filing/[accession]/page.tsx +
-  // app/filer/[cik]/page.tsx generateMetadata) AND excluded from sitemap below.
-  // Pages remain LIVE for users via internal navigation. Substantive aggregator
-  // surfaces (/form/[formType] + /industry/[sicCode]) STAY indexed — broader pages
-  // with richer per-page value. Same fix pattern as HoldLens v19.44 /insiders/*.
+  // /filing/[accession] pages (11,227 × ~210 words avg) stay noindex'd + excluded from
+  // sitemap — each is a thin single-document metadata wrapper regardless of corpus
+  // depth (app/filing/[accession]/page.tsx). Pages remain LIVE for users via internal
+  // navigation. Aggregator surfaces (/form/[formType] + /industry/[sicCode]) STAY
+  // indexed. Same fix pattern as HoldLens v19.44 /insiders/*.
   //
-  // To re-enable filing / filer indexing: (a) expand per-page commentary to ≥400
-  // unique words, (b) flip robots.index = true in the page.tsx, (c) uncomment the
-  // arrays below.
-  //
-  // const filingEntries = filings.map((f) => ({
-  //   path: `/filing/${f.accessionNumber}/`,
-  //   changefreq: "weekly",
-  //   priority: filingPriority(f.filedAt),
-  //   lastmod: f.indexedAt.slice(0, 10),
-  // }));
-  //
-  // const filerEntries = uniqueCiks(filings).map((cik) => {
-  //   const count = filings.filter((f) => f.cik === cik).length;
-  //   return {
-  //     path: `/filer/${cik}/`,
-  //     changefreq: "weekly",
-  //     priority: count >= 5 ? 0.7 : count >= 2 ? 0.6 : 0.5,
-  //     lastmod: TODAY,
-  //   };
-  // });
+  // 2026-08-26 — /filer/[cik] RE-ENABLED for the subset that crossed the substantive
+  // bar. filerProfileIsSubstantive() (components/FilerProfile.tsx) already flips
+  // robots.index=true page-by-page as EDGAR depth-ingestion (scripts/deepen-filers.ts)
+  // fills a filer's history; the sitemap generator hadn't been wired to match. Same
+  // ≥3-filings/≥2-form-types gate, kept in sync here so a filer never appears in the
+  // sitemap while its own page still says noindex.
+  const FILER_MIN_FILINGS = 3;
+  const FILER_MIN_FORM_TYPES = 2;
+  const filerEntries = uniqueCiks(filings)
+    .map((cik) => {
+      const filerFilings = filings.filter((f) => f.cik === cik);
+      const distinctForms = new Set(filerFilings.map((f) => f.formType)).size;
+      return { cik, count: filerFilings.length, distinctForms };
+    })
+    .filter(({ count, distinctForms }) => count >= FILER_MIN_FILINGS && distinctForms >= FILER_MIN_FORM_TYPES)
+    .map(({ cik, count }) => ({
+      path: `/filer/${cik}/`,
+      changefreq: "weekly",
+      priority: count >= 20 ? 0.7 : count >= 10 ? 0.65 : 0.6,
+      lastmod: TODAY,
+    }));
 
   // Per-form-type landing pages (KEPT — aggregator surface, substantive content)
   //
@@ -171,14 +170,13 @@ function main() {
     }));
 
   // Suppress unused-imports lint trace
-  void filings;
-  void uniqueCiks;
   void filingPriority;
 
   const all = [
     ...STATIC_ROUTES,
     ...formTypeEntries,
     ...industryEntries,
+    ...filerEntries,
   ];
 
   const xml = [
@@ -190,7 +188,7 @@ function main() {
   ].join("\n");
   writeFileSync(join(OUT_DIR, "sitemap.xml"), xml);
   console.log(
-    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${industryEntries.length} industries; filing + filer pages excluded per AdSense thin-content prevention)`
+    `[sitemap] wrote out/sitemap.xml with ${all.length} URLs (${STATIC_ROUTES.length} core + ${formTypeEntries.length} form-types + ${industryEntries.length} industries + ${filerEntries.length} substantive filers; filing pages + thin filers excluded per AdSense thin-content prevention)`
   );
 }
 
