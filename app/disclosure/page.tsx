@@ -40,8 +40,12 @@ export default function DisclosurePage() {
                 Some outbound links on this site are, or may become, affiliate
                 links. SecFilingDex currently participates in the Amazon
                 Associates program: as an Amazon Associate, we earn from
-                qualifying purchases. Additional affiliate partnerships are
-                launching; this page will stay current as they do.
+                qualifying purchases. We also disclose two data/research
+                tools the team uses on a dedicated{" "}
+                <Link href="/research-tools" className="text-brand hover:underline">
+                  research tools
+                </Link>{" "}
+                page — deliberately kept off filing and filer pages.
               </li>
               <li>
                 Commissions are paid by the merchant, never by you. The price
