@@ -12,6 +12,12 @@ variables:
   # Baked into static export at build time; layout.tsx loads Clarity script
   # only when this is set. Project: SecFilingDex (wk6ur3vm7m).
   NEXT_PUBLIC_CLARITY_ID: "wk6ur3vm7m"
+  # GA4 measurement ID (public client-side identifier, not a secret). Baked into the
+  # static export at build time. Without it CI falls back to the hardcoded default in
+  # app/layout.tsx (G-5BVWDL3M45) — which is what the 2026-09-05 20:18Z CI deploy shipped,
+  # silently moving analytics off the property the fleet dashboard reads. Production served
+  # G-TX3XKDDE62 from local deploys through 2026-08-28 (CF deployment 764f9bec).
+  NEXT_PUBLIC_GA4_ID: "G-TX3XKDDE62"
 
 cache:
   key: secfilingdex-cache
