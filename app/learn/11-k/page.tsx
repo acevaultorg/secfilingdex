@@ -34,10 +34,18 @@ export default function Learn11KPage() {
                 not the issuer — is the registrant.
               </p>
               <p>
-                The 11-K is due within 180 days after the plan&apos;s
-                fiscal year-end (or 90 days when the plan is subject to
-                ERISA). The longer window reflects the audit-and-actuary
-                timing realities of pension-style plans.
+                Under the SEC&apos;s{" "}
+                <a
+                  href="https://www.sec.gov/files/form11-k.pdf"
+                  target="_blank"
+                  rel="noopener"
+                  className="text-brand hover:underline"
+                >
+                  General Instructions to Form 11-K
+                </a>, the report is generally due within 90 days after the
+                plan&apos;s fiscal year-end. Plans subject to ERISA may file
+                the plan financial statements within 180 days after the
+                plan&apos;s fiscal year-end.
               </p>
             </>
           ),
@@ -131,7 +139,7 @@ export default function Learn11KPage() {
         {
           term: "ERISA",
           description:
-            "Employee Retirement Income Security Act of 1974. The federal statute governing private-sector employee benefit plans. ERISA-covered plans face shorter 11-K filing windows (90 days vs 180) and richer required disclosures.",
+            "Employee Retirement Income Security Act of 1974. The federal statute governing private-sector employee benefit plans. For Form 11-K timing, ERISA-covered plans may file the plan financial statements within 180 days after the plan's fiscal year-end instead of the general 90-day deadline.",
         },
         {
           term: "Form S-8",
