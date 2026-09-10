@@ -20,6 +20,7 @@ export default function Learn10KPage() {
       slug="10-k"
       title="What is a 10-K filing?"
       tldr="A 10-K is the audited annual report U.S. public companies file with the SEC. It is the single most comprehensive disclosure a domestic registrant produces in any given year."
+      dateModified="2026-09-10"
       sections={[
         {
           heading: "A 10-K is the annual report — comprehensive, audited, and required",
@@ -29,9 +30,9 @@ export default function Learn10KPage() {
                 The 10-K is filed once per fiscal year by every U.S.
                 domestic public company under Section 13 or 15(d) of the
                 Securities Exchange Act of 1934. It is far more comprehensive
-                than the glossy "annual report to shareholders" mailed to
-                investors — those are marketing documents; the 10-K is the
-                disclosure document.
+                than the designed annual report sent to shareholders, although
+                companies often reproduce the 10-K inside that report or
+                combine the two. Form 10-K is the filing submitted to the SEC.
               </p>
               <p>
                 Filing deadlines depend on the company&apos;s public float:
@@ -95,9 +96,8 @@ export default function Learn10KPage() {
                 </li>
                 <li>
                   <strong className="text-text">Annual Report to Shareholders:</strong>{" "}
-                  mailed to shareholders, marketing-led, often wraps the
-                  10-K in a glossy cover. Many companies now wrap-and-ship
-                  the 10-K as their annual report.
+                  provided to shareholders and designed for a broader audience.
+                  Many companies include or wrap Form 10-K inside it.
                 </li>
                 <li>
                   <strong className="text-text">Proxy (DEF 14A):</strong>{" "}
@@ -125,7 +125,7 @@ export default function Learn10KPage() {
           ),
         },
       ]}
-      ourView="The 10-K is the most underused document on EDGAR. Most market commentary cites the press release; the actual disclosure language — particularly Item 1A risk factors and Item 7 MD&A — is where companies are required to be precise. Reading 10-Ks directly compounds. Anyone serious about a name should read at least the most recent two."
+      ourView="The 10-K is the most underused document on EDGAR. Most market commentary cites the press release; the actual disclosure language — particularly Item 1A risk factors and Item 7 MD&A — is where companies are required to be precise. Comparing the two most recent filings makes changes in risk and management language easier to see."
       liveDataLink={{
         label: "Browse live 10-K filings",
         href: "/form/10-k",

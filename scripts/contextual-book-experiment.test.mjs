@@ -27,6 +27,7 @@ function htmlFiles(directory) {
 }
 
 const treatment = html("/learn/10-k/");
+assert.match(treatment, /Last updated: (?:<!-- -->)?2026-09-10/);
 assert.equal(count(treatment, `data-experiment="${EXPERIMENT}"`), 1);
 assert.equal(count(treatment, 'data-affiliate="amazon-contextual-book"'), 1);
 assert.equal(count(treatment, 'data-server-tracked="true"'), 1);
@@ -93,9 +94,19 @@ if (existsSync(path.join(OUT, "industry"))) {
 }
 
 const elevenK = html("/learn/11-k/");
+assert.match(elevenK, /Last updated: (?:<!-- -->)?2026-09-10/);
 assert(elevenK.includes("within 90 days"));
 assert(elevenK.includes("within 180 days"));
 assert(elevenK.includes("https://www.sec.gov/files/form11-k.pdf"));
+
+const untouchedDateControl = html("/learn/20-f/");
+assert.match(untouchedDateControl, /Last updated: (?:<!-- -->)?2026-05-01/);
+const learnArticleSource = readFileSync(
+  path.join(ROOT, "components", "LearnArticle.tsx"),
+  "utf8",
+);
+assert(learnArticleSource.includes('const DEFAULT_ARTICLE_DATE = "2026-05-01"'));
+assert(!learnArticleSource.includes("dateModified ?? new Date()"));
 
 const workerPath = path.join(ROOT, "functions", "go", "contextual-book.js");
 const workerSource = readFileSync(workerPath, "utf8");

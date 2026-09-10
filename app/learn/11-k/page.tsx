@@ -20,6 +20,7 @@ export default function Learn11KPage() {
       slug="11-k"
       title="What is an 11-K filing?"
       tldr="11-K is the annual report that issuers file with the SEC for employee stock-purchase, savings, and similar plans — typically 401(k)s holding employer stock and ESPPs. Required under Section 15(d) of the Exchange Act when the plan's interests are registered."
+      dateModified="2026-09-10"
       sections={[
         {
           heading: "Who files an 11-K, and when",

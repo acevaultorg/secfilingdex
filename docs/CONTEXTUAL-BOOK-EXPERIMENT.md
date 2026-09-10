@@ -48,6 +48,12 @@ The tracking ID was independently present in Amazon Associates' live “Manage
 Your Tracking IDs” view at 2026-09-10T02:48:53Z and in the authoritative local
 33-ID inventory. An unregistered fallback is forbidden.
 
+Modification dates are stable rather than build-generated: the shared article
+fallback is the truthful publication date `2026-05-01`, while the reviewed 10-K
+page and separately corrected 11-K page explicitly use `2026-09-10`. This moves
+20 untouched explainers back to their stable publication date on each rebuild;
+only those two genuinely reviewed pages carry the new modification date.
+
 ## Baseline and known limitations
 
 Fresh exact-host GA4, trailing 30 days at pre-registration:

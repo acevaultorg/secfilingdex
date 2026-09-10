@@ -10,6 +10,7 @@ import {
 } from "@/lib/contextual-book";
 
 const SITE_URL = "https://secfilingdex.com";
+const DEFAULT_ARTICLE_DATE = "2026-05-01";
 
 export type LearnSection = {
   heading: string;
@@ -51,7 +52,7 @@ export type LearnArticleProps = {
    * (AI-extraction / answer-engine lever). Max one block; answers restate
    * page-asserted, EDGAR-cited facts only. */
   faqs?: LearnFaq[];
-  /** ISO date for `dateModified`. Defaults to today. */
+  /** ISO date for `dateModified`. Defaults to the stable publication date. */
   dateModified?: string;
 };
 
@@ -68,7 +69,7 @@ export function LearnArticle({
   faqs,
   dateModified,
 }: LearnArticleProps) {
-  const today = (dateModified ?? new Date().toISOString().slice(0, 10));
+  const today = dateModified ?? DEFAULT_ARTICLE_DATE;
   const url = `${SITE_URL}/learn/${slug}/`;
   const earlyBookHref = contextualBookHref(slug);
 
