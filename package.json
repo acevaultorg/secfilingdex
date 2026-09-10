@@ -12,6 +12,8 @@
     "postbuild": "node scripts/generate-sitemap.mjs && node scripts/generate-sitemap-ai.mjs && npx tsx scripts/ping-indexnow.ts --write-key-only && node scripts/prune-out.mjs",
     "start": "next start",
     "lint": "next lint",
+    "test:contextual-book": "node scripts/contextual-book-experiment.test.mjs",
+    "verify:contextual-book-product": "node scripts/verify-contextual-book-product.mjs",
     "indexnow": "npx tsx scripts/ping-indexnow.ts",
     "clean": "rm -rf .stale-out-trash .next 2>/dev/null; mv out .stale-out-trash 2>/dev/null && rm -rf .stale-out-trash 2>/dev/null; find . -name '.DS_Store' -not -path './node_modules/*' -not -path './.git/*' -delete 2>/dev/null; find . -type d -name '* 2' -not -path './node_modules/*' -not -path './.git/*' -exec rm -rf {} + 2>/dev/null; true",
     "deploy": "npm run clean && npm run build && npx wrangler pages deploy out --project-name secfilingdex --branch main --commit-dirty=true && npm run indexnow"

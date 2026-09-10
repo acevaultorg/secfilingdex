@@ -180,6 +180,12 @@ export function ClarityTags() {
       // Clarity and GA4.
       const partner = target.getAttribute("data-affiliate");
       if (partner) {
+        // The isolated in-article book treatment is counted by its Pages Function only
+        // AFTER the server accepts the gesture/navigation gate. Counting here
+        // would turn rejected bot/programmatic attempts into false clicks and
+        // double-count accepted ones. Existing shelf + Audible controls keep
+        // using this client path unchanged.
+        if (target.getAttribute("data-server-tracked") === "true") return;
         trackAffiliateClick(partner, href);
         return;
       }

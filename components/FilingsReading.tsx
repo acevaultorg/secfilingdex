@@ -18,17 +18,24 @@ import {
 export function FilingsReading({
   heading = "Reading on filings",
   sub,
+  excludedTitles = [],
 }: {
   heading?: string;
   sub?: string;
+  /** Exact-title exclusions for a route that already presents that same book. */
+  excludedTitles?: readonly string[];
 }) {
+  const visibleBooks = FILINGS_READING.filter(
+    (book) => !excludedTitles.includes(book.title),
+  );
+
   return (
     <section className="mt-10 rounded-lg border border-border bg-surface p-5 sm:p-6">
       <h2 className="text-heading-2 text-text mb-1">{heading}</h2>
       {sub && <p className="text-muted text-sm mb-4">{sub}</p>}
 
       <ul className="space-y-3">
-        {FILINGS_READING.map((book) => (
+        {visibleBooks.map((book) => (
           <li key={book.title}>
             <a
               href={amazonUrl(book)}

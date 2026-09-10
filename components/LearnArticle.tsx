@@ -1,7 +1,13 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FilingsReading } from "@/components/FilingsReading";
+import { ContextualBookCallout } from "@/components/ContextualBookCallout";
+import {
+  CONTEXTUAL_BOOK_PLACEMENT,
+  contextualBookHref,
+} from "@/lib/contextual-book";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -64,6 +70,7 @@ export function LearnArticle({
 }: LearnArticleProps) {
   const today = (dateModified ?? new Date().toISOString().slice(0, 10));
   const url = `${SITE_URL}/learn/${slug}/`;
+  const earlyBookHref = contextualBookHref(slug);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -145,10 +152,16 @@ export function LearnArticle({
 
         <div className="prose-content space-y-8 text-body text-muted">
           {sections.map((s, i) => (
-            <section key={i}>
-              <h2 className="text-heading-2 text-text mb-3">{s.heading}</h2>
-              <div className="space-y-3">{s.body}</div>
-            </section>
+            <Fragment key={i}>
+              <section>
+                <h2 className="text-heading-2 text-text mb-3">{s.heading}</h2>
+                <div className="space-y-3">{s.body}</div>
+              </section>
+              {earlyBookHref &&
+                i === CONTEXTUAL_BOOK_PLACEMENT.afterSectionIndex && (
+                  <ContextualBookCallout href={earlyBookHref} />
+                )}
+            </Fragment>
           ))}
 
           {faqs && faqs.length > 0 && (
@@ -245,6 +258,11 @@ export function LearnArticle({
               breakdown and the full compliance contract. */}
           <FilingsReading
             sub={`Understanding the form is step one; reading one is step two. These are the references that help with the second part.`}
+            excludedTitles={
+              earlyBookHref
+                ? [CONTEXTUAL_BOOK_PLACEMENT.excludedShelfTitle]
+                : undefined
+            }
           />
 
           {definedTerms.length > 0 && (
