@@ -49,6 +49,7 @@ assert(treatment.includes("Next step: interpreting the statements"));
 assert(treatment.includes("See the fifth edition on Amazon"));
 assert(!treatment.includes("is a marketing document"));
 assert(treatment.includes("is designed for a broader audience"));
+assert(!treatment.includes("than the designed annual report"));
 
 for (const retained of [
   "Security Analysis",

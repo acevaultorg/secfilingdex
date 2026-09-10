@@ -29,10 +29,10 @@ export default function Learn10KPage() {
               <p>
                 The 10-K is filed once per fiscal year by every U.S.
                 domestic public company under Section 13 or 15(d) of the
-                Securities Exchange Act of 1934. It is far more comprehensive
-                than the designed annual report sent to shareholders, although
-                companies often reproduce the 10-K inside that report or
-                combine the two. Form 10-K is the filing submitted to the SEC.
+                Securities Exchange Act of 1934. Form 10-K is the filing
+                submitted to the SEC. Companies may reproduce it inside, or
+                combine it with, the annual report sent to shareholders,
+                which is designed for a broader audience.
               </p>
               <p>
                 Filing deadlines depend on the company&apos;s public float:
