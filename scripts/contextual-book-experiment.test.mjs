@@ -47,6 +47,8 @@ assert(treatment.includes("General educational reference; not investment advice.
 assert(treatment.includes("text-[13px]"));
 assert(treatment.includes("Next step: interpreting the statements"));
 assert(treatment.includes("See the fifth edition on Amazon"));
+assert(!treatment.includes("is a marketing document"));
+assert(treatment.includes("is designed for a broader audience"));
 
 for (const retained of [
   "Security Analysis",

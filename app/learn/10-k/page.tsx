@@ -183,7 +183,7 @@ export default function Learn10KPage() {
         },
         {
           q: "What's the difference between a 10-K and a company's annual report?",
-          a: "The 10-K is the SEC-mandated, audited, comprehensive filing. The glossy 'annual report' mailed to shareholders is a marketing document, and the proxy statement (DEF 14A) covers governance and executive pay — they are three different documents.",
+          a: "The 10-K is the SEC-mandated, audited, comprehensive filing. The annual report sent to shareholders is designed for a broader audience and may include or reproduce Form 10-K; the proxy statement (DEF 14A) separately covers governance and executive pay.",
         },
         {
           q: "Where are a company's risk factors in a 10-K?",
