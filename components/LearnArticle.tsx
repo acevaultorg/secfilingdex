@@ -4,6 +4,8 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FilingsReading } from "@/components/FilingsReading";
 import { ContextualBookCallout } from "@/components/ContextualBookCallout";
+import { LiveFilingsPreview } from "@/components/LiveFilingsPreview";
+import type { FilingRecord } from "@/lib/types";
 import {
   CONTEXTUAL_BOOK_PLACEMENT,
   contextualBookHref,
@@ -41,6 +43,16 @@ export type LearnArticleProps = {
   ourView: string;
   /** Cross-link to the corresponding /form/[formType] hub. Optional for comparison-style pages. */
   liveDataLink?: { label: string; href: string; count?: number };
+  /** Above-the-fold live-filings preview (definitional zero-click fix,
+   * ai-citation-channel.md § THE DEFINITIONAL ZERO-CLICK TRAP). When
+   * present, renders the N most recent filings before the definition —
+   * the promise a generated "what is X" answer cannot fulfil. */
+  livePreview?: {
+    formLabel: string;
+    filings: FilingRecord[];
+    browseHref: string;
+    totalCount: number;
+  };
   /** Sibling /learn topics for hub-spoke compounding. */
   related: { slug: string; title: string }[];
   /** Sister-property cross-links (e.g., HoldLens applied-analysis pages for the same SEC corpus).
@@ -63,6 +75,7 @@ export function LearnArticle({
   sections,
   ourView,
   liveDataLink,
+  livePreview,
   related,
   externalRelated,
   definedTerms,
@@ -150,6 +163,15 @@ export function LearnArticle({
           </Link>
           .
         </p>
+
+        {livePreview && (
+          <LiveFilingsPreview
+            formLabel={livePreview.formLabel}
+            filings={livePreview.filings}
+            browseHref={livePreview.browseHref}
+            totalCount={livePreview.totalCount}
+          />
+        )}
 
         <div className="prose-content space-y-8 text-body text-muted">
           {sections.map((s, i) => (

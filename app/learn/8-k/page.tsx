@@ -5,14 +5,15 @@ import { loadFilingsByFormType } from "@/lib/filings";
 const SITE_URL = "https://secfilingdex.com";
 
 export const metadata: Metadata = {
-  title: "What is an 8-K filing?",
+  title: "8-K filings — what they are and every 8-K filed this week",
   description:
-    "An 8-K is the SEC current report — used to disclose material events between periodic filings. Filed within four business days. Plain-English explainer of triggers, items, and live filings.",
+    "See the most recent 8-K filings as they're indexed, then the plain-English explainer: what an 8-K is, the Item taxonomy, and how to read one fast.",
   alternates: { canonical: `${SITE_URL}/learn/8-k/` },
 };
 
 export default function Learn8KPage() {
-  const liveCount = loadFilingsByFormType("8-K").length;
+  const all8K = loadFilingsByFormType("8-K");
+  const liveCount = all8K.length;
   const amendCount = loadFilingsByFormType("8-K/A").length;
 
   return (
@@ -20,6 +21,12 @@ export default function Learn8KPage() {
       slug="8-k"
       title="What is an 8-K filing?"
       tldr="An 8-K is the SEC current report — used to disclose material events that arise between periodic filings. Generally due within four business days of the triggering event."
+      livePreview={{
+        formLabel: "8-K",
+        filings: all8K.slice(0, 5),
+        browseHref: "/form/8-k",
+        totalCount: liveCount,
+      }}
       sections={[
         {
           heading: "An 8-K announces material news, fast",
