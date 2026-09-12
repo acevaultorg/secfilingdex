@@ -50,12 +50,20 @@ deploy:
     - build
   before_script:
     - apt-get update
-    - apt-get install -y --no-install-recommends ca-certificates
+    - apt-get install -y --no-install-recommends ca-certificates git
     - npm install -g wrangler@4
+    # npm ci (not carried over from the build job's artifacts) so `npx tsx` for the
+    # IndexNow ping below has its devDependencies — out/ alone isn't enough.
+    - npm ci --no-audit --no-fund
   script:
     - test -d out
     - test -n "$CLOUDFLARE_API_TOKEN"
     - test -n "$CLOUDFLARE_ACCOUNT_ID"
     - wrangler pages deploy out --project-name secfilingdex --branch main --commit-dirty=true
+    # Found 2026-09-12: this CI deploy stage never pinged IndexNow — `npm run indexnow` was
+    # only wired into the local `npm run deploy` chain, so every CI-driven ship silently
+    # skipped it. The script gracefully degrades to a no-op if INDEXNOW_KEY isn't set as a
+    # CI/CD variable yet (Settings > CI/CD > Variables) — it never fails the deploy.
+    - npm run indexnow
   only:
     - main
