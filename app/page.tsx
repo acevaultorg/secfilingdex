@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -13,6 +14,15 @@ import {
 import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, formTypeInfo, pickEnrichments } from "@/lib/format";
+
+const SITE_URL = "https://secfilingdex.com";
+
+// Home was the one route in the app with no self-canonical (every other page sets
+// `alternates.canonical`), so the trailing-slash + query-string variants of the root had
+// no declared preferred URL. Title/description stay inherited from the root layout.
+export const metadata: Metadata = {
+  alternates: { canonical: `${SITE_URL}/` },
+};
 
 export default function Home() {
   const allFilings = loadAllFilings();

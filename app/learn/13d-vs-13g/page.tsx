@@ -24,6 +24,34 @@ export default function Learn13DVs13GPage() {
       tldr="Schedule 13D and Schedule 13G are two SEC filings disclosing ≥5% beneficial ownership of a public company's voting equity. The choice between them signals intent: 13D is for activists and any holder with intent to influence control; 13G is the short-form for passive holders."
       sections={[
         {
+          heading: "The verdict — which schedule applies",
+          body: (
+            <>
+              <p>
+                <strong className="text-text">
+                  Verdict: the 5% threshold does not choose between the two —
+                  intent does.
+                </strong>{" "}
+                A holder whose intent is anything other than passive investment
+                — activists and control-seeking investors — files the long-form
+                Schedule 13D. The short-form Schedule 13G is open only to three
+                narrow categories under SEC Rule 13d-1: qualified institutional
+                investors holding in the ordinary course of business, passive
+                investors under 20% who certify passive intent, and exempt
+                investors with limited grandfathered ownership. Everyone else
+                files a 13D.
+              </p>
+              <p>
+                Reading a filing rather than making one, the same rule runs
+                backwards: a 13D tells you the holder has declared a purpose
+                beyond investment, and its Item 4 sets that purpose out in
+                detail. A 13G tells you the opposite — the filer has taken a
+                schedule that is only available to a holder not seeking control.
+              </p>
+            </>
+          ),
+        },
+        {
           heading: "Both disclose ≥5% beneficial ownership — the threshold is the same",
           body: (
             <p>
