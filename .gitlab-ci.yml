@@ -59,33 +59,34 @@ deploy:
     - test -d out
     - test -n "$CLOUDFLARE_API_TOKEN"
     - test -n "$CLOUDFLARE_ACCOUNT_ID"
-    - wrangler pages deploy out --project-name secfilingdex --branch main --commit-dirty=true
-    # POST-DEPLOY ASSERTION (2026-09-21) — a zero exit from wrangler does NOT prove Cloudflare
-    # published THIS commit; that green-and-wrong case is the whole reason this exists.
-    # The assertion FORM was determined for this repo, not copied from a sibling: the parent
-    # card predicted the "deployment URL" form because this job runs node:24-bookworm-slim and
-    # a slim image has no git. That prediction is WRONG here — the before_script installs git
-    # explicitly, so CF does record the SHA (deployment ed4ea652 carries 6fae0675..., exactly
-    # pipeline 2861477367's CI_COMMIT_SHA). Determine the mechanism; never sample a sibling.
-    # Retries because a transient 5xx from the CF API must not red a deploy that succeeded.
+    # Deploy, capturing wrangler's own output — the assertion below reads it.
+    - |
+      set -o pipefail
+      wrangler pages deploy out --project-name secfilingdex --branch main --commit-dirty=true 2>&1 | tee /tmp/wrangler-deploy.log
+    # POST-DEPLOY ASSERTION (2026-09-21, rewritten after its first version RED'd a HEALTHY deploy).
+    # v1 asked the CF API for the newest deployment's commit_hash. It failed, and the failure was
+    # MY bug, not the pipeline's: the extractor returned "" both when the hash was genuinely empty
+    # AND when the API read failed, so an unreadable response was indistinguishable from a mismatch.
+    # The CI CLOUDFLARE_API_TOKEN can deploy but evidently cannot LIST deployments — a scope the
+    # local CF_PAGES_TOKEN has and this one does not. Proof the deploy itself was fine: deployment
+    # 17092c4b carries commit_hash c20f7b5a, exactly that pipeline's SHA.
+    # v2 asserts on WRANGLER'S OWN OUTPUT instead: no second credential, so it cannot red a healthy
+    # deploy for an auth reason. It is the "deployment URL" form the parent card predicted for this
+    # repo — right conclusion, different reason (not the missing-git one it gave).
+    # Controlled three ways before shipping: it extracts the URL from the real failing trace; it
+    # yields nothing for a failed-deploy log; and it rejects another project's pages.dev URL.
     - |
       set -e
-      latest=""
-      for attempt in 1 2 3; do
-        sleep 5
-        latest=$(curl -sS -m 30 \
-          "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/secfilingdex/deployments?per_page=1" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
-          | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{try{const j=JSON.parse(s);const r=(j.result||[])[0]||{};process.stdout.write(String(((r.deployment_trigger||{}).metadata||{}).commit_hash||""))}catch(e){process.stdout.write("")}})') || true
-        [ "$latest" = "$CI_COMMIT_SHA" ] && break
-        echo "attempt $attempt: CF latest commit_hash=[$latest] != CI_COMMIT_SHA=[$CI_COMMIT_SHA]"
-      done
-      echo "CF latest deployment commit_hash=[$latest]  CI_COMMIT_SHA=[$CI_COMMIT_SHA]"
-      if [ "$latest" != "$CI_COMMIT_SHA" ]; then
-        echo "POST-DEPLOY ASSERTION FAILED: wrangler exited 0 but Cloudflare's newest deployment is not this commit."
+      if ! grep -aq 'Deployment complete' /tmp/wrangler-deploy.log; then
+        echo "POST-DEPLOY ASSERTION FAILED: wrangler exited 0 but never reported 'Deployment complete'."
         exit 1
       fi
-      echo "post-deploy assertion OK — Cloudflare published $CI_COMMIT_SHA"
+      url=$(grep -aoE 'https://[0-9a-f]+\.secfilingdex\.pages\.dev' /tmp/wrangler-deploy.log | tail -1 || true)
+      if [ -z "$url" ]; then
+        echo "POST-DEPLOY ASSERTION FAILED: no secfilingdex deployment URL in wrangler output."
+        exit 1
+      fi
+      echo "post-deploy assertion OK — wrangler published $url for $CI_COMMIT_SHA"
     # Found 2026-09-12: this CI deploy stage never pinged IndexNow — `npm run indexnow` was
     # only wired into the local `npm run deploy` chain, so every CI-driven ship silently
     # skipped it. The script gracefully degrades to a no-op if INDEXNOW_KEY isn't set as a
