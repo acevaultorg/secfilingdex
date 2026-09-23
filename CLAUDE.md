@@ -29,7 +29,7 @@ This file is the project-level override. AcePilot reads it at ABSORB step 2 BEFO
 
 - `next.config.js` MUST have `output: 'export'` (static export for CF Pages)
 - `output: 'export'` means NO server-side rendering at runtime — all pages prebuilt
-- All data fetching happens at BUILD TIME via `scripts/fetch-edgar.ts` (or similar)
+- Data ingest is MANUAL: `npm run fetch-edgar`, then commit `data/filings/`. It is NOT run by `prebuild`/`build`/`deploy`/CI — a build reuses whatever is committed, so a green build proves nothing about data freshness. `prebuild` runs `check-data-freshness.mjs`, which WARNS (never blocks; `SECFILINGDEX_STALE_DATA_FATAL=1` to block) past 2 business days.
 - Deploy via `wrangler pages deploy out --project-name secfilingdex --branch main`
 - Per-page JSON twin at `/api/[slug].json` (bots cache cheaply per bot-harvest Pattern 3)
 

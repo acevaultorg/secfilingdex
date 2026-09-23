@@ -31,7 +31,7 @@ npm run fetch-edgar  # pull latest SEC EDGAR filings index (no API key needed)
 ## Architecture
 
 - **Static export** (`output: 'export'`) — every page prebuilt at deploy time
-- **Build-time data fetching** — `scripts/fetch-edgar.ts` pulls SEC EDGAR data into `data/filings/*.json` before `next build`
+- **MANUAL data ingest** — `scripts/fetch-edgar.ts` pulls SEC EDGAR data into `data/filings/*.json`. ⚠️ It is **not** wired into `prebuild`, `build`, `deploy` or CI: you must run `npm run fetch-edgar` and commit the result. (This line used to claim build-time fetching. It was never true, and that false belief is why the corpus silently froze from 2026-09-11 to 2026-09-23 while the site kept deploying a "Live" label over an 11-day-old snapshot.) `prebuild` now runs `scripts/check-data-freshness.mjs`, which WARNS in the build log when the newest filing is >2 business days old.
 - **Per-page JSON twin** — every programmatic page has `/api/[slug].json` for bot/LLM consumption
 - **No backend, no DB, no auth** — finite public dataset, all client-side filter for search
 
