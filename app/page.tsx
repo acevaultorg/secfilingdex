@@ -189,7 +189,7 @@ export default function Home() {
             <p className="text-eyebrow text-brand mb-4">
               Top filers · {ciks.length} indexed
             </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filerCounts.map((f) => (
                 <Link
                   key={f.cik}
@@ -219,7 +219,7 @@ export default function Home() {
             <p className="text-eyebrow text-brand mb-4">
               Browse by industry · {sicCodes.length} indexed
             </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {industryCounts.map((ind) => (
                 <Link
                   key={ind.sic}
