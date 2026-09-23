@@ -1,0 +1,41 @@
+{
+ "fetched": "2026-09-23T22:32:20.306Z",
+ "source": "Amazon Creators API getItems",
+ "items": {
+  "1119457149": {
+   "url": "https://m.media-amazon.com/images/I/51wImv-2lUL._SL160_.jpg",
+   "w": 108,
+   "h": 160,
+   "title": "Financial Statement Analysis, 5th Edition: A Practitioner's Guide (Wiley Finance)",
+   "detail": "https://www.amazon.com/dp/1119457149?tag=secfilingdex-20&linkCode=ogi&th=1&psc=1"
+  },
+  "0071592539": {
+   "url": "https://m.media-amazon.com/images/I/51hwLfcPJPL._SL160_.jpg",
+   "w": 104,
+   "h": 160,
+   "title": "Security Analysis: Sixth Edition, Foreword by Warren Buffett",
+   "detail": "https://www.amazon.com/dp/0071592539?tag=secfilingdex-20&linkCode=ogi&th=1&psc=1"
+  },
+  "126011726X": {
+   "url": "https://m.media-amazon.com/images/I/415eP1H2SnL._SL160_.jpg",
+   "w": 106,
+   "h": 160,
+   "title": "Financial Shenanigans, Fourth Edition: How to Detect Accounting Gimmicks and Fraud in Financial Reports",
+   "detail": "https://www.amazon.com/dp/126011726X?tag=secfilingdex-20&linkCode=ogi&th=1&psc=1"
+  },
+  "0060555661": {
+   "url": "https://m.media-amazon.com/images/I/51iUvaI2DgL._SL160_.jpg",
+   "w": 104,
+   "h": 160,
+   "title": "The Intelligent Investor Rev Ed.: The Definitive Book on Value Investing",
+   "detail": "https://www.amazon.com/dp/0060555661?tag=secfilingdex-20&linkCode=ogi&th=1&psc=1"
+  },
+  "0966446143": {
+   "url": "https://m.media-amazon.com/images/I/41YPyniR0mL._SL160_.jpg",
+   "w": 104,
+   "h": 160,
+   "title": "The Essays of Warren Buffett - 8th ed",
+   "detail": "https://www.amazon.com/dp/0966446143?tag=secfilingdex-20&linkCode=ogi&th=1&psc=1"
+  }
+ }
+}

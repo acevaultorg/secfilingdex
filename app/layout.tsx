@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     template: `%s · ${SITE_NAME}`,
   },
   description:
-    "Programmatic database surface over SEC EDGAR filings. Comprehensive indexing across 10-K, 10-Q, 8-K, 13F, 13D/G, S-1, Proxy, Form 4, 20-F, 6-K with cross-filer relationship graph and citation-grade structured-data API.",
+    "Look up recent SEC filings (10-K, 10-Q, 8-K, 20-F, S-1, 13F, Form 4 and more) with a plain-English explanation of each form and a link to the original on EDGAR. New filings added daily.",
   applicationName: SITE_NAME,
   authors: [{ name: "Paulo de Vries" }],
   keywords: [
@@ -36,14 +36,14 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description:
-      "Comprehensive database surface over SEC EDGAR. Every filing, indexed.",
+      "Recent SEC filings with a plain-English explanation of each form and a link to the original on EDGAR.",
     siteName: SITE_NAME,
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description:
-      "Comprehensive database surface over SEC EDGAR. Every filing, indexed.",
+      "Recent SEC filings with a plain-English explanation of each form and a link to the original on EDGAR.",
   },
   robots: {
     index: true,

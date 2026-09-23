@@ -286,6 +286,7 @@ export function LearnArticle({
                 ? [CONTEXTUAL_BOOK_PLACEMENT.excludedShelfTitle]
                 : undefined
             }
+            covers={!earlyBookHref}
           />
 
           {definedTerms.length > 0 && (

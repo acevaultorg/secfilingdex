@@ -65,7 +65,7 @@ export default function AboutPage() {
     url: SITE_URL,
     logo: `${SITE_URL}/icon.svg`,
     description:
-      "Programmatic database surface over SEC EDGAR filings — every filing indexed, normalized, schema-tagged, and machine-readable.",
+      "An index of recent SEC EDGAR filings, organised by form, filer and industry, with a plain-English explanation of each form and a machine-readable copy of every page.",
     foundingDate: "2026-04-28",
     founder: {
       "@type": "Person",
@@ -223,15 +223,20 @@ export default function AboutPage() {
         </section>
 
         <div className="space-y-10 text-body text-muted">
-          <section>
+          <section id="api">
             <h2 className="text-heading-1 text-text mb-3">What this site is</h2>
             <p className="mb-3">
-              SecFilingDex is the <strong className="text-text">dex</strong> of
-              SEC filings. Every filing on EDGAR &mdash; 10-K, 10-Q, 8-K, 13F,
-              Schedule 13D/G, S-1, Form 4, DEF 14A, 20-F, 6-K, and more &mdash;
-              gets its own programmatic page, its own structured-data schema,
-              and its own machine-readable JSON twin at{" "}
-              <code className="font-mono text-text">/api/[slug].json</code>.
+              SecFilingDex is an index of SEC filings: 10-K, 10-Q, 8-K, 13F,
+              Schedule 13D/G, S-1, Form 4, DEF 14A, 20-F, 6-K and more. It holds
+              a growing subset of EDGAR, mostly filings from recent years, with
+              new ones added every day. Each filing here gets its own page, its
+              own structured-data schema, and a machine-readable JSON copy at{" "}
+              <code className="font-mono text-text">/api/[slug].json</code>. The
+              full list is at{" "}
+              <a href="/api/filings.json" className="text-brand underline">
+                /api/filings.json
+              </a>
+              .
             </p>
             <p>
               We don&apos;t replace EDGAR. We index it, normalize it, and make

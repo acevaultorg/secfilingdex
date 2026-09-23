@@ -11,7 +11,7 @@ import {
   uniqueFormTypes,
   uniqueSicCodes,
 } from "@/lib/filings";
-import { formTypeToSlug } from "@/lib/types";
+import { formTypeToSlug, type FormType } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
 import { formatDateShort, formTypeInfo, pickEnrichments } from "@/lib/format";
 
@@ -24,12 +24,23 @@ export const metadata: Metadata = {
   alternates: { canonical: `${SITE_URL}/` },
 };
 
+// The forms people actually search for (design pass 2026-09-23, card
+// mue840n8q4dh5j). The full list lives on /form/.
+const POPULAR_FORMS: FormType[] = ["10-K", "10-Q", "8-K", "20-F", "S-1", "13F-HR"];
+
 export default function Home() {
   const allFilings = loadAllFilings();
   const formTypes = uniqueFormTypes();
   const ciks = uniqueCiks();
   const sicCodes = uniqueSicCodes();
   const recent = allFilings.slice(0, 10);
+  // Year from which the corpus is dense: the earliest year that holds at least
+  // 10% of all filings. Computed, so the hero sentence cannot overstate history.
+  const byYear = new Map<string, number>();
+  for (const f of allFilings) byYear.set(f.filedAt.slice(0, 4), (byYear.get(f.filedAt.slice(0, 4)) ?? 0) + 1);
+  const sinceYear =
+    [...byYear.entries()].sort().find(([, n]) => n >= allFilings.length * 0.1)?.[0] ??
+    allFilings[allFilings.length - 1]?.filedAt.slice(0, 4);
 
   // Top filers by count of indexed filings (newest-first ordering preserved)
   const filerCounts = ciks
@@ -57,34 +68,15 @@ export default function Home() {
       <main className="min-h-screen">
         {/* Hero */}
         <section className="px-6 pt-16 pb-12 sm:pt-24 sm:pb-16 max-w-6xl mx-auto">
-          <p className="text-eyebrow text-brand mb-5">SecFilingDex</p>
           <h1 className="text-4xl sm:text-display-1 font-bold tracking-tight leading-[1.1] sm:leading-none mb-6 max-w-3xl">
-            Every SEC filing,{" "}
-            <span className="text-brand">indexed.</span>
+            Look up a company&apos;s SEC filings in plain English
           </h1>
           <p className="text-body-lg text-muted max-w-2xl mb-8">
-            A programmatic database surface over SEC EDGAR. Search, lookup, and
-            cite filings across every form type — with structured-data JSON
-            twins for AI agents and a freshness-tracked taxonomy across millions
-            of historical filings.
+            {allFilings.length.toLocaleString("en-US")} filings copied from SEC EDGAR so far,
+            most of them filed since {sinceYear}, with new ones added every day. Each page
+            says what the form is, who filed it and when, and links to the original on
+            sec.gov.
           </p>
-          <div className="flex flex-wrap gap-3 mb-8">
-            <Link
-              href="/about/"
-              className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
-            >
-              How it works
-            </Link>
-            <Link
-              href="https://www.sec.gov/edgar"
-              target="_blank"
-              rel="noopener"
-              className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn border border-border text-muted hover:text-text hover:border-border-bright transition-all"
-            >
-              View raw EDGAR ↗
-            </Link>
-          </div>
-
           {/* Search entry — GET to /search/ so the action is shareable
               + LLM-citable (Schema.org WebSite SearchAction is wired in
               layout.tsx). Form submit works with JS off too. */}
@@ -108,20 +100,32 @@ export default function Home() {
             />
             <button
               type="submit"
-              className="inline-flex items-center justify-center min-h-[48px] px-5 py-3 rounded-btn border border-border-bright text-text font-medium hover:bg-panel-hi transition-all"
+              className="inline-flex items-center justify-center min-h-[48px] px-5 py-3 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
             >
               Search →
             </button>
           </form>
+          <p className="mt-5 text-body-sm text-muted">
+            <Link href="/about/" className="text-brand hover:underline">
+              How it works
+            </Link>
+            {" · "}
+            <Link
+              href="https://www.sec.gov/edgar"
+              target="_blank"
+              rel="noopener"
+              className="hover:text-text hover:underline"
+            >
+              Search EDGAR itself ↗
+            </Link>
+          </p>
         </section>
 
         {/* Live form-type pills with counts — clicks into /form/[type]/ */}
         <section className="px-6 py-10 max-w-6xl mx-auto">
-          <p className="text-eyebrow text-brand mb-4">
-            Browse by form type · {allFilings.length} filings indexed
-          </p>
+          <h2 className="text-heading-2 text-text mb-4">Browse by form</h2>
           <div className="flex flex-wrap gap-2">
-            {formTypes.map((ft) => {
+            {POPULAR_FORMS.filter((ft) => formTypes.includes(ft)).map((ft) => {
               const count = loadFilingsByFormType(ft).length;
               const info = formTypeInfo(ft);
               return (
@@ -132,7 +136,7 @@ export default function Home() {
                 >
                   <span className="font-mono text-data-cell text-text">{ft}</span>
                   {info?.shortName && (
-                    <span className="text-caption text-muted hidden sm:inline">
+                    <span className="text-caption text-muted">
                       {info.shortName}
                     </span>
                   )}
@@ -142,12 +146,56 @@ export default function Home() {
                 </Link>
               );
             })}
+            <Link
+              href="/form/"
+              className="inline-flex items-center min-h-[40px] px-3.5 py-2 rounded-pill border border-border text-body-sm text-brand hover:border-border-bright hover:bg-panel-hi transition-colors"
+            >
+              All {formTypes.length} form types →
+            </Link>
+          </div>
+        </section>
+
+        {/* Learn — short explainers, hub for /learn/[topic] pages */}
+        <section className="px-6 py-10 max-w-6xl mx-auto">
+          <h2 className="text-heading-2 text-text mb-4">
+            What each form means
+          </h2>
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {[
+              { slug: "10-k", title: "10-K", blurb: "Annual report" },
+              { slug: "10-q", title: "10-Q", blurb: "Quarterly report" },
+              { slug: "8-k", title: "8-K", blurb: "Material events" },
+              { slug: "13f", title: "13F", blurb: "Institutional holdings" },
+              { slug: "form-4", title: "Form 4", blurb: "Insider trading" },
+              { slug: "s-1", title: "S-1", blurb: "IPO prospectus" },
+              { slug: "s-3", title: "S-3", blurb: "Shelf registration" },
+              { slug: "def-14a", title: "DEF 14A", blurb: "Proxy statement" },
+              { slug: "20-f", title: "20-F", blurb: "Foreign issuer annual" },
+              { slug: "13d-vs-13g", title: "13D vs. 13G", blurb: "Activist vs. passive" },
+            ].map((t) => (
+              <Link
+                key={t.slug}
+                href={`/learn/${t.slug}/`}
+                className="rounded-card border border-border bg-panel/40 px-4 py-3 hover:border-border-bright hover:bg-panel-hi transition-colors"
+              >
+                <p className="text-heading-3 text-text mb-0.5">{t.title}</p>
+                <p className="text-body-sm text-muted">{t.blurb}</p>
+              </Link>
+            ))}
+            <Link
+              href="/learn/"
+              className="rounded-card border border-brand-soft bg-surface-brand p-4 hover:border-brand hover:bg-panel-hi transition-colors flex items-center justify-center"
+            >
+              <span className="text-body-sm text-brand font-medium">
+                See all explainers →
+              </span>
+            </Link>
           </div>
         </section>
 
         {/* Recent filings — live discovery into /filing/[accession]/ */}
         <section className="px-6 py-10 max-w-6xl mx-auto">
-          <p className="text-eyebrow text-brand mb-4">Recent filings</p>
+          <h2 className="text-heading-2 text-text mb-4">Filed most recently</h2>
           <div className="rounded-card-lg border border-border bg-panel/40 overflow-hidden">
             <ul className="divide-y divide-border">
               {recent.map((f) => {
@@ -186,9 +234,9 @@ export default function Home() {
         {/* Top filers — live discovery into /filer/[cik]/ */}
         {filerCounts.length > 0 && (
           <section className="px-6 py-10 max-w-6xl mx-auto">
-            <p className="text-eyebrow text-brand mb-4">
-              Top filers · {ciks.length} indexed
-            </p>
+            <h2 className="text-heading-2 text-text mb-4">
+              Companies with the most filings here
+            </h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {filerCounts.map((f) => (
                 <Link
@@ -216,9 +264,9 @@ export default function Home() {
         {/* Top industries — live discovery into /industry/[sic]/ */}
         {industryCounts.length > 0 && (
           <section className="px-6 py-10 max-w-6xl mx-auto">
-            <p className="text-eyebrow text-brand mb-4">
-              Browse by industry · {sicCodes.length} indexed
-            </p>
+            <h2 className="text-heading-2 text-text mb-4">
+              Browse by industry
+            </h2>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {industryCounts.map((ind) => (
                 <Link
@@ -241,92 +289,11 @@ export default function Home() {
           </section>
         )}
 
-        {/* Learn — short explainers, hub for /learn/[topic] pages */}
-        <section className="px-6 py-10 max-w-6xl mx-auto">
-          <p className="text-eyebrow text-brand mb-4">
-            Learn · plain-English explainers
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              { slug: "10-k", title: "10-K", blurb: "Annual report" },
-              { slug: "10-q", title: "10-Q", blurb: "Quarterly report" },
-              { slug: "8-k", title: "8-K", blurb: "Material events" },
-              { slug: "13f", title: "13F", blurb: "Institutional holdings" },
-              { slug: "form-4", title: "Form 4", blurb: "Insider trading" },
-              { slug: "s-1", title: "S-1", blurb: "IPO prospectus" },
-              { slug: "s-3", title: "S-3", blurb: "Shelf registration" },
-              { slug: "def-14a", title: "DEF 14A", blurb: "Proxy statement" },
-              { slug: "20-f", title: "20-F", blurb: "Foreign issuer annual" },
-              { slug: "13d-vs-13g", title: "13D vs. 13G", blurb: "Activist vs. passive" },
-            ].map((t) => (
-              <Link
-                key={t.slug}
-                href={`/learn/${t.slug}/`}
-                className="rounded-card border border-border bg-panel/40 p-4 hover:border-border-bright hover:bg-panel-hi transition-colors"
-              >
-                <p className="text-heading-3 text-text mb-1">{t.title}</p>
-                <p className="text-body-sm text-muted">{t.blurb}</p>
-              </Link>
-            ))}
-            <Link
-              href="/learn/"
-              className="rounded-card border border-brand-soft bg-surface-brand p-4 hover:border-brand hover:bg-panel-hi transition-colors flex items-center justify-center"
-            >
-              <span className="text-body-sm text-brand font-medium">
-                See all explainers →
-              </span>
-            </Link>
-          </div>
-        </section>
-
-        {/* 3-tile feature preview */}
-        <section className="px-6 py-12 max-w-6xl mx-auto">
-          <p className="text-eyebrow text-dim mb-6">What it does</p>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <article className="rounded-card border border-border bg-panel/40 p-6 hover:border-border-bright transition-colors">
-              <p className="text-eyebrow text-brand mb-3">01 · Index</p>
-              <h2 className="text-heading-2 mb-3">
-                Every filing, every form type
-              </h2>
-              <p className="text-body-sm text-muted">
-                10-K, 10-Q, 8-K, 13F, 13D/G, Form 4, S-1, DEF 14A, 20-F, 6-K.
-                Programmatic pages keyed by accession number — every filing has
-                its own URL, schema, and JSON twin.
-              </p>
-            </article>
-
-            <article className="rounded-card border border-border bg-panel/40 p-6 hover:border-border-bright transition-colors">
-              <p className="text-eyebrow text-brand mb-3">02 · Pivot</p>
-              <h2 className="text-heading-2 mb-3">
-                Filer × form × date, instant
-              </h2>
-              <p className="text-body-sm text-muted">
-                Pivot by CIK, ticker, form type, period, or material-event
-                category. Faster lookup than EDGAR&apos;s native UI. Bookmarkable
-                URLs for every query path.
-              </p>
-            </article>
-
-            <article className="rounded-card border border-border bg-panel/40 p-6 hover:border-border-bright transition-colors">
-              <p className="text-eyebrow text-brand mb-3">03 · Cite</p>
-              <h2 className="text-heading-2 mb-3">
-                Citation-grade JSON API
-              </h2>
-              <p className="text-body-sm text-muted">
-                Per-page <code className="font-mono text-text">/api/[slug].json</code>{" "}
-                endpoint. Structured-data JSON-LD schema. Built for AI agents,
-                LLM retrieval, and downstream data tooling.
-              </p>
-            </article>
-          </div>
-        </section>
-
         {/* Trust + transparency strip */}
         <section className="px-6 py-12 max-w-6xl mx-auto">
           <div className="rounded-card-lg border border-border bg-panel/40 p-8 sm:p-10">
-            <p className="text-eyebrow text-brand mb-4">Provenance</p>
             <h2 className="text-heading-1 mb-4">
-              Sourced from EDGAR. Every fact cites accession.
+              Where the data comes from
             </h2>
             <p className="text-body text-muted max-w-2xl mb-3">
               SecFilingDex republishes SEC EDGAR data with full provenance: every

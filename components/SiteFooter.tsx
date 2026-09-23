@@ -7,8 +7,8 @@ export function SiteFooter() {
         <div>
           <p className="font-mono text-muted mb-2">SecFilingDex</p>
           <p className="text-body-sm">
-            Programmatic database surface over SEC EDGAR. Citation-grade
-            structured-data API.
+            Recent SEC filings, explained in plain English, linked to the
+            original on EDGAR.
           </p>
         </div>
         <div className="space-y-1">
@@ -21,6 +21,9 @@ export function SiteFooter() {
           </Link>
           <Link href="/partners" className="block hover:text-text transition-colors">
             Partners
+          </Link>
+          <Link href="/about/#api" className="block hover:text-text transition-colors">
+            API (JSON)
           </Link>
           <Link href="/disclosure" className="block hover:text-text transition-colors">
             Affiliate Disclosure

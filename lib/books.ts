@@ -1,3 +1,4 @@
+import bookCovers from "./book-covers.json";
 /**
  * Reading list for filings researchers — Amazon Associates (tag secfilingdex-20).
  *
@@ -49,6 +50,13 @@ export type Book = {
   /** One line on why THIS reader — someone reading an SEC form explainer —
    *  would want it. Written to be useful, not to sell. */
   why: string;
+  /**
+   * ASIN whose cover is shown beside the title (design pass 2026-09-23). Image
+   * and detail URL come from the Amazon Creators API at build time
+   * (scripts/fetch-book-covers.mjs → lib/book-covers.json). The title link and
+   * amazonUrl() are unchanged; the cover links to the API's own detail URL.
+   */
+  coverAsin?: string;
 };
 
 /** ISBN-13 (978 prefix) → ISBN-10. ISBN-10 === ASIN for most print books. */
@@ -76,30 +84,35 @@ export const FILINGS_READING: Book[] = [
   {
     isbn13: "9780071592536",
     title: "Security Analysis",
+    coverAsin: "0071592539",
     author: "Benjamin Graham & David Dodd",
     why: "The reference on reading a filing and valuing what is inside it. Dense, and still the book the rest cite.",
   },
   {
     isbn13: null,
     title: "Financial Shenanigans",
+    coverAsin: "126011726X",
     author: "Howard M. Schilit",
     why: "How accounting manipulation actually shows up in disclosures — written around real filings and what gave them away.",
   },
   {
     isbn13: null,
     title: "Financial Statement Analysis",
+    coverAsin: "1119457149",
     author: "Martin S. Fridson & Fernando Alvarez",
     why: "A working guide to the statements inside a 10-K or 20-F, including where the notes matter more than the headline numbers.",
   },
   {
     isbn13: "9780060555665",
     title: "The Intelligent Investor",
+    coverAsin: "0060555661",
     author: "Benjamin Graham",
     why: "The plain-language starting point if the filings are new to you and the vocabulary is the obstacle.",
   },
   {
     isbn13: null,
     title: "The Essays of Warren Buffett",
+    coverAsin: "0966446143",
     author: "Lawrence A. Cunningham (ed.)",
     why: "Shareholder letters organised by theme — a filer's own account of what disclosure is for, from the reporting side.",
   },
@@ -108,3 +121,13 @@ export const FILINGS_READING: Book[] = [
 /** FTC-compliant disclosure. MUST render adjacent to the links. */
 export const FTC_DISCLOSURE =
   "Book links go to Amazon. As an Amazon Associate, SecFilingDex earns from qualifying purchases, at no extra cost to you. The filings data on this site is free and never changes based on these links.";
+
+
+export type BookCover = { url: string; w: number; h: number; title: string; detail: string };
+const COVERS = (bookCovers as { items: Record<string, BookCover> }).items || {};
+
+/** API-issued cover for a book, or null. Only a detail URL carrying this site's tag is used. */
+export function coverFor(book: Book): BookCover | null {
+  const c = book.coverAsin ? COVERS[book.coverAsin] : undefined;
+  return c && c.detail.includes(`tag=${TAG}`) ? c : null;
+}

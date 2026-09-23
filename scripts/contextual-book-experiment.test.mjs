@@ -102,7 +102,9 @@ assert(elevenK.includes("within 90 days"));
 assert(elevenK.includes("within 180 days"));
 assert(elevenK.includes("https://www.sec.gov/files/form11-k.pdf"));
 
-const untouchedDateControl = html("/learn/20-f/");
+// 20-F was edited on 2026-09-23 (design pass, real-example table), so its date
+// moved; S-1 is the untouched control now.
+const untouchedDateControl = html("/learn/s-1/");
 assert.match(untouchedDateControl, /Last updated: (?:<!-- -->)?2026-05-01/);
 const learnArticleSource = readFileSync(
   path.join(ROOT, "components", "LearnArticle.tsx"),

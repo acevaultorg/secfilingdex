@@ -31,9 +31,9 @@ const FAQS: QA[] = [
     q: "What is SecFilingDex?",
     a: (
       <>
-        SecFilingDex is a programmatic database surface over SEC EDGAR filings. We
-        index every filing from the U.S. Securities and Exchange Commission&rsquo;s
-        public EDGAR system, organise them by form type / filer / industry / date,
+        SecFilingDex is an index of SEC filings. We copy a growing set of filings
+        from the U.S. Securities and Exchange Commission&rsquo;s public EDGAR
+        system (mostly recent years, new ones daily), organise them by form type / filer / industry / date,
         and republish each filing as a structured, citation-grade page with a
         machine-readable JSON twin. Free for humans to browse, free for AI agents
         to cite, no paywall.

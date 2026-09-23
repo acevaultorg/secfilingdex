@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { LearnArticle } from "@/components/LearnArticle";
+import Link from "next/link";
 import { loadFilingsByFormType } from "@/lib/filings";
+import { pickEnrichments } from "@/lib/format";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -12,7 +14,22 @@ export const metadata: Metadata = {
 };
 
 export default function Learn20FPage() {
-  const liveCount = loadFilingsByFormType("20-F").length;
+  const all20F = loadFilingsByFormType("20-F");
+  const liveCount = all20F.length;
+  // Real example, computed from the index (design pass 2026-09-23, card
+  // mue840n8q4dh5j): 20-Fs for fiscal years ending 31 Dec 2025, with how many
+  // days after year-end each was filed. Shows the four-month deadline in practice.
+  const FY_END = "2025-12-31";
+  const fy = all20F
+    .filter((f) => f.periodOfReport === FY_END && !f.isAmendment)
+    .map((f) => {
+      const days = Math.round((Date.parse(f.filedAt) - Date.parse(`${FY_END}T00:00:00Z`)) / 86_400_000);
+      const { filerName, ticker } = pickEnrichments(f);
+      return { f, days, filerName, ticker };
+    })
+    .sort((a, b) => a.days - b.days);
+  const onLastDay = fy.filter((x) => x.f.filedAt.slice(0, 10) === "2026-04-30").length;
+  const exampleRows = fy.length > 8 ? [...fy.slice(0, 5), ...fy.slice(-3)] : fy;
   const amendCount = loadFilingsByFormType("20-F/A").length;
   const k6Count = loadFilingsByFormType("6-K").length;
 
@@ -21,6 +38,13 @@ export default function Learn20FPage() {
       slug="20-f"
       title="What is a 20-F filing?"
       tldr="20-F is the SEC annual report a foreign private issuer (FPI) — a non-U.S. company with shares listed in the U.S. — files under the Securities Exchange Act. It is the foreign-issuer equivalent of the 10-K, with adaptations for non-U.S. accounting standards and governance practices."
+      dateModified="2026-09-23"
+      livePreview={{
+        formLabel: "20-F",
+        filings: all20F.slice(0, 5),
+        browseHref: "/form/20-f",
+        totalCount: liveCount,
+      }}
       sections={[
         {
           heading: "Who files a 20-F",
@@ -84,6 +108,53 @@ export default function Learn20FPage() {
             </ul>
           ),
         },
+        ...(exampleRows.length >= 3
+          ? [
+              {
+                heading: "A real example: when the fiscal-2025 20-Fs came in",
+                body: (
+                  <>
+                    <p>
+                      This index holds {fy.length} original 20-Fs for fiscal years that ended
+                      on 31 December 2025. The deadline for those was 30 April 2026, four
+                      months later
+                      {onLastDay > 0 ? <>, and {onLastDay} of them were filed on that last day</> : null}
+                      . The earliest and latest:
+                    </p>
+                    <div className="overflow-x-auto rounded-card border border-border">
+                      <table className="w-full text-body-sm">
+                        <thead>
+                          <tr className="border-b border-border text-left text-dim">
+                            <th className="px-3 py-2 font-medium">Company</th>
+                            <th className="px-3 py-2 font-medium">Filed</th>
+                            <th className="px-3 py-2 text-right font-medium">Days after year-end</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {exampleRows.map(({ f, days, filerName, ticker }) => (
+                            <tr key={f.accessionNumber}>
+                              <td className="px-3 py-2 text-text">
+                                <Link href={`/filing/${f.accessionNumber}/`} className="hover:text-brand">
+                                  {filerName}
+                                </Link>
+                                {ticker && <span className="ml-2 font-mono text-caption text-muted">{ticker}</span>}
+                              </td>
+                              <td className="whitespace-nowrap px-3 py-2 font-mono tabular text-muted">{f.filedAt.slice(0, 10)}</td>
+                              <td className="px-3 py-2 text-right font-mono tabular text-text">{days}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <p className="text-body-sm text-dim">
+                      Filing dates from SEC EDGAR. Each company name opens that filing&apos;s
+                      page here, which links to the original on sec.gov.
+                    </p>
+                  </>
+                ),
+              },
+            ]
+          : []),
         {
           heading: "20-F vs. 10-K — the practical differences",
           body: (

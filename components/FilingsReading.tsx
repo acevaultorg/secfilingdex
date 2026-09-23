@@ -3,6 +3,7 @@ import {
   FILINGS_READING,
   FTC_DISCLOSURE,
   amazonUrl,
+  coverFor,
 } from "@/lib/books";
 
 /**
@@ -19,11 +20,15 @@ export function FilingsReading({
   heading = "Reading on filings",
   sub,
   excludedTitles = [],
+  covers = true,
 }: {
   heading?: string;
   sub?: string;
   /** Exact-title exclusions for a route that already presents that same book. */
   excludedTitles?: readonly string[];
+  /** Show API-issued cover images (off on the 10-K route while its in-article
+   * book experiment runs, so the treatment page's surroundings do not change). */
+  covers?: boolean;
 }) {
   const visibleBooks = FILINGS_READING.filter(
     (book) => !excludedTitles.includes(book.title),
@@ -35,8 +40,32 @@ export function FilingsReading({
       {sub && <p className="text-muted text-sm mb-4">{sub}</p>}
 
       <ul className="space-y-3">
-        {visibleBooks.map((book) => (
-          <li key={book.title}>
+        {visibleBooks.map((book) => {
+          const cover = covers ? coverFor(book) : null;
+          return (
+          <li key={book.title} className="flex gap-4">
+            {cover && (
+              <a
+                href={cover.detail}
+                target="_blank"
+                rel="sponsored nofollow noopener"
+                data-affiliate="amazon-book-cover"
+                data-book={book.title}
+                className="shrink-0"
+              >
+                <img
+                  src={cover.url}
+                  alt={`Cover of ${cover.title}`}
+                  width={cover.w}
+                  height={cover.h}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-24 w-auto rounded-sm border border-border bg-white"
+                  style={{ aspectRatio: `${cover.w} / ${cover.h}` }}
+                />
+              </a>
+            )}
+            <div className="min-w-0">
             <a
               href={amazonUrl(book)}
               target="_blank"
@@ -53,8 +82,10 @@ export function FilingsReading({
             </a>
             <span className="text-muted"> — {book.author}</span>
             <p className="text-muted text-sm mt-0.5">{book.why}</p>
+            </div>
           </li>
-        ))}
+          );
+        })}
       </ul>
 
       {/* Audible trial. Placed after the list because it is an alternative
