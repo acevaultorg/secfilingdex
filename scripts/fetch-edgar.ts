@@ -240,14 +240,42 @@ async function searchByForm(
   return hits.slice(0, max).map(transformHit);
 }
 
+/** Stable, key-order-independent JSON of a record minus indexedAt (the only field that changes on
+ *  a no-op re-fetch). */
+function contentKey(r: FilingRecord): string {
+  const canon = (v: unknown): unknown =>
+    Array.isArray(v) ? v.map(canon)
+      : v && typeof v === "object"
+        ? Object.fromEntries(Object.keys(v as object).sort().map((k) => [k, canon((v as Record<string, unknown>)[k])]))
+        : v;
+  const { indexedAt: _ignored, ...rest } = r as FilingRecord & { indexedAt?: string };
+  return JSON.stringify(canon(rest));
+}
+function filledFields(r: FilingRecord): number {
+  return Object.values(r as unknown as Record<string, unknown>).filter((v) => v !== null && v !== undefined && v !== "").length;
+}
+function sameContent(a: FilingRecord, b: FilingRecord): boolean {
+  return contentKey(a) === contentKey(b);
+}
+
 function writeRecord(record: FilingRecord): "wrote" | "skipped" {
   const path = join(DATA_DIR, `${record.accessionNumber}.json`);
   if (existsSync(path)) {
-    // Idempotent: only update if content changed (e.g., re-indexed timestamp)
+    // Idempotent: rewrite ONLY when the filing's content changed. The previous version merged the
+    // fresh indexedAt into the existing record and compared — so the timestamp itself always differed,
+    // every known filing was rewritten on every run (~117 files, 3x/day), each run was a commit + push
+    // + CI pipeline, and the sitemap lastmod (= indexedAt) of unchanged filings was bumped each time.
+    // Compare everything EXCEPT indexedAt, key-order independent; keep the original indexedAt when
+    // nothing changed, and stamp the new one only on a real change (2026-09-24).
     const existing = JSON.parse(readFileSync(path, "utf8")) as FilingRecord;
-    const merged = { ...existing, indexedAt: record.indexedAt };
-    if (JSON.stringify(existing) === JSON.stringify(merged)) return "skipped";
-    writeFileSync(path, JSON.stringify(merged, null, 2) + "\n");
+    if (sameContent(existing, record)) return "skipped";
+    // Multi-filer accessions (a Form 4 lists issuer AND reporting person) come back from EDGAR search
+    // with the filer order varying between runs, so the same accession flip-flops between the issuer
+    // view (ticker, period, primary doc) and the person view (none of those). Measured 2026-09-24 on
+    // 0001213900-26-090411: FreeCast/CAST vs "MOBLEY WILLIAM A JR". Never replace a record with a
+    // poorer one — that both loses data and re-creates a churn commit every run.
+    if (filledFields(record) < filledFields(existing)) return "skipped";
+    writeFileSync(path, JSON.stringify(record, null, 2) + "\n");
     return "wrote";
   }
   writeFileSync(path, JSON.stringify(record, null, 2) + "\n");
