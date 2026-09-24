@@ -1,10 +1,13 @@
+# VALIDATE-ONLY since 2026-09-24: the CI deploy job was removed. rg-freeze-guard and its register
+# exist only on the Macs, and the repo hook scripts/rg-freeze-check.mjs SKIPS (exit 0) when the guard
+# is absent, so a CI deploy shipped with no freeze check. Production deploys: `npm run deploy` or the
+# device-1 launchd ingest (~/.claude/bin/secfilingdex-ingest), both of which run the guard.
 # GitLab CI auto-deploy secfilingdex.com to CF Pages on push to main.
 # Operator one-time setup: add CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID
 # to project Settings > CI/CD > Variables.
 
 stages:
   - build
-  - deploy
 
 variables:
   NODE_VERSION: "24"
@@ -45,60 +48,5 @@ build:
     paths:
       - out/
     expire_in: 1 day
-  only:
-    - main
-
-deploy:
-  stage: deploy
-  image: node:24-bookworm-slim
-  # interruptible: a newer push to main cancels this pipeline and deploys the
-  # newer commit; a CF Pages deployment only goes live when wrangler finishes.
-  interruptible: true
-  needs:
-    - build
-  before_script:
-    - apt-get update
-    - apt-get install -y --no-install-recommends ca-certificates git
-    - npm install -g wrangler@4
-    # npm ci (not carried over from the build job's artifacts) so `npx tsx` for the
-    # IndexNow ping below has its devDependencies — out/ alone isn't enough.
-    - npm ci --no-audit --no-fund --cache .npm --prefer-offline
-  script:
-    - test -d out
-    - test -n "$CLOUDFLARE_API_TOKEN"
-    - test -n "$CLOUDFLARE_ACCOUNT_ID"
-    # Deploy, capturing wrangler's own output — the assertion below reads it.
-    - |
-      set -o pipefail
-      wrangler pages deploy out --project-name secfilingdex --branch main --commit-dirty=true 2>&1 | tee /tmp/wrangler-deploy.log
-    # POST-DEPLOY ASSERTION (2026-09-21, rewritten after its first version RED'd a HEALTHY deploy).
-    # v1 asked the CF API for the newest deployment's commit_hash. It failed, and the failure was
-    # MY bug, not the pipeline's: the extractor returned "" both when the hash was genuinely empty
-    # AND when the API read failed, so an unreadable response was indistinguishable from a mismatch.
-    # The CI CLOUDFLARE_API_TOKEN can deploy but evidently cannot LIST deployments — a scope the
-    # local CF_PAGES_TOKEN has and this one does not. Proof the deploy itself was fine: deployment
-    # 17092c4b carries commit_hash c20f7b5a, exactly that pipeline's SHA.
-    # v2 asserts on WRANGLER'S OWN OUTPUT instead: no second credential, so it cannot red a healthy
-    # deploy for an auth reason. It is the "deployment URL" form the parent card predicted for this
-    # repo — right conclusion, different reason (not the missing-git one it gave).
-    # Controlled three ways before shipping: it extracts the URL from the real failing trace; it
-    # yields nothing for a failed-deploy log; and it rejects another project's pages.dev URL.
-    - |
-      set -e
-      if ! grep -aq 'Deployment complete' /tmp/wrangler-deploy.log; then
-        echo "POST-DEPLOY ASSERTION FAILED: wrangler exited 0 but never reported 'Deployment complete'."
-        exit 1
-      fi
-      url=$(grep -aoE 'https://[0-9a-f]+\.secfilingdex\.pages\.dev' /tmp/wrangler-deploy.log | tail -1 || true)
-      if [ -z "$url" ]; then
-        echo "POST-DEPLOY ASSERTION FAILED: no secfilingdex deployment URL in wrangler output."
-        exit 1
-      fi
-      echo "post-deploy assertion OK — wrangler published $url for $CI_COMMIT_SHA"
-    # Found 2026-09-12: this CI deploy stage never pinged IndexNow — `npm run indexnow` was
-    # only wired into the local `npm run deploy` chain, so every CI-driven ship silently
-    # skipped it. The script gracefully degrades to a no-op if INDEXNOW_KEY isn't set as a
-    # CI/CD variable yet (Settings > CI/CD > Variables) — it never fails the deploy.
-    - npm run indexnow
   only:
     - main
