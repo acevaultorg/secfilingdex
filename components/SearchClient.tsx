@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 /**
  * Client-side search across all indexed filings.
@@ -59,7 +59,6 @@ function formatDateShort(iso: string): string {
 
 export function SearchClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const initialQuery = searchParams.get("q") ?? "";
 
   const [query, setQuery] = useState(initialQuery);
@@ -99,10 +98,13 @@ export function SearchClient() {
     if (typeof window !== "undefined") {
       const current = window.location.pathname + window.location.search;
       if (current !== url) {
-        router.replace(url, { scroll: false });
+        // Native history, not router.replace: the router fetches /search/index.txt?_rsc, which
+        // prune-out.mjs deletes, and the 404 forced a full reload on each keystroke (2026-09-24:
+        // typing "SYY" reloaded twice and the page kept "SY").
+        window.history.replaceState(null, "", url);
       }
     }
-  }, [query, router]);
+  }, [query]);
 
   // Microsoft Clarity custom event — fire `search` once per stable query (≥3 chars,
   // settled for 800ms). Heuristic for "the user actually intended to search" rather
