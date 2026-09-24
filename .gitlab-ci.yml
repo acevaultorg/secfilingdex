@@ -19,20 +19,25 @@ variables:
   # G-TX3XKDDE62 from local deploys through 2026-08-28 (CF deployment 764f9bec).
   NEXT_PUBLIC_GA4_ID: "G-TX3XKDDE62"
 
+# CI-minutes cut (2026-09-24): cache npm tarballs keyed on the lockfile instead of
+# node_modules/ — `npm ci` deletes node_modules/ first, so archiving and restoring
+# it (~20 s per job, twice per pipeline) bought nothing. .next/cache stays cached.
 cache:
-  key: secfilingdex-cache
+  key:
+    files: [package-lock.json]
   paths:
-    - node_modules/
+    - .npm/
     - .next/cache/
 
 build:
   stage: build
   image: node:24-bookworm-slim
+  interruptible: true
   before_script:
     - apt-get update
     - apt-get install -y --no-install-recommends git ca-certificates
   script:
-    - npm ci --no-audit --no-fund
+    - npm ci --no-audit --no-fund --cache .npm --prefer-offline
     - npm run build
     - test -d out
     - test -f out/index.html
@@ -46,6 +51,9 @@ build:
 deploy:
   stage: deploy
   image: node:24-bookworm-slim
+  # interruptible: a newer push to main cancels this pipeline and deploys the
+  # newer commit; a CF Pages deployment only goes live when wrangler finishes.
+  interruptible: true
   needs:
     - build
   before_script:
@@ -54,7 +62,7 @@ deploy:
     - npm install -g wrangler@4
     # npm ci (not carried over from the build job's artifacts) so `npx tsx` for the
     # IndexNow ping below has its devDependencies — out/ alone isn't enough.
-    - npm ci --no-audit --no-fund
+    - npm ci --no-audit --no-fund --cache .npm --prefer-offline
   script:
     - test -d out
     - test -n "$CLOUDFLARE_API_TOKEN"
