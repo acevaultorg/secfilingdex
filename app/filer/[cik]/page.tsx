@@ -282,7 +282,7 @@ export default async function FilerPage({
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

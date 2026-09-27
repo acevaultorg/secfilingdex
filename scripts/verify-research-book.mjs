@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const source=readFileSync(new URL('../functions/go/research-book.js',import.meta.url),'utf8');
+const {onRequest}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+globalThis.fetch=()=>{throw Error('No network allowed in gate test');};
+const token=Date.now().toString(36)+'.0123456789abcdef';
+const base='https://secfilingdex.com/go/research-book?a=1119457149&c=research-coverage-20260927';
+const headers={'sec-fetch-mode':'navigate','sec-fetch-site':'same-origin',cookie:'sfd_research_g='+token,referer:'https://secfilingdex.com/search/'};
+async function check(url,hs,accepted){const r=await onRequest({request:new Request(url,{headers:hs})});assert.equal(r.status,302);assert.equal(r.headers.get('location'),accepted?'https://www.amazon.com/dp/1119457149?tag=secfilingdex-20':'https://secfilingdex.com/');assert.match(r.headers.get('cache-control'),/no-store/);}
+await check(base,{},false);await check(base+'&t='+token,headers,true);
+await check(base+'&t='+token+'&a=1119457149',headers,false);
+await check(base.replace('1119457149','0000000000')+'&t='+token,headers,false);
+await check(base+'&t='+token,{...headers,'sec-fetch-site':'cross-site'},false);
+await check(base+'&t='+token,{...headers,cookie:''},false);
+await check(base+'&t='+token,{...headers,referer:'https://outside.example/search/'},false);
+await check(base+'&t='+token,{...headers,referer:'https://secfilingdex.com/privacy/'},false);
+await check(base+'&t='+token,{...headers,purpose:'prefetch'},false);
+const old=(Date.now()-180000).toString(36)+'.0123456789abcdef';
+await check(base+'&t='+old,{...headers,cookie:'sfd_research_g='+old},false);
+console.log('PASS: exact product/cohort, origin/navigation, token+cookie freshness, duplicate query and prefetch rejection; zero network.');

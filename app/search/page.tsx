@@ -105,7 +105,7 @@ export default function SearchPage() {
           Nothing on this page is investment, legal, or tax advice.
         </p>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

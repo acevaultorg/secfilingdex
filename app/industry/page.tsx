@@ -185,7 +185,7 @@ export default function IndustryIndex() {
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

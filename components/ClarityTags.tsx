@@ -116,6 +116,7 @@ function trackAffiliateClick(partner: string, href: string) {
       const q =
         "https://fleet.promptprio.com/c?s=secfilingdex.com&f=" +
         encodeURIComponent(partner) +
+        (partner === "amazon-research-book" ? "&p=" + encodeURIComponent(pathnameToPageType(window.location.pathname)) : "") +
         (isBounty ? "&t=b" : "") +
         (isAgent ? "&a=1" : "");
       navigator.sendBeacon(q);
@@ -180,6 +181,7 @@ export function ClarityTags() {
       // Clarity and GA4.
       const partner = target.getAttribute("data-affiliate");
       if (partner) {
+        if (partner === "amazon-research-book" && !e.isTrusted) return;
         // The isolated in-article book treatment is counted by its Pages Function only
         // AFTER the server accepts the gesture/navigation gate. Counting here
         // would turn rejected bot/programmatic attempts into false clicks and

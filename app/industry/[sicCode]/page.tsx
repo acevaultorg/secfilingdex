@@ -300,7 +300,7 @@ export default async function IndustryPage({
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

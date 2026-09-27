@@ -341,7 +341,7 @@ export default async function FormTypePage({
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

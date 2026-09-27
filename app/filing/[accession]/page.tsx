@@ -323,7 +323,7 @@ export default async function FilingPage({
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

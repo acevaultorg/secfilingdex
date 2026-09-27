@@ -159,7 +159,7 @@ export default function FormIndex() {
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

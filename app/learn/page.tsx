@@ -299,7 +299,7 @@ export default function LearnHubPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
         />
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }

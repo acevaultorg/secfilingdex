@@ -1,7 +1,10 @@
 import Link from "next/link";
+import { ResearchBook } from "./ResearchBook";
 
-export function SiteFooter() {
+export function SiteFooter({ books = false }: { books?: boolean }) {
   return (
+    <>
+    {books && <div className="max-w-5xl mx-auto px-6"><ResearchBook /></div>}
     <footer className="border-t border-border mt-24 py-10 text-body-sm text-dim">
       <div className="max-w-6xl mx-auto px-6 grid gap-6 sm:grid-cols-3">
         <div>
@@ -73,5 +76,6 @@ export function SiteFooter() {
         </p>
       </div>
     </footer>
+    </>
   );
 }

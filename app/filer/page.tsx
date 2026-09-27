@@ -164,7 +164,7 @@ export default function FilerIndex() {
           </p>
         </section>
       </main>
-      <SiteFooter />
+      <SiteFooter books />
     </>
   );
 }
