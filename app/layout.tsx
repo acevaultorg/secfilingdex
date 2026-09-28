@@ -200,7 +200,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <script
             dangerouslySetInnerHTML={{
               __html: `
-                (function(c,l,a,r,i,t,y){
+                (function(c,l,a,r,i,t,y){try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone||"";if(!z||/^(Europe\\/|Atlantic\\/(Reykjavik|Faroe|Canary|Madeira|Azores|Jan_Mayen)|Arctic\\/Longyearbyen|Africa\\/Ceuta|Asia\\/(Nicosia|Famagusta)|Indian\\/(Reunion|Mayotte)|America\\/(Guadeloupe|Martinique|Cayenne|St_Barthelemy|Marigot))/.test(z)){c[a]=c[a]||function(){};return}}catch(e){c[a]=c[a]||function(){};return}
                     c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
                     t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
                     y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);

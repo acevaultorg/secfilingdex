@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "https://secfilingdex.com/privacy/" },
 };
 
-const LAST_UPDATED = "April 29, 2026";
+const LAST_UPDATED = "September 28, 2026";
 
 export default function PrivacyPage() {
   return (
@@ -145,7 +145,9 @@ export default function PrivacyPage() {
                 <code>window.clarity(&apos;consent&apos;, boolean)</code>{" "}
                 — Reject suppresses all cookie storage and disables
                 session-recording capture entirely; the script self-loads
-                but stays inert until consent is granted. We tag sessions
+                but stays inert until consent is granted. When your device&rsquo;s
+                time zone is in the EU, EEA, UK or Switzerland, the script does not
+                load at all. We tag sessions
                 with a non-identifying page-type label (home / filing /
                 filer / form / industry / learn / search / meta) for
                 segmentation, plus a build-version tag for deploy
