@@ -1,0 +1,13 @@
+{
+  "outDir": "out",
+  "placementAttrs": ["data-event-from", "data-from", "data-affiliate"],
+  "tracker": [
+    "fleet\\.promptprio\\.com/c\\?s=secfilingdex\\.com&f=\"\\+encodeURIComponent\\(\\w+\\)\\+\"&p=\"\\+",
+    "getAttribute\\(\"data-affiliate\"\\)"
+  ],
+  "gate": "optional",
+  "ungatedAllow": [],
+  "skipFiles": [],
+  "minLinks": 10000,
+  "_note": "f= is the link's data-affiliate slug (amazon-research-book / amazon-book / amazon-book-cover / amazon-audible / amazon-contextual-book); the /learn shelf is raw by design (docs/AFFILIATE-ACTIVATION.md), the gate covers the research-book cohort only. /go/contextual-book is counted server-side by functions/go/contextual-book.js with f=amazon-contextual-book&p=learn-10k."
+}

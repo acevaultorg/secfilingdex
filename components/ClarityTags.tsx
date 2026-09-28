@@ -116,7 +116,9 @@ function trackAffiliateClick(partner: string, href: string) {
       const q =
         "https://fleet.promptprio.com/c?s=secfilingdex.com&f=" +
         encodeURIComponent(partner) +
-        (partner === "amazon-research-book" ? "&p=" + encodeURIComponent(pathnameToPageType(window.location.pathname)) : "") +
+        // &p=<page type> on EVERY Amazon click (2026-09-28 · card muksgphls3y3tw): it was sent for
+        // the research-book cohort only, so the /learn shelf, cover and Audible clicks had no page class.
+        "&p=" + encodeURIComponent(pathnameToPageType(window.location.pathname)) +
         (isBounty ? "&t=b" : "") +
         (isAgent ? "&a=1" : "");
       navigator.sendBeacon(q);

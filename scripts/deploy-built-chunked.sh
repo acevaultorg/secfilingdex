@@ -4,6 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 node scripts/predeploy-git-guard.mjs
+# Amazon click-tracking guard (2026-09-28 · card muksgphls3y3tw): refuse an out/ with an untracked Amazon link.
+node scripts/amazon-tracking-guard.mjs
 [ -z "$(git status --porcelain)" ] || { echo "Commit reviewed source changes before deployment." >&2; exit 1; }
 npx tsx scripts/ping-indexnow.ts --write-key-only
 node scripts/rg-freeze-check.mjs
