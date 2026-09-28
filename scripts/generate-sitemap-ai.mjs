@@ -16,7 +16,13 @@ import {
 
 const SITE_URL = "https://secfilingdex.com";
 const OUT_DIR = join(process.cwd(), "out");
-const TODAY = new Date().toISOString().slice(0, 10);
+// Last commit that changed the site's source, not the build clock (2026-09-28). No git → omitted.
+import { execSync } from "node:child_process";
+let TODAY;
+try {
+  TODAY = execSync("git log -1 --format=%cs -- app components lib content ':(exclude)*.md'", { encoding: "utf8" }).trim();
+} catch {}
+if (!/^\d{4}-\d{2}-\d{2}$/.test(TODAY || "")) TODAY = undefined;
 
 // Hand-authored AI-priority routes (always included)
 const AI_ROUTES = [
@@ -56,7 +62,7 @@ function urlEntry({ path, priority, lastmod, jsonAlt }) {
   const lines = [
     "  <url>",
     `    <loc>${SITE_URL}${path}</loc>`,
-    `    <lastmod>${lastmod}</lastmod>`,
+    ...(lastmod ? [`    <lastmod>${lastmod}</lastmod>`] : []),
     "    <changefreq>weekly</changefreq>",
     `    <priority>${priority.toFixed(1)}</priority>`,
   ];

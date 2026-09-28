@@ -19,7 +19,19 @@ import {
 
 const SITE_URL = "https://secfilingdex.com";
 const OUT_DIR = join(process.cwd(), "out");
-const TODAY = new Date().toISOString().slice(0, 10);
+// lastmod is never the build clock (2026-09-28: every URL carried the deploy date on every
+// build). Hand-authored pages use the last commit that changed the site's source; hub pages use
+// the newest indexedAt among the filings they list. Unknown → the tag is omitted, never faked.
+import { execSync } from "node:child_process";
+let CONTENT_DATE;
+try {
+  CONTENT_DATE = execSync("git log -1 --format=%cs -- app components lib content ':(exclude)*.md'", { encoding: "utf8" }).trim();
+} catch {}
+if (!/^\d{4}-\d{2}-\d{2}$/.test(CONTENT_DATE || "")) CONTENT_DATE = undefined;
+const TODAY = CONTENT_DATE;
+const day = (s) => (typeof s === "string" && /^\d{4}-\d{2}-\d{2}/.test(s) ? s.slice(0, 10) : undefined);
+const newest = (list) => list.map((f) => day(f.indexedAt)).filter(Boolean).sort().pop();
+const later = (a, b) => (a && b ? (a > b ? a : b) : a || b);
 const NOW_MS = Date.now();
 
 const STATIC_ROUTES = [
@@ -66,7 +78,7 @@ function urlEntry({ path, changefreq, priority, lastmod }) {
   return [
     "  <url>",
     `    <loc>${SITE_URL}${path}</loc>`,
-    `    <lastmod>${lastmod}</lastmod>`,
+    ...(lastmod ? [`    <lastmod>${lastmod}</lastmod>`] : []),
     `    <changefreq>${changefreq}</changefreq>`,
     `    <priority>${priority.toFixed(1)}</priority>`,
     "  </url>",
@@ -111,7 +123,7 @@ function main() {
       path: `/filer/${cik}/`,
       changefreq: "weekly",
       priority: count >= 20 ? 0.7 : count >= 10 ? 0.65 : 0.6,
-      lastmod: TODAY,
+      lastmod: later(newest(filings.filter((f) => f.cik === cik)), CONTENT_DATE),
     }));
 
   // Per-form-type landing pages (KEPT — aggregator surface, substantive content)
@@ -152,7 +164,7 @@ function main() {
     path: `/form/${formTypeToSlug(ft)}/`,
     changefreq: "weekly",
     priority: 0.7,
-    lastmod: TODAY,
+    lastmod: later(newest(filings.filter((f) => f.formType === ft)), CONTENT_DATE),
   }));
 
   // Per-industry (SIC code) landing pages — KEPT (substantive aggregator pages, 650+ words avg)
@@ -166,14 +178,18 @@ function main() {
       path: `/industry/${sic}/`,
       changefreq: "weekly",
       priority: count >= 5 ? 0.7 : 0.6,
-      lastmod: TODAY,
+      lastmod: later(newest(filings.filter((f) => f.sicCode === sic)), CONTENT_DATE),
     }));
 
   // Suppress unused-imports lint trace
   void filingPriority;
 
+  // Home and the three index hubs list the newest filings, so they change when a filing lands.
+  const newestAll = newest(filings);
+  const hubs = new Set(["/", "/filer/", "/form/", "/industry/"]);
+  const staticRoutes = STATIC_ROUTES.map((r) => (hubs.has(r.path) ? { ...r, lastmod: later(newestAll, CONTENT_DATE) } : r));
   const all = [
-    ...STATIC_ROUTES,
+    ...staticRoutes,
     ...formTypeEntries,
     ...industryEntries,
     ...filerEntries,
