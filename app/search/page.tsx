@@ -45,7 +45,7 @@ export default function SearchPage() {
         <header className="mb-8">
           <p className="text-eyebrow text-brand mb-3">Search</p>
           <h1 className="text-4xl sm:text-display-2 font-bold tracking-tight leading-[1.15] mb-3">
-            Find any filing
+            Search indexed filings
           </h1>
           <p className="text-body-lg text-muted max-w-2xl">
             Direct lookup across every indexed filing. Filer name, ticker,
