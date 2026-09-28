@@ -94,9 +94,13 @@ function trackAffiliateClick(partner: string, href: string) {
       // dropped at the filter, so amazon_clicks_30d read null and this site
       // ranked as unmonetized despite a live, compliant Amazon shelf.
       if (isAmazon) {
+        const m = /\/dp\/([A-Z0-9]{10})|[?&]a=([A-Z0-9]{10})/i.exec(href);
         window.gtag("event", "amazon_click", {
           partner,
           link_url: href,
+          page: window.location.pathname,
+          asin: m ? m[1] || m[2] : "",
+          dest: partner,
           cta_position: partner,
           transport_type: "beacon",
         });

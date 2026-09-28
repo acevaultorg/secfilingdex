@@ -239,7 +239,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans antialiased">
         {children}
-        {CLARITY_ID && <ClarityTags />}
+        {/* Always mounted (2026-09-28): ClarityTags holds the ONLY affiliate click handler (GA4
+            amazon_click + the fleet beacon). Gated on CLARITY_ID, which is unset, it never mounted, so
+            no Amazon click was counted anywhere. Its Clarity calls are guarded, so it is safe without Clarity. */}
+        <ClarityTags />
         <CookieConsent />
       </body>
     </html>
