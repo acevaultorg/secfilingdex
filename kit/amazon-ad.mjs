@@ -364,6 +364,7 @@ html[data-akbb=c] .ak-bb-var .ak-ad-link:hover .ak-ad-cta{text-decoration:underl
 .ak-bill-top .ak-ad-body{padding:0;gap:4px}
 .ak-bill-top .ak-bill-h{font-size:17px;line-height:1.2;height:2.4em}
 .ak-bill-top .ak-bill-line{height:16px;font-size:12px}.ak-bill-top .ak-bill-line .ak-ad-brand,.ak-bill-top .ak-bill-line .ak-ad-title{font-size:12px}
+html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-bill-line{padding-right:30px}
 .ak-bill-top .ak-bill-buy{position:absolute;left:8px;right:8px;bottom:8px;flex-direction:row;align-items:center;justify-content:space-between;margin:0}
 .ak-bill-top .ak-ad-price{font-size:22px;height:auto}
 .ak-bill-top .ak-ad-cta{min-height:44px;padding:0 18px;flex:0 0 auto}
