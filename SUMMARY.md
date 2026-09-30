@@ -118,3 +118,16 @@ rewrote the slug to `ad-bb-top-b`; that is reverted.
 6. Run `npm run test:top-ad`. Optionally run the browser check:
    `PLAYWRIGHT_PATH=<playwright folder> node scripts/top-ad-variants.browser-check.mjs out review`
    (after `npm run build` and `node kit/amazon-ad-inject.mjs out`).
+
+## Review pass (2026-09-30, second session)
+A review of this branch is in `REVIEW.md`. In short:
+- Build exit 0 on this branch and on `main`, **13,296 .html pages** on both, no new pages. Outside the ad
+  boxes, scripts, styles and asset hashes, every built page is identical to `main`.
+- Fixed: in variant B on phones, the title line ran right up to the next arrow (cramped at 375/390 with long
+  real titles and at 320 with none). It now keeps a 30 px gap (`kit/amazon-ad.mjs`).
+- The browser check now fails if an arrow ever covers visible ad text, and its placeholder data uses a long
+  title (`scripts/top-ad-variants.browser-check.mjs`). It passes on all 26 pages × A/B/C × 375/390/1280, with
+  and without placeholder data.
+- Screenshots in `review/` and `review/mock-api/` were regenerated after the fix.
+- Verdict: the code is ready, but the branch is **not ready to go live** until the three items under
+  "What a human must check" (items 1–3 above) are done.
