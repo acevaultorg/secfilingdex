@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 a2976904108e) — do not edit here; re-run enroll.mjs.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 46955fd28c8b) — do not edit here; re-run enroll.mjs.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -201,6 +201,8 @@ function card(p, i, cfg, t) {
 // "Sponsored · Amazon affiliate link" label above and generous whitespace. Phones stack it (image, text, full-width CTA).
 // Fixed heights per placement and breakpoint => no layout shift whether or not the API answers. Filled by AD_JS
 // (it is an .ak-on slot), so the price follows the same live / 23 h / "Price as of" rule as every kit card.
+const CHEV_L = '<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const CHEV_R = '<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 export function renderBillboard(cfg) {
   const p = cfg.product;
   if (!p || !/^[A-Z0-9]{10}$/.test(p.asin || '')) throw new Error('Amili Kit billboard: product with an ASIN is required');
@@ -211,24 +213,75 @@ export function renderBillboard(cfg) {
   const t = { ...(L[cfg.lang] || L.en), ...(cfg.labels || {}) };
   const at = cfg.placement === 'mid' ? 'mid' : 'top';
   const label = t.billboard || 'Sponsored · Amazon affiliate link';
-  const href = `${cfg.gate || '/go/p'}?a=${p.asin}`;
   const from = `ad-bb-${at}`;
-  return `<aside class="ak-ad ak-on ak-bill ak-bill-${at}" data-v="bb" data-fixed="1" data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}" data-spare="" aria-label="${esc(label)}">`
-    + `<div class="ak-bill-in">${at === 'mid' ? `<p class="ak-bill-lab">${esc(label)}</p>` : ''}`
-    + `<ul class="ak-ad-track" role="list"><li class="ak-ad-card" data-asin="${p.asin}" data-i="0">`
-    + `<a class="ak-ad-link" href="${esc(href)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="${from}" data-asin="${p.asin}">`
-    + `<span class="ak-ad-img" data-ak-img><span class="ak-bill-ph">${esc(p.name)}</span></span>`
-    + `<span class="ak-ad-body"><span class="ak-bill-h">${esc(head)}</span>`
-    + `<span class="ak-bill-line"><span class="ak-ad-brand" data-ak-brand></span><span class="ak-ad-title" data-ak-title>${esc(p.name)}</span></span>`
+  // cfg.variants (A/B/C test inside the same box, Paulo muns4xlwo86z4b): up to 6 products, most relevant first, each
+  // with its own headline (cfg.products: [{...product, bbHead}]). A shows the first, B one at a time with arrows,
+  // C a row of several. Without cfg.variants: the single-product billboard, unchanged.
+  const list = cfg.variants ? [p, ...(cfg.products || []).filter((x) => x.asin !== p.asin)].slice(0, 6) : [p];
+  const heads = list.map((x, i) => String(i === 0 ? head : (x.bbHead || x.headline || x.why || '')).trim());
+  for (const hh of heads) if (EMOJI.test(hh) || /\d(\.\d)?\s*(stars?|\u2605)|\$\s?\d|\u20ac\s?\d|reviews?\b|prime\b|% off|\bdeal/i.test(hh)) throw new Error(`Amili Kit billboard: headline may not claim prices, stars, deals or Prime: ${hh}`);
+  const nav = cfg.variants && list.length > 1
+    ? `<p class="ak-bb-rowh">${esc(t.rowHeading || 'Picked for readers of this page')}</p><button type="button" class="ak-bb-nav ak-bb-prev" data-ak-bbnav="-1" aria-label="${esc(t.prev)}" disabled>${CHEV_L}</button><button type="button" class="ak-bb-nav ak-bb-next" data-ak-bbnav="1" aria-label="${esc(t.next)}">${CHEV_R}</button>`
+    : '';
+  const card = (x, i) => `<li class="ak-ad-card" data-asin="${x.asin}" data-i="${i}">`
+    + `<a class="ak-ad-link" href="${esc(`${cfg.gate || '/go/p'}?a=${x.asin}`)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="${from}" data-asin="${x.asin}">`
+    + `<span class="ak-ad-img" data-ak-img><span class="ak-bill-ph">${esc(x.name)}</span></span>`
+    + `<span class="ak-ad-body"><span class="ak-bill-h">${esc(heads[i])}</span>`
+    + `<span class="ak-bill-line"><span class="ak-ad-brand" data-ak-brand></span><span class="ak-ad-title" data-ak-title>${esc(x.name)}</span></span>`
     + `<span class="ak-bill-buy"><span class="ak-ad-price" data-ak-price></span><span class="ak-ad-cta" data-none="${esc(t.cta)}" data-live="${esc(t.ctaLive)}">${esc(t.cta)}</span></span>`
-    + `</span></a></li></ul>`
-    + `<div class="ak-ad-foot">${at === 'top' ? `<span class="ak-bill-lab">${esc(label)}</span>` : ''}<p class="ak-ad-asof" data-ak-asof hidden>${esc(t.asOf)} <time></time></p>`
+    + `</span></a></li>`;
+  return `<aside class="ak-ad ak-on ak-bill ak-bill-${at}${nav ? ' ak-bb-var' : ''}" data-v="bb" data-fixed="1" data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}" data-spare="" aria-label="${esc(label)}">`
+    + `<div class="ak-bill-in">${at === 'mid' ? `<p class="ak-bill-lab">${esc(label)}</p>` : ''}`
+    + `<div class="ak-bb-stage">${nav}<ul class="ak-ad-track" role="list">${list.map(card).join('')}</ul></div>`
+    + `<div class="ak-ad-foot">${at === 'top' ? `<span class="ak-bill-lab">${esc(label)}</span>` : ''}${nav ? '<span class="ak-bb-count" aria-live="polite"></span>' : ''}<p class="ak-ad-asof" data-ak-asof hidden>${esc(t.asOf)} <time></time></p>`
     + `<details class="ak-ad-info"><summary aria-label="${esc(t.info)}">${INFO_SVG}</summary><div class="ak-ad-pop"><p>${esc(cfg.disclosure)}</p><p class="ak-ad-disc" data-ak-disc hidden>${esc(DISCLAIMER)}</p></div></details></div>`
     + `</div></aside>`;
 }
 
+// A/B/C assignment (inline in <head>, before first paint), from billboard.variant: 'a'|'b'|'c' fixes one, 'auto' = a
+// uniform random pick kept in localStorage "akbb". ?ak_variant=a|b|c always forces one for viewing (not stored). Sets <html data-akbb>, which the CSS reads, so the right layout paints first.
+export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])\b/)||[])[1],v=q||${/^[abc]$/.test(mode) ? `'${mode}'` : 'null'};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
+// Body: puts the variant into every billboard link's click position (data-event-from/data-from/data-affiliate
+// "ad-bb-top" -> "ad-bb-top-b"), so the fleet /c beacon records slot x variant with no collector change; runs the
+// B and C arrows and the "1 of 5" / "Page 1 of 3" counter. Never auto-rotates. Impressions: only when the page sets
+// window.AK_BB_IMP_URL (the /c collector counts unknown events as Amazon clicks, so none are sent there).
+export const BB_JS = `(function(){var h=document.documentElement,v=h.getAttribute('data-akbb')||'a';
+[].forEach.call(document.querySelectorAll('.ak-bb-var'),function(s){
+[].forEach.call(s.querySelectorAll('a.ak-ad-link'),function(a){['data-event-from','data-from','data-affiliate'].forEach(function(k){var x=a.getAttribute(k);if(x&&/^ad-bb-(top|mid)$/.test(x))a.setAttribute(k,x+'-'+v)})});
+if(window.AK_BB_IMP_URL&&'IntersectionObserver'in window){var sent=0,io=new IntersectionObserver(function(es){if(sent||!es[0].isIntersecting)return;sent=1;io.disconnect();try{navigator.sendBeacon(window.AK_BB_IMP_URL+(window.AK_BB_IMP_URL.indexOf('?')<0?'?':'&')+'slot='+(s.classList.contains('ak-bill-mid')?'mid':'top')+'&v='+v)}catch(e){}},{threshold:.5});io.observe(s)}
+if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr)return;
+function vis(){return [].filter.call(tr.children,function(li){return li.offsetWidth>0})}
+function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.round(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;pv.disabled=k<=1;nx.disabled=k>=n}
+[pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*tr.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
+tr.addEventListener('scroll',function(){upd()},{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
+
 export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band)}
 .ak-bill-in{max-width:970px;margin:0 auto;position:relative}
+.ak-bb-stage{position:relative}
+.ak-bb-rowh,.ak-bb-nav,.ak-bb-count{display:none}
+html:not([data-akbb=b]):not([data-akbb=c]) .ak-bb-var .ak-ad-card:not(:first-child){display:none}
+html[data-akbb=b] .ak-bb-var .ak-ad-track,html[data-akbb=c] .ak-bb-var .ak-ad-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
+html[data-akbb=b] .ak-bb-var .ak-ad-track::-webkit-scrollbar,html[data-akbb=c] .ak-bb-var .ak-ad-track::-webkit-scrollbar{display:none}
+html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 100%;scroll-snap-align:start}
+html[data-akbb=b] .ak-bb-var .ak-bb-nav,html[data-akbb=c] .ak-bb-var .ak-bb-nav{display:flex;position:absolute;z-index:2;top:50%;margin-top:-22px;width:44px;height:44px;border-radius:50%;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg);color:var(--ak-ad-fg);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:0}
+.ak-bb-prev{left:-14px}.ak-bb-next{right:-14px}
+html[data-akbb] .ak-bb-var .ak-bb-nav[disabled]{opacity:0;pointer-events:none}
+html[data-akbb=b] .ak-bb-var .ak-bb-count,html[data-akbb=c] .ak-bb-var .ak-bb-count{display:inline;font-size:12px;font-weight:600;color:var(--ak-ad-fg)}
+html[data-akbb=c] .ak-bb-var .ak-bb-rowh{display:block;margin:0;height:30px;line-height:30px;font:700 17px/30px Georgia,"Times New Roman",serif;color:var(--ak-ad-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+html[data-akbb=c] .ak-bb-var .ak-bb-nav{margin-top:0;top:108px}
+html[data-akbb=c] .ak-bb-var .ak-ad-track{gap:10px}
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 40px)/5);scroll-snap-align:start}
+html[data-akbb=c] .ak-bb-var .ak-ad-link{display:flex;flex-direction:column;align-items:stretch;gap:4px;height:218px;padding:8px}
+html[data-akbb=c] .ak-bb-var .ak-ad-img{width:100%;height:110px;border-radius:3px}
+html[data-akbb=c] .ak-bb-var .ak-ad-img img{padding:4px}
+html[data-akbb=c] .ak-bb-var .ak-bill-ph{font-size:13px;padding:6px}
+html[data-akbb=c] .ak-bb-var .ak-ad-body{padding:0;gap:2px;justify-content:flex-start}
+html[data-akbb=c] .ak-bb-var .ak-bill-h,html[data-akbb=c] .ak-bb-var .ak-ad-cta{display:none}
+html[data-akbb=c] .ak-bb-var .ak-bill-line{display:flex;flex-direction:column-reverse;height:auto;white-space:normal;gap:2px}
+html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:13px;line-height:17px;height:34px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ak-ad-fg)}
+html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-brand{font-size:12px;font-weight:400;color:var(--ak-ad-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:15px}
+html[data-akbb=c] .ak-bb-var .ak-bill-buy{margin:0;position:static;flex-direction:row}
+html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-track{display:block;overflow:visible}
 .ak-bill .ak-ad-link{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:center;height:250px;padding:0 32px 0 0;border-radius:4px;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg)}
 .ak-bill .ak-ad-img{display:flex;width:300px;height:248px;border-radius:3px 0 0 3px;background:#f7f7f7}
@@ -274,9 +327,19 @@ export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;back
 .ak-bill-top .ak-ad-cta{min-height:44px;padding:0 18px;flex:0 0 auto}
 .ak-bill-top .ak-ad-card,.ak-bill-top .ak-ad-link{position:relative}
 .ak-bill-top .ak-ad-foot{height:44px;flex-wrap:wrap;align-content:center;column-gap:8px;row-gap:0}
-.ak-bill-top .ak-bill-lab{order:1;flex:1 1 auto;line-height:20px}.ak-bill-top .ak-ad-info{order:2}.ak-bill-top .ak-ad-info summary{min-height:24px}
-.ak-bill-top .ak-ad-asof{order:3;flex:1 0 100%;line-height:18px;overflow:visible}
+.ak-bill-top .ak-bill-lab{order:1;flex:1 1 70%;line-height:20px}.ak-bill-top .ak-bb-count{order:3;flex:0 0 auto;line-height:18px}.ak-bill-top .ak-ad-info{order:2}.ak-bill-top .ak-ad-info summary{min-height:24px}
+.ak-bill-top .ak-ad-asof{order:4;flex:1 1 auto;line-height:18px;overflow:visible}
 .ak-bill-mid{height:382px;margin:28px auto}
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 10px)/2)}
+html[data-akbb=c] .ak-bb-var .ak-bb-rowh{font-size:15px;height:24px;line-height:24px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-link{height:158px;padding:6px;gap:2px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:62px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:30px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-price{font-size:17px;height:20px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:72px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:300px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
+.ak-bb-prev{left:-6px}.ak-bb-next{right:-6px}
 .ak-ad.ak-on.ak-bill-nophone{display:none}}`;
 
 export function validateAdConfig(cfg) {

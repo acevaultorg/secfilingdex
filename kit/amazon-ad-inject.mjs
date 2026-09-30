@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 9cdc79eabdc4) — do not edit here; re-run enroll.mjs.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 937573097040) — do not edit here; re-run enroll.mjs.
 // Amili Kit Amazon ad — build-output injector (fleet rollout 2026-09-28, Paulo thought mulitb3a2bhmcs: "at least 20 sites").
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs. Sites carry a synced copy at kit/amazon-ad-inject.mjs.
 //
@@ -18,7 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { renderAd, renderBillboard, pickProducts, AD_CSS, AD_JS, BILLBOARD_CSS, validatePool, BEACON_I_JS } from './amazon-ad.mjs';
+import { renderAd, renderBillboard, pickProducts, AD_CSS, AD_JS, BILLBOARD_CSS, validatePool, BEACON_I_JS, bbHeadJs, BB_JS } from './amazon-ad.mjs';
 
 export const GATE = '/go/amzad';
 export const API = '/amz/items';
@@ -135,8 +135,10 @@ function billboardFor(html, urlPath, cfg) {
   const rot = pickProducts(pool, { page: urlPath, day: RANK_DAY, n: Infinity });
   const order = [...own, ...rot].filter((p, i, a) => a.indexOf(p) === i);
   const fill = (tpl, p) => String(tpl).replace(/\{name\}/g, p.name).replace(/\{why\}/g, p.why);
-  const mk = (placement, p, tpl) => decorate(renderBillboard({ placement, product: p, headline: tpl ? fill(tpl, p) : undefined, disclosure: cfg.disclosure, api: API, gate: GATE, page: urlPath, lang: cfg.lang || 'en', labels: b.labels }), cfg);
-  return { top: b.top ? mk('top', order[0], b.headline) : null, mid: b.mid && order[1] ? mk('mid', order[1], b.midHeadline || b.headline) : null };
+  // billboard.variant ('auto'|'a'|'b'|'c'): the box carries up to 6 products, most relevant first, for the A/B/C layouts.
+  const V = !!b.variant;
+  const mk = (placement, p, tpl, rest) => decorate(renderBillboard({ placement, product: p, headline: tpl ? fill(tpl, p) : undefined, variants: V, products: V ? rest.map((x) => ({ ...x, bbHead: tpl ? fill(tpl, x) : x.why })) : undefined, disclosure: cfg.disclosure, api: API, gate: GATE, page: urlPath, lang: cfg.lang || 'en', labels: b.labels }), cfg);
+  return { top: b.top ? mk('top', order[0], b.headline, order.slice(1, 6)) : null, mid: b.mid && order[1] ? mk('mid', order[1], b.midHeadline || b.headline, order.slice(2, 7)) : null };
 }
 
 export function injectHtml(html, urlPath, cfg) {
@@ -210,9 +212,9 @@ export function injectHtml(html, urlPath, cfg) {
     if (at3 >= 0) h = h.slice(0, at3) + `${mA}<div class="ak-bill-midwrap"${cfg.billboard.midMove ? ' data-ak-move="after-main"' : ''}>${bb.mid}</div>${mB}` + h.slice(at3);
   }
   if (bottom) h = h.replace(/<html\b/i, `<html data-akv="${cfg.variant}"`);
-  h = h.replace(/<\/head>/i, `${cA}<script>${MINT_JS}</script><script>${BEACON_I_JS}</script><style>${AD_CSS}\n${SLOT_CSS}${cfg.billboard ? '\n' + BILLBOARD_CSS : ''}</style>${cB}</head>`);
+  h = h.replace(/<\/head>/i, `${cA}<script>${MINT_JS}</script><script>${BEACON_I_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${bbHeadJs(cfg.billboard.variant)}</script>` : ''}<style>${AD_CSS}\n${SLOT_CSS}${cfg.billboard ? '\n' + BILLBOARD_CSS : ''}</style>${cB}</head>`);
   const bi = h.toLowerCase().lastIndexOf('</body>');
-  h = h.slice(0, bi) + `${jA}<script>${AD_JS}</script>${jB}` + h.slice(bi);
+  h = h.slice(0, bi) + `${jA}<script>${AD_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${BB_JS}</script>` : ''}${jB}` + h.slice(bi);
   return { html: h, injected: true, top: topAt >= 0, bb: !!(bb && (bb.top || bb.mid)) };
 }
 
