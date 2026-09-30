@@ -48,7 +48,7 @@ async function check(url, v, width, { shot } = {}) {
   const pageErrors = [];
   pg.on('pageerror', (e) => pageErrors.push(String(e.message || e).slice(0, 120)));
   await pg.route(/^https?:\/\/(?!localhost:8765\/)/, (r) => r.abort());
-  if (mock) await pg.route(/\/amz\/items\?/, (r) => { const a = new URL(r.request().url()).searchParams.get('a').split(','); r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, asOf: new Date().toISOString(), items: Object.fromEntries(a.map((x) => [x, { title: `Placeholder title for ${x}`, brand: '', img: { url: `http://localhost:${PORT}/__mock/cover.svg`, w: 300, h: 450 }, price: '$X.XX' }])) }) }); });
+  if (mock) await pg.route(/\/amz\/items\?/, (r) => { const a = new URL(r.request().url()).searchParams.get('a').split(','); r.fulfill({ contentType: 'application/json', body: JSON.stringify({ ok: true, asOf: new Date().toISOString(), items: Object.fromEntries(a.map((x) => [x, { title: `Placeholder title for ${x}: a long subtitle, as real listings often have`, brand: '', img: { url: `http://localhost:${PORT}/__mock/cover.svg`, w: 300, h: 450 }, price: '$X.XX' }])) }) }); });
   await pg.goto(`http://localhost:${PORT}${url}?ak_variant=${v}`, { waitUntil: 'load' });
   await pg.waitForTimeout(1200); // past hydration and the mid box's move, which used to make React drop both boxes
   const bad = (m) => fails.push(`${url} ${v} @${width}: ${m}`);
@@ -58,12 +58,18 @@ async function check(url, v, width, { shot } = {}) {
     const tb = tr.getBoundingClientRect();
     const cards = [...tr.children].map((li) => { const b = li.getBoundingClientRect(); return { asin: li.dataset.asin, w: b.width, h: li.querySelector('a').getBoundingClientRect().height, full: b.width > 0 && b.left >= tb.left - 1 && b.right <= tb.right + 1 }; });
     const nav = [...s.querySelectorAll('.ak-bb-nav')].filter((b) => getComputedStyle(b).display !== 'none' && !b.disabled).map((b) => { const r = b.getBoundingClientRect(); return [r.width, r.height]; });
-    return { akbb: document.documentElement.getAttribute('data-akbb'), boxH: s.getBoundingClientRect().height, cards, nav, count: (s.querySelector('.ak-bb-count') || {}).textContent || '', hscroll: document.documentElement.scrollWidth > innerWidth + 1, variantAttr: [...s.querySelectorAll('a.ak-ad-link')].every((a) => a.getAttribute('data-ad-variant') === document.documentElement.getAttribute('data-akbb')) };
+    // Text an arrow sits on: any visible headline/title/price/button inside the track's visible area.
+    const arrows = [...s.querySelectorAll('.ak-bb-nav')].filter((b) => getComputedStyle(b).display !== 'none' && getComputedStyle(b).opacity !== '0').map((b) => b.getBoundingClientRect());
+    // Measured on the text itself (a Range), clipped to the element, so padding and ellipsis-hidden text do not count.
+    const textRect = (el) => { const g = document.createRange(); g.selectNodeContents(el); const t = g.getBoundingClientRect(), e = el.getBoundingClientRect(); return { left: Math.max(t.left, e.left), right: Math.min(t.right, e.right), top: Math.max(t.top, e.top), bottom: Math.min(t.bottom, e.bottom), width: Math.min(t.right, e.right) - Math.max(t.left, e.left) }; };
+    const covered = [...s.querySelectorAll('.ak-bill-h,.ak-ad-brand,.ak-ad-title,.ak-ad-price,.ak-ad-cta,.ak-bb-rowh')].filter((el) => el.textContent.trim() && getComputedStyle(el).display !== 'none').filter((el) => { const r = textRect(el); return r.width > 0 && r.left < tb.right - 1 && r.right > tb.left + 1 && r.right <= tb.right + 1 && arrows.some((a) => r.left < a.right && r.right > a.left && r.top < a.bottom && r.bottom > a.top); }).map((el) => el.className);
+    return { covered, akbb: document.documentElement.getAttribute('data-akbb'), boxH: s.getBoundingClientRect().height, cards, nav, count: (s.querySelector('.ak-bb-count') || {}).textContent || '', hscroll: document.documentElement.scrollWidth > innerWidth + 1, variantAttr: [...s.querySelectorAll('a.ak-ad-link')].every((a) => a.getAttribute('data-ad-variant') === document.documentElement.getAttribute('data-akbb')) };
   });
   if (pageErrors.length) bad(`page error: ${pageErrors.join(' | ')}`);
   if (!st) { bad('no top box'); await ctx.close(); return null; }
   if (st.akbb !== v) bad(`shows variant ${st.akbb}`);
   if (st.hscroll) bad('horizontal page scroll');
+  if (st.covered.length) bad(`an arrow covers ${st.covered.join(', ')}`);
   if (!st.variantAttr) bad('links do not carry data-ad-variant');
   const full = st.cards.filter((c) => c.full);
   const distinct = new Set(st.cards.map((c) => c.asin)).size;
