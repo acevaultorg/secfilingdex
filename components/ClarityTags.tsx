@@ -112,7 +112,7 @@ function trackAffiliateClick(partner: string, href: string, variant?: string) {
     } else if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push(["event", "affiliate_click", { partner, link_url: href, ...(variant ? { variant } : {}) }]);
       if (isAmazon) {
-        window.dataLayer.push(["event", "amazon_click", { partner, link_url: href }]);
+        window.dataLayer.push(["event", "amazon_click", { partner, link_url: href, ...(variant ? { variant } : {}) }]);
       }
     }
 
