@@ -375,12 +375,13 @@ html[data-akbb=c] .ak-bb-var .ak-ad-link:hover .ak-ad-cta{text-decoration:underl
 html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 42%}
 html[data-akbb=c] .ak-bb-var .ak-bb-rowh{font-size:15px;height:24px;line-height:24px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-link{height:158px;padding:6px;gap:2px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:62px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:72px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:30px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-price{font-size:17px;height:20px;line-height:20px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-buy{position:static}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-cta{font-size:12px;line-height:15px;min-height:0;padding:0}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:72px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-cta{font-size:12px;line-height:15px;min-height:0;padding:0;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .has-price .ak-ad-cta{-webkit-line-clamp:1;white-space:nowrap;display:block}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:44px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:300px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
 .ak-bb-prev{left:-6px}.ak-bb-next{right:-6px}
@@ -443,6 +444,10 @@ export const AD_HEAD_JS = `(function(){function m(e){try{if(!e.isTrusted)return;
 export const RANK_JS = `function ak_h(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return h>>>0}function ak_rank(pg,day,as,w){return as.map(function(a){var u=(ak_h(pg+'|'+day+'|'+a)+1)/4294967297;return{a:a,k:Math.pow(u,1/Math.max(0.01,(w&&w[a])||1))}}).sort(function(x,y){return y.k-x.k||(x.a<y.a?-1:1)}).map(function(x){return x.a})}`;
 
 // End of body: fills the visible slot from /amz/items, runs the carousel, handles dismiss. No dependencies.
+// midMove on a Next.js page (window.__next_f): the move waits until React has hydrated the node after <main> (it
+// carries a __reactFiber$ key). Moving earlier made hydration fail (React error #418) on ~1 in 6 loads measured on
+// secfilingdex 2026-09-30, and React then re-rendered <body> from scratch, deleting BOTH billboards, the top one too.
+// Not hydrated within 10 s: the slot stays where it was built (end of <body>), which is always safe.
 // GA4 (2026-09-28): a click on an ad link fires gtag amazon_click (dest/cta_position 'amili-ad', plus variant when the
 // link carries data-ad-variant from the billboard A/B/C test) unless the site's own
 // handler already pushed one for this click (dataLayer checked between window capture and window bubble). No client
@@ -457,7 +462,8 @@ export const BEACON_I_JS = '(function(){if(window.__akI)return;window.__akI=1;' 
 window.addEventListener('click',pick,true);window.addEventListener('auxclick',function(e){if(e.button===1)pick(e)},true);
 var n=navigator,sb=n.sendBeacon;if(!sb)return;n.sendBeacon=function(u,d){try{if(cur&&typeof u==='string'&&/^https:\/\/fleet\.promptprio\.com\/c\?/.test(u)&&!/[?&]i=/.test(u))u+='&i='+cur}catch(x){}return sb.call(n,u,d)}})();`;
 
-export const AD_JS = `(function(){try{var mv=document.querySelector('[data-ak-move="after-main"]');if(mv){var go=function(){var m=document.querySelector('main');if(m&&m.parentNode&&m.getBoundingClientRect().bottom>innerHeight)m.parentNode.insertBefore(mv,m.nextSibling)};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',function(){setTimeout(go,0)})}}catch(e){}})();
+export const AD_JS = `(function(){try{var mv=document.querySelector('[data-ak-move="after-main"]');if(mv){var hyd=function(el){if(!el)return false;for(var k in el)if(k.indexOf('__reactFiber$')===0)return true;return false},tries=0;
+var go=function(){var m=document.querySelector('main');if(!m||!m.parentNode)return;if(window.__next_f&&!hyd(m.nextElementSibling||m)){if(tries++<100)setTimeout(go,100);return}if(m.getBoundingClientRect().bottom>innerHeight)m.parentNode.insertBefore(mv,m.nextSibling)};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',function(){setTimeout(go,0)})}}catch(e){}})();
 (function(){${RANK_JS}var h=document.documentElement,v=h.getAttribute('data-akv');var slots=[].slice.call(document.querySelectorAll('.ak-ad.ak-on'+(v?',.ak-ad[data-v="'+v+'"]':'')));if(!slots.length)return;
 var akd=0;window.addEventListener('click',function(){akd=(window.dataLayer||[]).length},true);
 window.addEventListener('click',function(e){try{if(!e.isTrusted||window.__FLEET_AGENT__||!window.gtag)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||!a.closest('.ak-ad'))return;var u=new URL(a.href,location.href);if(u.host!==location.host||u.pathname!=='/go/amzad')return;var dl=window.dataLayer||[];for(var k=akd;k<dl.length;k++){var q=dl[k];if(q&&q[0]==='event'&&q[1]==='amazon_click')return}var ev={page:location.pathname,asin:u.searchParams.get('a')||'',dest:'amili-ad',cta_position:'amili-ad'},av=a.getAttribute('data-ad-variant');if(av)ev.variant=av;gtag('event','amazon_click',ev)}catch(x){}});
