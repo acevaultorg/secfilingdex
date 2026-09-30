@@ -59,7 +59,7 @@ declare global {
  * Every call site is guarded: a missing vendor must never throw inside a click
  * handler, because that would break navigation on the link the user clicked.
  */
-function trackAffiliateClick(partner: string, href: string) {
+function trackAffiliateClick(partner: string, href: string, variant?: string) {
   try {
     // Is this an Amazon-family slug? FilingsReading emits `amazon-book` and
     // `amazon-audible`; PartnerTools emits data/research/education slugs.
@@ -75,6 +75,7 @@ function trackAffiliateClick(partner: string, href: string) {
 
     if (typeof window.clarity === "function") {
       window.clarity("set", "affiliate_partner", partner);
+      if (variant) window.clarity("set", "ad_variant", variant);
       window.clarity("event", "affiliate_click");
       // Clarity's fleet-standard event name, so this site is nameable alongside
       // the rest of the fleet rather than showing as untracked.
@@ -84,6 +85,8 @@ function trackAffiliateClick(partner: string, href: string) {
       window.gtag("event", "affiliate_click", {
         partner,
         link_url: href,
+        // Top-ad A/B/C test: the visitor's layout (a|b|c), only on links that carry it.
+        ...(variant ? { variant } : {}),
         // GA4 marks outbound clicks non-interaction-free by default; this keeps
         // the event in engagement reporting where conversion analysis reads it.
         transport_type: "beacon",
@@ -102,13 +105,14 @@ function trackAffiliateClick(partner: string, href: string) {
           asin: m ? m[1] || m[2] : "",
           dest: partner,
           cta_position: partner,
+          ...(variant ? { variant } : {}),
           transport_type: "beacon",
         });
       }
     } else if (Array.isArray(window.dataLayer)) {
-      window.dataLayer.push(["event", "affiliate_click", { partner, link_url: href }]);
+      window.dataLayer.push(["event", "affiliate_click", { partner, link_url: href, ...(variant ? { variant } : {}) }]);
       if (isAmazon) {
-        window.dataLayer.push(["event", "amazon_click", { partner, link_url: href }]);
+        window.dataLayer.push(["event", "amazon_click", { partner, link_url: href, ...(variant ? { variant } : {}) }]);
       }
     }
 
@@ -194,7 +198,8 @@ export function ClarityTags() {
         // double-count accepted ones. Existing shelf + Audible controls keep
         // using this client path unchanged.
         if (target.getAttribute("data-server-tracked") === "true") return;
-        trackAffiliateClick(partner, href);
+        // data-ad-variant: set by the top-ad script on its links (a|b|c); absent everywhere else.
+        trackAffiliateClick(partner, href, target.getAttribute("data-ad-variant") || undefined);
         return;
       }
 

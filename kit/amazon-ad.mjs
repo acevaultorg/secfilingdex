@@ -69,6 +69,36 @@ export function pickProducts(pool, { page = '', tags = [], day = utcDay(), n = 1
   return keyed.slice(0, n === Infinity ? keyed.length : n).map((x) => x.p);
 }
 
+// Topic fit (billboard.rank 'topic'): which product the reader of THIS page is most likely to want first. Each product
+// may carry `topics` (our own plain phrases, e.g. "balance sheet", "proxy"). The page's own words are read from its
+// built HTML: <title> + <h1> + meta description count 3x, <h2>/<h3> 2x, the rest of <main> 1x (at most 4 per phrase,
+// so one long list cannot swamp the rest). Asides and any block holding an affiliate link are left out, so the
+// site's own book shelf (the same on every guide) never decides the order. Ties keep the catalog order. Deterministic:
+// the same page always ranks the same way, whatever the day. Returns [{ p, score }], best first.
+const TXT = (h) => String(h || '').replace(/<(script|style|svg|noscript)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#x27;|&#39;|&rsquo;/g, "'").replace(/&[a-z0-9#]+;/gi, ' ').replace(/\s+/g, ' ');
+export function pageTopicText(html) {
+  const get = (re) => [...String(html || '').matchAll(re)].map((m) => TXT(m[1])).join(' ');
+  let main = (String(html || '').match(/<main\b[^>]*>([\s\S]*?)<\/main>/i) || [])[1] || '';
+  main = main.replace(/<aside\b[\s\S]*?<\/aside>/gi, ' ').replace(/<section\b[^>]*>(?:(?!<section\b)[\s\S])*?<\/section>/gi, (m) => (/data-affiliate=|\/go\/|amazon\./.test(m) ? ' ' : m));
+  return {
+    head: [get(/<title>([\s\S]*?)<\/title>/gi), get(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi), get(/<meta\s+name="description"\s+content="([^"]*)"/gi)].join(' '),
+    subs: get(/<h[23]\b[^>]*>([\s\S]*?)<\/h[23]>/gi),
+    body: TXT(main.replace(/<h[123]\b[\s\S]*?<\/h[123]>/gi, ' ')),
+  };
+}
+export function rankByTopic(pool, html) {
+  const t = pageTopicText(html);
+  const count = (txt, phrase) => {
+    const re = new RegExp(`(^|[^a-z0-9])${phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-z0-9])`, 'gi');
+    return (txt.match(re) || []).length;
+  };
+  return pool.map((p, i) => {
+    let score = 0;
+    for (const ph of p.topics || []) score += 3 * count(t.head, ph) + 2 * count(t.subs, ph) + Math.min(4, count(t.body, ph));
+    return { p, score, i };
+  }).sort((a, b) => b.score - a.score || a.i - b.i).map(({ p, score }) => ({ p, score }));
+}
+
 export function validatePool(pool) {
   const errs = [];
   const seen = new Set();
@@ -202,6 +232,7 @@ function card(p, i, cfg, t) {
 // Fixed heights per placement and breakpoint => no layout shift whether or not the API answers. Filled by AD_JS
 // (it is an .ak-on slot), so the price follows the same live / 23 h / "Price as of" rule as every kit card.
 const CHEV_L = '<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M10 3L5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const BOOK_SVG = '<svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19v15H6.5A1.5 1.5 0 0 0 5 19.5zM5 19.5A1.5 1.5 0 0 0 6.5 21H19v-3M9 7h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 const CHEV_R = '<svg viewBox="0 0 16 16" width="18" height="18" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 export function renderBillboard(cfg) {
   const p = cfg.product;
@@ -214,10 +245,11 @@ export function renderBillboard(cfg) {
   const at = cfg.placement === 'mid' ? 'mid' : 'top';
   const label = t.billboard || 'Sponsored · Amazon affiliate link';
   const from = `ad-bb-${at}`;
-  // cfg.variants (A/B/C test inside the same box, Paulo muns4xlwo86z4b): up to 6 products, most relevant first, each
-  // with its own headline (cfg.products: [{...product, bbHead}]). A shows the first, B one at a time with arrows,
-  // C a row of several. Without cfg.variants: the single-product billboard, unchanged.
-  const list = cfg.variants ? [p, ...(cfg.products || []).filter((x) => x.asin !== p.asin)].slice(0, 6) : [p];
+  // cfg.variants (A/B/C test inside the same box, Paulo muns4xlwo86z4b): up to cfg.max (default 5) products, most
+  // relevant first, each with its own headline (cfg.products: [{...product, bbHead}]). A shows the first, B one at a
+  // time (swipe or arrows), C a row of several (photo, title, price). Same box size and shape for all three.
+  // Without cfg.variants: the single-product billboard, unchanged.
+  const list = cfg.variants ? [p, ...(cfg.products || []).filter((x) => x.asin !== p.asin)].slice(0, Math.max(1, cfg.max || 5)) : [p];
   const heads = list.map((x, i) => String(i === 0 ? head : (x.bbHead || x.headline || x.why || '')).trim());
   for (const hh of heads) if (EMOJI.test(hh) || /\d(\.\d)?\s*(stars?|\u2605)|\$\s?\d|\u20ac\s?\d|reviews?\b|prime\b|% off|\bdeal/i.test(hh)) throw new Error(`Amili Kit billboard: headline may not claim prices, stars, deals or Prime: ${hh}`);
   const nav = cfg.variants && list.length > 1
@@ -225,7 +257,7 @@ export function renderBillboard(cfg) {
     : '';
   const card = (x, i) => `<li class="ak-ad-card" data-asin="${x.asin}" data-i="${i}">`
     + `<a class="ak-ad-link" href="${esc(`${cfg.gate || '/go/p'}?a=${x.asin}`)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="${from}" data-asin="${x.asin}">`
-    + `<span class="ak-ad-img" data-ak-img><span class="ak-bill-ph">${esc(x.name)}</span></span>`
+    + `<span class="ak-ad-img" data-ak-img><span class="ak-bill-ph">${nav ? `<span class="ak-bb-ico">${BOOK_SVG}</span>` : ''}<span class="ak-bill-phn">${esc(x.name)}</span></span></span>`
     + `<span class="ak-ad-body"><span class="ak-bill-h">${esc(heads[i])}</span>`
     + `<span class="ak-bill-line"><span class="ak-ad-brand" data-ak-brand></span><span class="ak-ad-title" data-ak-title>${esc(x.name)}</span></span>`
     + `<span class="ak-bill-buy"><span class="ak-ad-price" data-ak-price></span><span class="ak-ad-cta" data-none="${esc(t.cta)}" data-live="${esc(t.ctaLive)}">${esc(t.cta)}</span></span>`
@@ -239,21 +271,27 @@ export function renderBillboard(cfg) {
 }
 
 // A/B/C assignment (inline in <head>, before first paint), from billboard.variant: 'a'|'b'|'c' fixes one, 'auto' = a
-// uniform random pick kept in localStorage "akbb". ?ak_variant=a|b|c always forces one for viewing (not stored). Sets <html data-akbb>, which the CSS reads, so the right layout paints first.
-export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])\b/)||[])[1],v=q||${/^[abc]$/.test(mode) ? `'${mode}'` : 'null'};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
-// Body: puts the variant into every billboard link's click position (data-event-from/data-from/data-affiliate
-// "ad-bb-top" -> "ad-bb-top-b"), so the fleet /c beacon records slot x variant with no collector change; runs the
-// B and C arrows and the "1 of 5" / "Page 1 of 3" counter. Never auto-rotates. Impressions: only when the page sets
-// window.AK_BB_IMP_URL (the /c collector counts unknown events as Amazon clicks, so none are sent there).
-export const BB_JS = `(function(){var h=document.documentElement,v=h.getAttribute('data-akbb')||'a';
+// uniform random pick kept in localStorage "akbb" (stable per visitor). ?ak_variant=a|b|c forces one for viewing (not
+// stored). Sets <html data-akbb> (the CSS reads it, so the right layout paints first) and window.__akbb (BB_JS re-asserts
+// the attribute from it if anything, e.g. a client re-render of <html>, drops it).
+// The query regex ends in (?:&|$), never \b: inside this template literal "\b" is a backspace character, which made the
+// earlier override never match, so a reviewer's stored variant (often A, one product) showed for all three links.
+export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])(?:&|$)/)||[])[1],v=q||${/^[abc]$/.test(mode) ? `'${mode}'` : 'null'};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}window.__akbb=v;document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
+// Body: records the visitor's variant on every billboard link as data-ad-variant="a|b|c" (the click position keys
+// data-event-from / data-from / data-affiliate stay exactly as they are; the site's click tracking reads the one extra
+// field). Runs the B and C arrows and B's "1 of 5" counter. Never auto-rotates: the track moves only when the visitor
+// swipes or taps an arrow. Impressions: only when the page sets window.AK_BB_IMP_URL.
+export const BB_JS = `(function(){var h=document.documentElement,v=window.__akbb||h.getAttribute('data-akbb');if(!/^[abc]$/.test(v||''))v='a';
+function keep(){if(h.getAttribute('data-akbb')!==v)h.setAttribute('data-akbb',v)}keep();try{new MutationObserver(keep).observe(h,{attributes:true,attributeFilter:['data-akbb']})}catch(e){}
+[].forEach.call(document.querySelectorAll('.ak-bill a.ak-ad-link'),function(a){a.setAttribute('data-ad-variant',v)});
 [].forEach.call(document.querySelectorAll('.ak-bb-var'),function(s){
-[].forEach.call(s.querySelectorAll('a.ak-ad-link'),function(a){['data-event-from','data-from','data-affiliate'].forEach(function(k){var x=a.getAttribute(k);if(x&&/^ad-bb-(top|mid)$/.test(x))a.setAttribute(k,x+'-'+v)})});
 if(window.AK_BB_IMP_URL&&'IntersectionObserver'in window){var sent=0,io=new IntersectionObserver(function(es){if(sent||!es[0].isIntersecting)return;sent=1;io.disconnect();try{navigator.sendBeacon(window.AK_BB_IMP_URL+(window.AK_BB_IMP_URL.indexOf('?')<0?'?':'&')+'slot='+(s.classList.contains('ak-bill-mid')?'mid':'top')+'&v='+v)}catch(e){}},{threshold:.5});io.observe(s)}
-if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr)return;
+if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr||!pv||!nx)return;
 function vis(){return [].filter.call(tr.children,function(li){return li.offsetWidth>0})}
-function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.round(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;pv.disabled=k<=1;nx.disabled=k>=n}
-[pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*tr.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
-tr.addEventListener('scroll',function(){upd()},{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
+function step(){var c=vis();return c[0]?c[0].offsetWidth+(parseFloat(getComputedStyle(tr).columnGap)||0):tr.clientWidth}
+function upd(){var max=tr.scrollWidth-tr.clientWidth,over=max>2;s.classList.toggle('ak-bb-over',over);pv.disabled=!over||tr.scrollLeft<=2;nx.disabled=!over||tr.scrollLeft>=max-2;if(v==='b'&&cnt){var c=vis(),k=Math.min(c.length,Math.round(tr.scrollLeft/(step()||1))+1);cnt.textContent=c.length>1?k+' of '+c.length:''}}
+[pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*step(),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
+tr.addEventListener('scroll',upd,{passive:true});addEventListener('resize',upd);addEventListener('load',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
 
 export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band)}
 .ak-bill-in{max-width:970px;margin:0 auto;position:relative}
@@ -266,7 +304,8 @@ html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 100%;scroll-snap-align:start}
 html[data-akbb=b] .ak-bb-var .ak-bb-nav,html[data-akbb=c] .ak-bb-var .ak-bb-nav{display:flex;position:absolute;z-index:2;top:50%;margin-top:-22px;width:44px;height:44px;border-radius:50%;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg);color:var(--ak-ad-fg);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:0}
 .ak-bb-prev{left:-14px}.ak-bb-next{right:-14px}
 html[data-akbb] .ak-bb-var .ak-bb-nav[disabled]{opacity:0;pointer-events:none}
-html[data-akbb=b] .ak-bb-var .ak-bb-count,html[data-akbb=c] .ak-bb-var .ak-bb-count{display:inline;font-size:12px;font-weight:600;color:var(--ak-ad-fg)}
+html[data-akbb=b] .ak-bb-var .ak-bb-count{display:inline;font-size:12px;font-weight:600;color:var(--ak-ad-fg)}
+.ak-bb-ico{display:none}
 html[data-akbb=c] .ak-bb-var .ak-bb-rowh{display:block;margin:0;height:30px;line-height:30px;font:700 17px/30px Georgia,"Times New Roman",serif;color:var(--ak-ad-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html[data-akbb=c] .ak-bb-var .ak-bb-nav{margin-top:0;top:108px}
 html[data-akbb=c] .ak-bb-var .ak-ad-track{gap:10px}
@@ -274,14 +313,17 @@ html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 40px)/5);scroll-s
 html[data-akbb=c] .ak-bb-var .ak-ad-link{display:flex;flex-direction:column;align-items:stretch;gap:4px;height:218px;padding:8px}
 html[data-akbb=c] .ak-bb-var .ak-ad-img{width:100%;height:110px;border-radius:3px}
 html[data-akbb=c] .ak-bb-var .ak-ad-img img{padding:4px}
-html[data-akbb=c] .ak-bb-var .ak-bill-ph{font-size:13px;padding:6px}
+html[data-akbb=c] .ak-bb-var .ak-bill-ph{padding:0;color:var(--ak-ad-muted)}
+html[data-akbb=c] .ak-bb-var .ak-bill-phn{display:none}
+html[data-akbb=c] .ak-bb-var .ak-bb-ico{display:flex}
 html[data-akbb=c] .ak-bb-var .ak-ad-body{padding:0;gap:2px;justify-content:flex-start}
-html[data-akbb=c] .ak-bb-var .ak-bill-h,html[data-akbb=c] .ak-bb-var .ak-ad-cta{display:none}
-html[data-akbb=c] .ak-bb-var .ak-bill-line{display:flex;flex-direction:column-reverse;height:auto;white-space:normal;gap:2px}
+html[data-akbb=c] .ak-bb-var .ak-bill-h,html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-brand{display:none}
+html[data-akbb=c] .ak-bb-var .ak-bill-line{display:block;height:auto;white-space:normal}
 html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:13px;line-height:17px;height:34px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ak-ad-fg)}
-html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-brand{font-size:12px;font-weight:400;color:var(--ak-ad-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:15px}
-html[data-akbb=c] .ak-bb-var .ak-bill-buy{margin:0;position:static;flex-direction:row}
-html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
+html[data-akbb=c] .ak-bb-var .ak-bill-buy{margin:0;position:static;flex-direction:column;align-items:flex-start;gap:2px}
+html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px;line-height:22px}
+html[data-akbb=c] .ak-bb-var .ak-ad-cta{display:block;min-height:0;margin:0;padding:0;border-radius:0;background:none;color:var(--ak-ad-link,#007185);font-size:13px;line-height:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+html[data-akbb=c] .ak-bb-var .ak-ad-link:hover .ak-ad-cta{text-decoration:underline}
 .ak-bill .ak-ad-track{display:block;overflow:visible}
 .ak-bill .ak-ad-link{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:center;height:250px;padding:0 32px 0 0;border-radius:4px;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg)}
 .ak-bill .ak-ad-img{display:flex;width:300px;height:248px;border-radius:3px 0 0 3px;background:#f7f7f7}
@@ -322,6 +364,7 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill-top .ak-ad-body{padding:0;gap:4px}
 .ak-bill-top .ak-bill-h{font-size:17px;line-height:1.2;height:2.4em}
 .ak-bill-top .ak-bill-line{height:16px;font-size:12px}.ak-bill-top .ak-bill-line .ak-ad-brand,.ak-bill-top .ak-bill-line .ak-ad-title{font-size:12px}
+html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-bill-line{padding-right:30px}
 .ak-bill-top .ak-bill-buy{position:absolute;left:8px;right:8px;bottom:8px;flex-direction:row;align-items:center;justify-content:space-between;margin:0}
 .ak-bill-top .ak-ad-price{font-size:22px;height:auto}
 .ak-bill-top .ak-ad-cta{min-height:44px;padding:0 18px;flex:0 0 auto}
@@ -330,13 +373,16 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill-top .ak-bill-lab{order:1;flex:1 1 70%;line-height:20px}.ak-bill-top .ak-bb-count{order:3;flex:0 0 auto;line-height:18px}.ak-bill-top .ak-ad-info{order:2}.ak-bill-top .ak-ad-info summary{min-height:24px}
 .ak-bill-top .ak-ad-asof{order:4;flex:1 1 auto;line-height:18px;overflow:visible}
 .ak-bill-mid{height:382px;margin:28px auto}
-html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 10px)/2)}
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 42%}
 html[data-akbb=c] .ak-bb-var .ak-bb-rowh{font-size:15px;height:24px;line-height:24px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-link{height:158px;padding:6px;gap:2px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:62px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:72px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:30px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-price{font-size:17px;height:20px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:72px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-price{font-size:17px;height:20px;line-height:20px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-buy{position:static}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-cta{font-size:12px;line-height:15px;min-height:0;padding:0;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .has-price .ak-ad-cta{-webkit-line-clamp:1;white-space:nowrap;display:block}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:44px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:300px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
 .ak-bb-prev{left:-6px}.ak-bb-next{right:-6px}
@@ -399,7 +445,12 @@ export const AD_HEAD_JS = `(function(){function m(e){try{if(!e.isTrusted)return;
 export const RANK_JS = `function ak_h(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return h>>>0}function ak_rank(pg,day,as,w){return as.map(function(a){var u=(ak_h(pg+'|'+day+'|'+a)+1)/4294967297;return{a:a,k:Math.pow(u,1/Math.max(0.01,(w&&w[a])||1))}}).sort(function(x,y){return y.k-x.k||(x.a<y.a?-1:1)}).map(function(x){return x.a})}`;
 
 // End of body: fills the visible slot from /amz/items, runs the carousel, handles dismiss. No dependencies.
-// GA4 (2026-09-28): a click on an ad link fires gtag amazon_click (dest/cta_position 'amili-ad') unless the site's own
+// midMove on a Next.js page (window.__next_f): the move waits until React has hydrated the node after <main> (it
+// carries a __reactFiber$ key). Moving earlier made hydration fail (React error #418) on ~1 in 6 loads measured on
+// secfilingdex 2026-09-30, and React then re-rendered <body> from scratch, deleting BOTH billboards, the top one too.
+// Not hydrated within 10 s: the slot stays where it was built (end of <body>), which is always safe.
+// GA4 (2026-09-28): a click on an ad link fires gtag amazon_click (dest/cta_position 'amili-ad', plus variant when the
+// link carries data-ad-variant from the billboard A/B/C test) unless the site's own
 // handler already pushed one for this click (dataLayer checked between window capture and window bubble). No client
 // fleet beacon here: the amili-amazon-ad Worker counts /go/amzad server-side, so a client beacon would double count.
 // PRODUCT ID ON THE CLICK BEACON (Paulo mumnq3p2nailhb, 2026-09-29): every fleet /c click beacon a page sends for an
@@ -412,10 +463,11 @@ export const BEACON_I_JS = '(function(){if(window.__akI)return;window.__akI=1;' 
 window.addEventListener('click',pick,true);window.addEventListener('auxclick',function(e){if(e.button===1)pick(e)},true);
 var n=navigator,sb=n.sendBeacon;if(!sb)return;n.sendBeacon=function(u,d){try{if(cur&&typeof u==='string'&&/^https:\/\/fleet\.promptprio\.com\/c\?/.test(u)&&!/[?&]i=/.test(u))u+='&i='+cur}catch(x){}return sb.call(n,u,d)}})();`;
 
-export const AD_JS = `(function(){try{var mv=document.querySelector('[data-ak-move="after-main"]');if(mv){var go=function(){var m=document.querySelector('main');if(m&&m.parentNode&&m.getBoundingClientRect().bottom>innerHeight)m.parentNode.insertBefore(mv,m.nextSibling)};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',function(){setTimeout(go,0)})}}catch(e){}})();
+export const AD_JS = `(function(){try{var mv=document.querySelector('[data-ak-move="after-main"]');if(mv){var hyd=function(el){if(!el)return false;for(var k in el)if(k.indexOf('__reactFiber$')===0)return true;return false},tries=0;
+var go=function(){var m=document.querySelector('main');if(!m||!m.parentNode)return;if(window.__next_f&&!hyd(m.nextElementSibling||m)){if(tries++<100)setTimeout(go,100);return}if(m.getBoundingClientRect().bottom>innerHeight)m.parentNode.insertBefore(mv,m.nextSibling)};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',function(){setTimeout(go,0)})}}catch(e){}})();
 (function(){${RANK_JS}var h=document.documentElement,v=h.getAttribute('data-akv');var slots=[].slice.call(document.querySelectorAll('.ak-ad.ak-on'+(v?',.ak-ad[data-v="'+v+'"]':'')));if(!slots.length)return;
 var akd=0;window.addEventListener('click',function(){akd=(window.dataLayer||[]).length},true);
-window.addEventListener('click',function(e){try{if(!e.isTrusted||window.__FLEET_AGENT__||!window.gtag)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||!a.closest('.ak-ad'))return;var u=new URL(a.href,location.href);if(u.host!==location.host||u.pathname!=='/go/amzad')return;var dl=window.dataLayer||[];for(var k=akd;k<dl.length;k++){var q=dl[k];if(q&&q[0]==='event'&&q[1]==='amazon_click')return}gtag('event','amazon_click',{page:location.pathname,asin:u.searchParams.get('a')||'',dest:'amili-ad',cta_position:'amili-ad'})}catch(x){}});
+window.addEventListener('click',function(e){try{if(!e.isTrusted||window.__FLEET_AGENT__||!window.gtag)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||!a.closest('.ak-ad'))return;var u=new URL(a.href,location.href);if(u.host!==location.host||u.pathname!=='/go/amzad')return;var dl=window.dataLayer||[];for(var k=akd;k<dl.length;k++){var q=dl[k];if(q&&q[0]==='event'&&q[1]==='amazon_click')return}var ev={page:location.pathname,asin:u.searchParams.get('a')||'',dest:'amili-ad',cta_position:'amili-ad'},av=a.getAttribute('data-ad-variant');if(av)ev.variant=av;gtag('event','amazon_click',ev)}catch(x){}});
 slots.forEach(function(s){var sv=s.getAttribute('data-v');
 var cards=[].slice.call(s.querySelectorAll('.ak-ad-card')),spare=(s.getAttribute('data-spare')||'').split(',').filter(Boolean);
 var W={};(s.getAttribute('data-w')||'').split(',').forEach(function(x){var p=x.split(':');if(p[1])W[p[0]]=+p[1]});

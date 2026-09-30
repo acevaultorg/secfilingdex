@@ -18,7 +18,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { renderAd, renderBillboard, pickProducts, AD_CSS, AD_JS, BILLBOARD_CSS, validatePool, BEACON_I_JS, bbHeadJs, BB_JS } from './amazon-ad.mjs';
+import { renderAd, renderBillboard, pickProducts, rankByTopic, AD_CSS, AD_JS, BILLBOARD_CSS, validatePool, BEACON_I_JS, bbHeadJs, BB_JS } from './amazon-ad.mjs';
 
 export const GATE = '/go/amzad';
 export const API = '/amz/items';
@@ -131,14 +131,22 @@ function billboardFor(html, urlPath, cfg) {
   const pool = [...(cfg.products || []), ...(cfg.catalog || [])].filter((p, i, a) => a.findIndex((q) => q.asin === p.asin) === i);
   if (!pool.length) return null;
   const byAsin = new Map(pool.map((p) => [p.asin, p]));
-  const own = pageAsins(html, pool, false, (cfg.topCards || [])[0]?.skipHrefs || []).map((a) => byAsin.get(a));
-  const rot = pickProducts(pool, { page: urlPath, day: RANK_DAY, n: Infinity });
-  const order = [...own, ...rot].filter((p, i, a) => a.indexOf(p) === i);
+  // billboard.rank 'topic': order by fit with this page's own words (rankByTopic, the products' `topics`), best first,
+  // the same every day. Otherwise: the products the page itself links to, then the fixed-day rotation.
+  let order;
+  if (b.rank === 'topic') order = rankByTopic(pool, html).map((x) => x.p);
+  else {
+    const own = pageAsins(html, pool, false, (cfg.topCards || [])[0]?.skipHrefs || []).map((a) => byAsin.get(a));
+    const rot = pickProducts(pool, { page: urlPath, day: RANK_DAY, n: Infinity });
+    order = [...own, ...rot].filter((p, i, a) => a.indexOf(p) === i);
+  }
   const fill = (tpl, p) => String(tpl).replace(/\{name\}/g, p.name).replace(/\{why\}/g, p.why);
-  // billboard.variant ('auto'|'a'|'b'|'c'): the box carries up to 6 products, most relevant first, for the A/B/C layouts.
+  // billboard.variant ('auto'|'a'|'b'|'c'): the TOP box carries up to billboard.max (default 5) products, best first,
+  // for the A/B/C layouts; the mid box stays a single product, so the test compares the top box alone.
   const V = !!b.variant;
-  const mk = (placement, p, tpl, rest) => decorate(renderBillboard({ placement, product: p, headline: tpl ? fill(tpl, p) : undefined, variants: V, products: V ? rest.map((x) => ({ ...x, bbHead: tpl ? fill(tpl, x) : x.why })) : undefined, disclosure: cfg.disclosure, api: API, gate: GATE, page: urlPath, lang: cfg.lang || 'en', labels: b.labels }), cfg);
-  return { top: b.top ? mk('top', order[0], b.headline, order.slice(1, 6)) : null, mid: b.mid && order[1] ? mk('mid', order[1], b.midHeadline || b.headline, order.slice(2, 7)) : null };
+  const max = b.max || 5;
+  const mk = (placement, p, tpl, rest) => decorate(renderBillboard({ placement, product: p, headline: tpl ? fill(tpl, p) : undefined, variants: !!rest, max, products: rest ? rest.map((x) => ({ ...x, bbHead: tpl ? fill(tpl, x) : x.why })) : undefined, disclosure: cfg.disclosure, api: API, gate: GATE, page: urlPath, lang: cfg.lang || 'en', labels: b.labels }), cfg);
+  return { top: b.top ? mk('top', order[0], b.headline, V ? order.slice(1, max) : null) : null, mid: b.mid && order[1] ? mk('mid', order[1], b.midHeadline || b.headline, null) : null };
 }
 
 export function injectHtml(html, urlPath, cfg) {
