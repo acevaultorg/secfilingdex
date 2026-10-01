@@ -57,6 +57,9 @@ function formatDateShort(iso: string): string {
   });
 }
 
+const MAX_RESULTS = 100;
+const MAX_COMPANIES = 6;
+
 export function SearchClient() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
@@ -140,9 +143,35 @@ export function SearchClient() {
     });
   }, [filings, query]);
 
+  // Companies among the matches, so a name or ticker search leads straight to
+  // the company's page. Only when the query hits the filer itself (name,
+  // ticker or CIK), not when it only matches a form type or accession.
+  const companies = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    const tokens = q.split(/\s+/).filter(Boolean);
+    const byCik = new Map<string, { cik: string; name: string; ticker: string | null; count: number }>();
+    for (const f of matches) {
+      const who = `${f.filer_name} ${f.cik}`.toLowerCase();
+      if (!tokens.every((t) => who.includes(t))) continue;
+      const hit = byCik.get(f.cik);
+      if (hit) hit.count += 1;
+      else
+        byCik.set(f.cik, {
+          cik: f.cik,
+          name: cleanFilerName(f.filer_name),
+          ticker: extractTicker(f.filer_name),
+          count: 1,
+        });
+    }
+    return [...byCik.values()].sort((a, b) => b.count - a.count).slice(0, MAX_COMPANIES);
+  }, [matches, query]);
+
   const totalCount = filings?.length ?? 0;
   const matchCount = matches.length;
   const showingCap = !query.trim() && filings && matchCount < totalCount;
+  // Rendering thousands of rows (a bare "8-K" matches ~1,700) stalls phones.
+  const shown = matches.slice(0, MAX_RESULTS);
 
   return (
     <div className="space-y-6">
@@ -192,11 +221,65 @@ export function SearchClient() {
         )}
       </p>
 
+      {/* Companies — the usual goal of a name or ticker search */}
+      {companies.length > 0 && (
+        <section aria-labelledby="search-companies">
+          <h2 id="search-companies" className="text-eyebrow text-brand mb-3">
+            {companies.length === 1 ? "Company" : "Companies"}
+          </h2>
+          <ul className="rounded-card-lg border border-border bg-panel/40 overflow-hidden divide-y divide-border">
+            {companies.map((c) => (
+              <li key={c.cik}>
+                <Link
+                  href={`/filer/${c.cik}/`}
+                  className="flex items-center gap-3 px-5 py-3 min-h-[56px] hover:bg-surface-hover transition-colors"
+                >
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-text break-words">
+                      {c.name}
+                      {c.ticker && (
+                        <span className="ml-2 font-mono text-data-cell text-muted">
+                          {c.ticker}
+                        </span>
+                      )}
+                    </span>
+                    <span className="block text-caption text-dim">
+                      CIK <span className="font-mono">{c.cik}</span> · {c.count}{" "}
+                      matching {c.count === 1 ? "filing" : "filings"}
+                    </span>
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="shrink-0 text-dim"
+                  >
+                    <path d="M9 6l6 6-6 6" />
+                  </svg>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {/* Results */}
       {filings && matches.length > 0 && (
+        <section aria-labelledby={companies.length > 0 ? "search-filings" : undefined}>
+          {companies.length > 0 && (
+            <h2 id="search-filings" className="text-eyebrow text-brand mb-3">
+              Filings
+            </h2>
+          )}
         <div className="rounded-card-lg border border-border bg-panel/40 overflow-hidden">
           <ul className="divide-y divide-border">
-            {matches.map((f) => {
+            {shown.map((f) => {
               const filer = cleanFilerName(f.filer_name);
               const ticker = extractTicker(f.filer_name);
               return (
@@ -231,6 +314,13 @@ export function SearchClient() {
             })}
           </ul>
         </div>
+          {matchCount > shown.length && (
+            <p className="mt-3 text-body-sm text-muted">
+              Showing the newest {shown.length} of {matchCount.toLocaleString("en-US")}{" "}
+              matches. Add a company name, ticker or form type to narrow the list.
+            </p>
+          )}
+        </section>
       )}
     </div>
   );
