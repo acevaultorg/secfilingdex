@@ -40,6 +40,44 @@ export function formatDateShort(iso: string): string {
   return d.toISOString().slice(0, 10);
 }
 
+/**
+ * A date-only value such as periodOfReport ("2026-06-30") as "June 30, 2026".
+ * Read in UTC so the day never shifts with the build machine's time zone.
+ */
+export function formatDay(isoDate: string): string {
+  const d = new Date(`${isoDate.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/** Compact form of formatDay for list rows: "Jun 30, 2026". */
+export function formatDayCompact(isoDate: string): string {
+  const d = new Date(`${isoDate.slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(d.getTime())) return isoDate;
+  return d.toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/**
+ * Direct EDGAR URL of the filing's main document. EDGAR keeps every file of a
+ * filing in the same archive folder as its index page, so the URL is that
+ * folder plus the primaryDocument name EDGAR reported. Null when unknown.
+ */
+export function edgarPrimaryDocUrl(record: FilingRecord): string | null {
+  if (!record.primaryDocument) return null;
+  if (!/\/[^/]+-index\.html?$/.test(record.edgarFilingUrl)) return null;
+  return record.edgarFilingUrl.replace(/[^/]+$/, "") + record.primaryDocument;
+}
+
 export function formTypeInfo(formType: FormType | string) {
   // Try exact match first; fall back to base form (strip /A amendment suffix).
   let info = FORM_TYPE_CATALOG.find((f) => f.code === formType);

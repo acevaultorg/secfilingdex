@@ -6,34 +6,12 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { loadFilingsByFormType, uniqueFormTypes } from "@/lib/filings";
 import { formTypeToSlug, slugToFormType } from "@/lib/types";
 import { formatDateShort, formTypeInfo, pickEnrichments } from "@/lib/format";
+import { learnSlugForForm } from "@/lib/learn";
 
 const SITE_URL = "https://secfilingdex.com";
 
 // Cross-link a /form/[type] DB hub to its plain-English /learn/[slug] explainer
-// when one exists. Concentrates internal-link equity within the hub cluster and
-// gives readers (+ AI crawlers) the "what is this?" path. Only the slugs below
-// have a /learn page; unmapped form types render no cross-link (graceful).
-const LEARN_SLUGS = new Set([
-  "10-k-a", "10-k", "10-q-a", "10-q", "11-k", "13d-vs-13g", "13f", "13h",
-  "20-f", "6-k", "8-k", "def-14a", "f-1", "form-144", "form-4", "form-d",
-  "n-csr", "n-px", "nt-10-k", "s-1", "s-3", "sc-13e3",
-]);
-const LEARN_ALIAS: Record<string, string> = {
-  "13f-hr": "13f", "13f-hr-a": "13f", "13f-nt": "13f",
-  "pre-14a": "def-14a", "defa14a": "def-14a",
-  "sc-13d": "13d-vs-13g", "sc-13d-a": "13d-vs-13g",
-  "sc-13g": "13d-vs-13g", "sc-13g-a": "13d-vs-13g",
-};
-function learnSlugForForm(slug: string): string | null {
-  if (LEARN_SLUGS.has(slug)) return slug;
-  if (LEARN_ALIAS[slug]) return LEARN_ALIAS[slug];
-  if (slug.endsWith("-a")) {
-    const base = slug.slice(0, -2);
-    if (LEARN_SLUGS.has(base)) return base;
-    if (LEARN_ALIAS[base]) return LEARN_ALIAS[base];
-  }
-  return null;
-}
+// when one exists (mapping lives in lib/learn.ts, shared with /filing/ pages).
 
 export const dynamicParams = false;
 

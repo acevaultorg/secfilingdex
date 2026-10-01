@@ -4,15 +4,24 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PartnerTools } from "@/components/PartnerTools";
-import { loadAllFilings, loadFilingByAccession } from "@/lib/filings";
+import {
+  loadAllFilings,
+  loadFilingByAccession,
+  loadFilingsByCik,
+} from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
 import {
   bytes,
+  edgarPrimaryDocUrl,
   formatDate,
   formatDateShort,
+  formatDay,
+  formatDayCompact,
+  formTypeInfo,
   pickEnrichments,
 } from "@/lib/format";
+import { learnSlugForFormType } from "@/lib/learn";
 
 const SITE_URL = "https://secfilingdex.com";
 
@@ -92,6 +101,13 @@ export default async function FilingPage({
   const { filerName, ticker, info, cikInt } = pickEnrichments(record);
   const formLabel = info?.shortName ?? record.formType;
   const cikUrl = `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${cikInt}&type=&dateb=&owner=include&count=40`;
+  const primaryDocUrl = edgarPrimaryDocUrl(record);
+  const learnSlug = learnSlugForFormType(record.formType);
+  // Other filings by the same company, newest first (loadAllFilings is sorted).
+  const filerFilings = loadFilingsByCik(record.cik);
+  const moreFromFiler = filerFilings
+    .filter((f) => f.accessionNumber !== record.accessionNumber)
+    .slice(0, 5);
 
   // Schema.org Article — citation-grade per Aleyda Solis 10-characteristic checklist
   const articleSchema = {
@@ -210,6 +226,39 @@ export default async function FilingPage({
               {info.definition}
             </p>
           )}
+
+          {/* What most visitors came for: the document itself, on EDGAR. */}
+          <div className="mt-6 flex flex-col sm:flex-row sm:flex-wrap gap-3">
+            <a
+              href={primaryDocUrl ?? record.edgarFilingUrl}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex items-center justify-center gap-2 min-h-[48px] px-5 py-3 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
+            >
+              {primaryDocUrl ? "Read the filing on SEC.gov" : "Open the filing on SEC.gov"}
+              <ExternalIcon />
+            </a>
+            {primaryDocUrl && (
+              <a
+                href={record.edgarFilingUrl}
+                target="_blank"
+                rel="noopener"
+                className="inline-flex items-center justify-center gap-2 min-h-[48px] px-5 py-3 rounded-btn border border-border text-text hover:bg-surface-hover transition-colors"
+              >
+                All documents in this filing
+                <ExternalIcon />
+              </a>
+            )}
+          </div>
+          {learnSlug && (
+            <Link
+              href={`/learn/${learnSlug}/`}
+              className="mt-4 inline-flex items-center gap-2 min-h-[44px] text-body-sm text-brand font-medium hover:underline"
+            >
+              <BookIcon />
+              New to the {record.formType}? What it is and how to read one
+            </Link>
+          )}
         </header>
 
         {/* Zero-lag activation layer. Renders NOTHING until a NEXT_PUBLIC_AFF_*
@@ -237,8 +286,7 @@ export default async function FilingPage({
             {record.periodOfReport && (
               <FactRow
                 label="Period of report"
-                value={record.periodOfReport}
-                mono
+                value={formatDay(record.periodOfReport)}
               />
             )}
             {record.sicCode && (
@@ -267,6 +315,46 @@ export default async function FilingPage({
             />
           </dl>
         </section>
+
+        {/* More from the same company */}
+        {moreFromFiler.length > 0 && (
+          <section className="mb-10">
+            <h2 className="text-eyebrow text-brand mb-4">
+              More filings from {filerName}
+            </h2>
+            <ul className="rounded-card-lg border border-border bg-panel/40 overflow-hidden divide-y divide-border">
+              {moreFromFiler.map((f) => (
+                <li key={f.accessionNumber}>
+                  <Link
+                    href={`/filing/${f.accessionNumber}/`}
+                    className="flex items-baseline gap-3 px-5 py-3 min-h-[44px] hover:bg-surface-hover transition-colors"
+                  >
+                    <span className="font-mono text-data-cell text-brand w-24 shrink-0">
+                      {f.formType}
+                    </span>
+                    <span className="text-body-sm text-muted flex-1 min-w-0">
+                      {formTypeInfo(f.formType)?.shortName ?? "SEC filing"}
+                    </span>
+                    <time
+                      dateTime={f.filedAt}
+                      className="text-body-sm text-dim shrink-0 tabular"
+                    >
+                      {formatDayCompact(f.filedAt)}
+                    </time>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            {filerFilings.length > moreFromFiler.length + 1 && (
+              <Link
+                href={`/filer/${record.cik}/`}
+                className="mt-3 inline-flex items-center min-h-[44px] text-body-sm text-brand font-medium hover:underline"
+              >
+                See all {filerFilings.length} filings from {filerName} →
+              </Link>
+            )}
+          </section>
+        )}
 
         {/* Provenance + links */}
         <section className="mb-10">
@@ -353,5 +441,46 @@ function FactRow({
         )}
       </dd>
     </div>
+  );
+}
+
+function ExternalIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0"
+    >
+      <path d="M14 4h6v6" />
+      <path d="M20 4l-9 9" />
+      <path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="shrink-0"
+    >
+      <path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5z" />
+      <path d="M4 19a2 2 0 0 1 2-2h13" />
+    </svg>
   );
 }
