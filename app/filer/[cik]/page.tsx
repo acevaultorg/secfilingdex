@@ -5,7 +5,11 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { loadFilingsByCik, uniqueCiks } from "@/lib/filings";
 import { sicCodeToName } from "@/lib/sic";
-import { formatDateShort, pickEnrichments } from "@/lib/format";
+import {
+  formatDayCompact,
+  formTypeInfo,
+  pickEnrichments,
+} from "@/lib/format";
 import { getHoldLensManagerByCik } from "@/lib/holdlens-tracked";
 import { FilerProfile, filerProfileIsSubstantive } from "@/components/FilerProfile";
 
@@ -203,19 +207,25 @@ export default async function FilerPage({
                 <li key={f.accessionNumber}>
                   <Link
                     href={`/filing/${f.accessionNumber}/`}
-                    className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 px-5 py-4 hover:bg-surface-hover transition-colors"
+                    className="flex items-start gap-3 sm:gap-4 px-5 py-4 min-h-[44px] hover:bg-surface-hover transition-colors"
                   >
-                    <time
-                      dateTime={f.filedAt}
-                      className="font-mono text-data-cell text-dim sm:w-28 shrink-0 tabular"
-                    >
-                      {formatDateShort(f.filedAt)}
-                    </time>
-                    <span className="font-mono text-data-cell text-brand sm:w-28 shrink-0">
+                    <span className="font-mono text-data-cell text-brand w-20 sm:w-28 shrink-0 pt-0.5 break-words">
                       {f.formType}
                     </span>
-                    <span className="text-body-sm text-muted flex-1 break-all font-mono">
-                      {f.accessionNumber}
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-body-sm text-text">
+                        {formTypeInfo(f.formType)?.shortName ?? "SEC filing"}
+                        {f.periodOfReport && (
+                          <span className="text-muted">
+                            {" "}· period of report {formatDayCompact(f.periodOfReport)}
+                          </span>
+                        )}
+                      </span>
+                      <span className="block text-caption text-dim mt-0.5">
+                        Filed{" "}
+                        <time dateTime={f.filedAt}>{formatDayCompact(f.filedAt)}</time>
+                        <span className="font-mono"> · {f.accessionNumber}</span>
+                      </span>
                     </span>
                   </Link>
                 </li>
