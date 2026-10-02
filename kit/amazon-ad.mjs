@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 46955fd28c8b) — do not edit here; re-run enroll.mjs.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 b979a6fa1514), Amili Kit v1.1.1 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -240,7 +240,8 @@ export function renderBillboard(cfg) {
 
 // A/B/C assignment (inline in <head>, before first paint), from billboard.variant: 'a'|'b'|'c' fixes one, 'auto' = a
 // uniform random pick kept in localStorage "akbb". ?ak_variant=a|b|c always forces one for viewing (not stored). Sets <html data-akbb>, which the CSS reads, so the right layout paints first.
-export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])\b/)||[])[1],v=q||${/^[abc]$/.test(mode) ? `'${mode}'` : 'null'};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
+// 2026-10-02 (Paulo mur0isfs7o5ex8 "i like this layout with 4"): 'auto' now means the 4-up row (c) for everyone; 'random' keeps the old uniform A/B/C pick.
+export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])\b/)||[])[1],v=q||${mode === 'random' ? 'null' : `'${/^[abc]$/.test(mode) ? mode : 'c'}'`};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
 // Body: puts the variant into every billboard link's click position (data-event-from/data-from/data-affiliate
 // "ad-bb-top" -> "ad-bb-top-b"), so the fleet /c beacon records slot x variant with no collector change; runs the
 // B and C arrows and the "1 of 5" / "Page 1 of 3" counter. Never auto-rotates. Impressions: only when the page sets
@@ -251,7 +252,7 @@ export const BB_JS = `(function(){var h=document.documentElement,v=h.getAttribut
 if(window.AK_BB_IMP_URL&&'IntersectionObserver'in window){var sent=0,io=new IntersectionObserver(function(es){if(sent||!es[0].isIntersecting)return;sent=1;io.disconnect();try{navigator.sendBeacon(window.AK_BB_IMP_URL+(window.AK_BB_IMP_URL.indexOf('?')<0?'?':'&')+'slot='+(s.classList.contains('ak-bill-mid')?'mid':'top')+'&v='+v)}catch(e){}},{threshold:.5});io.observe(s)}
 if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr)return;
 function vis(){return [].filter.call(tr.children,function(li){return li.offsetWidth>0})}
-function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.round(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;pv.disabled=k<=1;nx.disabled=k>=n}
+function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.round(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;cnt.hidden=n<=1;pv.disabled=k<=1;nx.disabled=k>=n}
 [pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*tr.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
 tr.addEventListener('scroll',function(){upd()},{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
 
@@ -270,7 +271,7 @@ html[data-akbb=b] .ak-bb-var .ak-bb-count,html[data-akbb=c] .ak-bb-var .ak-bb-co
 html[data-akbb=c] .ak-bb-var .ak-bb-rowh{display:block;margin:0;height:30px;line-height:30px;font:700 17px/30px Georgia,"Times New Roman",serif;color:var(--ak-ad-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html[data-akbb=c] .ak-bb-var .ak-bb-nav{margin-top:0;top:108px}
 html[data-akbb=c] .ak-bb-var .ak-ad-track{gap:10px}
-html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 40px)/5);scroll-snap-align:start}
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 30px)/4);scroll-snap-align:start}
 html[data-akbb=c] .ak-bb-var .ak-ad-link{display:flex;flex-direction:column;align-items:stretch;gap:4px;height:218px;padding:8px}
 html[data-akbb=c] .ak-bb-var .ak-ad-img{width:100%;height:110px;border-radius:3px}
 html[data-akbb=c] .ak-bb-var .ak-ad-img img{padding:4px}
@@ -364,6 +365,9 @@ export function renderAd(cfg) {
   const n = v === 'v6' ? 2 : cfg.n || { v1: 5, v2: 5, v3: 1, v4: 3, v5: 1 }[v];
   const shown = cfg.products.slice(0, Math.max(n, 1));
   const spare = cfg.products.slice(shown.length).map((p) => p.asin);
+  // data-sp: each spare's own name + benefit line, so a spare that fills a card never keeps another product's blurb,
+  // and the browser can check the API title against the name we meant (a remapped ASIN is hidden, not shown).
+  const sp = cfg.products.slice(shown.length).length ? JSON.stringify(Object.fromEntries(cfg.products.slice(shown.length).map((p) => [p.asin, [p.name, p.why]]))) : '';
   // cfg.duo: two products side by side (a comparison page's two items), never a carousel.
   const carousel = !cfg.duo && (v === 'v1' || v === 'v2' || v === 'v4') && shown.length > 1;
   const dots = carousel && v !== 'v4' ? `<div class="ak-ad-dots" aria-hidden="true">${shown.map((_, i) => `<span${i ? '' : ' class="on"'}></span>`).join('')}</div>` : '';
@@ -373,7 +377,7 @@ export function renderAd(cfg) {
   const w = cfg.products.filter((p) => p.w && p.w !== 1).map((p) => `${p.asin}:${Number(p.w)}`).join(',');
   // cfg.on: always shown, whatever variant the page's A/B assigned (a page's fixed top card beside its own slot).
   // cfg.fixed: show products in the given order (the page's own items, best first) instead of the daily rotation.
-  return `<aside class="ak-ad ak-ad-${v}${cfg.on ? ' ak-on' : ''}${cfg.duo ? ' ak-duo' : ''}" data-v="${v}"${cfg.fixed ? ' data-fixed="1"' : ''} data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}"${w ? ` data-w="${w}"` : ''} data-spare="${spare.join(',')}"${carousel ? ' data-carousel="1"' : ''} aria-label="${esc(t.sponsored)}">`
+  return `<aside class="ak-ad ak-ad-${v}${cfg.on ? ' ak-on' : ''}${cfg.duo ? ' ak-duo' : ''}" data-v="${v}"${cfg.fixed ? ' data-fixed="1"' : ''} data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}"${w ? ` data-w="${w}"` : ''} data-spare="${spare.join(',')}"${sp ? ` data-sp="${esc(sp)}"` : ''}${carousel ? ' data-carousel="1"' : ''} aria-label="${esc(t.sponsored)}">`
     + `<div class="ak-ad-in"><p class="ak-ad-promo" data-ak-promo hidden></p>${close}${v === 'v6' ? `<div class="ak-ad-hd"><p class="ak-ad-h">${esc(cfg.heading)}</p><button type="button" class="ak-ad-more" data-ak-more aria-label="${esc(t.moreLabel)}" hidden>${esc(t.more)}<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` : ''}<ul class="ak-ad-track" role="list">${shown.map((p, i) => card(p, i, cfg, t)).join('')}</ul>`
     + `<div class="ak-ad-foot">${dots}${asOf}${info}</div></div></aside>`;
 }
@@ -422,24 +426,37 @@ var W={};(s.getAttribute('data-w')||'').split(',').forEach(function(x){var p=x.s
 var ids=cards.map(function(c){return c.getAttribute('data-asin')}).concat(spare);var want=s.getAttribute('data-fixed')?ids:ak_rank(s.getAttribute('data-page')||'',new Date().toISOString().slice(0,10),cards.map(function(c){return c.getAttribute('data-asin')}).concat(spare),W);
 function ak_cta(c,live){var b=c.querySelector('.ak-ad-cta');if(b&&b.getAttribute('data-live'))b.textContent=b.getAttribute(live?'data-live':'data-none')}
 function ak_price(el,s){el.textContent='';var m=/^([^0-9]{0,3})([0-9][0-9,]*)(?:\.([0-9]{2}))?$/.exec(s);if(!m){el.textContent=s;return}var vh=document.createElement('span');vh.className='ak-p-vh';vh.textContent=s;el.appendChild(vh);function sp(c,t,sup){var e=document.createElement(sup?'sup':'span');e.className=c;e.textContent=t;e.setAttribute('aria-hidden','true');el.appendChild(e)}if(m[1])sp('ak-p-cur',m[1],1);sp('ak-p-int',m[2]);if(m[3])sp('ak-p-dec',m[3],1)}
+// A promo may name what makes it redundant on a page (its own message already there, outside every ad): sk.h is a
+// regex over link hrefs, sk.t over the page text (whole body: an eventstrip sits outside <main>). Data from the Worker, so this code path names no product feature.
+function ak_has(sk){if(!sk)return 0;try{var rh=sk.h&&new RegExp(sk.h),rt=sk.t&&new RegExp(sk.t,'i'),ls=document.querySelectorAll('a[href]');if(rh)for(var i=0;i<ls.length;i++){if(!ls[i].closest('.ak-ad')&&rh.test(ls[i].getAttribute('href')||''))return 1}var m=document.body;return rt&&rt.test((m&&m.textContent)||'')?1:0}catch(e){return 1}}
 function fmt(iso){var d=new Date(iso);return d.toLocaleString([],{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'})}
 function fill(c,a,it){c.setAttribute('data-asin',a);var l=c.querySelector('a');l.setAttribute('data-asin',a);l.href=l.getAttribute('href').replace(/a=[A-Z0-9]{10}/,'a='+a);
 if(it.img){var im=new Image();im.alt='';im.width=it.img.w;im.height=it.img.h;im.decoding='async';im.referrerPolicy='no-referrer';im.src=it.img.url;var b=c.querySelector('[data-ak-img]');b.textContent='';b.appendChild(im);c.classList.add('has-img')}
 if(it.title)c.querySelector('[data-ak-title]').textContent=it.title;if(it.brand)c.querySelector('[data-ak-brand]').textContent=it.brand;
-if(it.price){ak_price(c.querySelector('[data-ak-price]'),it.price);c.classList.add('has-price')}ak_cta(c,!!it.price)}
+if(it.price){ak_price(c.querySelector('[data-ak-price]'),it.price);c.classList.add('has-price')}ak_cta(c,!!it.price);var wy=c.querySelector('.ak-ad-why');if(wy)wy.textContent=(M[a]&&M[a][1])||''}
+var SW=' the and for with from your you our this that book books edition new set pack ';function ak_tok(x){return String(x||'').toLowerCase().replace(/['\u2019]s(?![a-z])/g,'').split(/[^a-z0-9]+/).filter(function(w){return (w.length>2||/[0-9]/.test(w))&&SW.indexOf(' '+w+' ')<0})}
+function ak_same(n,t){var x=ak_tok(n),y=' '+ak_tok(t).join(' ')+' ';if(!x.length||!t)return 1;for(var i=0;i<x.length;i++)if(y.indexOf(' '+x[i]+' ')>=0)return 1;return 0}
+var M={};cards.forEach(function(c){var q=c.querySelector('[data-ak-title]'),wy=c.querySelector('.ak-ad-why');M[c.getAttribute('data-asin')]=[q?q.textContent:'',wy?wy.textContent:'']});try{var SP=JSON.parse(s.getAttribute('data-sp')||'{}');for(var k0 in SP)if(!M[k0])M[k0]=SP[k0]}catch(e){}
+function off(){if(sv==='bb'){s.hidden=true;s.classList.add('ak-gone');return}s.classList.add('is-off');if(s.classList.contains('ak-duo'))cards.forEach(function(c){var i=c.querySelector('.ak-ad-img'),w=c.querySelector('.ak-ad-why');if(i)i.style.display='none';if(w)w.style.display='-webkit-box'})}
 fetch(s.getAttribute('data-api')+'?a='+want.slice().sort().join(','),{credentials:'omit'}).then(function(r){return r.json()}).then(function(j){
-if(!j||!j.ok||!j.asOf||Date.now()-Date.parse(j.asOf)>${MAX_AGE_MS})return;var items=j.items||{},pool=want.filter(function(a){return items[a]}),used=0,any=0;
-cards.forEach(function(c){var a=pool[used++];if(!a)return;fill(c,a,items[a]);if(items[a].price)any=1});
+if(!j||!j.ok||!j.asOf||Date.now()-Date.parse(j.asOf)>${MAX_AGE_MS}){off();return}var items=j.items||{},any=0;
+var pool=want.filter(function(a){var it=items[a];return it&&it.img&&it.price&&ak_same(M[a]&&M[a][0],it.title)});
+var fx=!!s.getAttribute('data-fixed'),own=cards.map(function(c,k){return fx?c.getAttribute('data-asin'):pool[k]}),got=[],used={};
+cards.forEach(function(c,k){var a=own[k];if(a&&pool.indexOf(a)>=0&&!used[a]){used[a]=1;got[k]=a}});
+function nm(a){return ak_tok(M[a]&&M[a][0]).join(' ')}function nt(a){return ak_tok(items[a]&&items[a].title).slice(0,4).join(' ')}var seenT={};got.forEach(function(g,k){if(!g)return;var t=nt(g);if(t&&seenT[t]){used[g]=0;got[k]=undefined}else if(t)seenT[t]=1});
+cards.forEach(function(c,k){if(got[k])return;for(var i=0;i<pool.length;i++){var a=pool[i],dup=0;if(used[a]||own.indexOf(a)>=0&&own.indexOf(a)!==k)continue;got.forEach(function(g){if(g&&((nm(g)&&nm(g)===nm(a))||(nt(g)&&nt(g)===nt(a))))dup=1});if(dup)continue;used[a]=1;got[k]=a;if(nt(a))seenT[nt(a)]=1;return}});
+var shown=0;cards.forEach(function(c,k){var a=got[k];if(!a){c.hidden=true;c.classList.add('ak-gone');return}shown++;fill(c,a,items[a]);if(items[a].price)any=1});
+if(!shown){s.hidden=true;s.classList.add('ak-gone');return}{var ds=s.querySelectorAll('.ak-ad-dots span');for(var d=0;d<ds.length;d++)ds[d].hidden=d>=shown;var dw=s.querySelector('.ak-ad-dots');if(dw&&shown<2)dw.hidden=true}if(shown===1&&s.classList.contains('ak-duo'))s.classList.add('ak-one');
 var mb=s.querySelector('[data-ak-more]');if(mb&&pool.length>cards.length){mb.hidden=false;var off=0;mb.addEventListener('click',function(){off=(off+cards.length)%pool.length;cards.forEach(function(c,k){var a=pool[(off+k)%pool.length];c.classList.remove('has-img','has-price');c.querySelector('[data-ak-price]').textContent='';fill(c,a,items[a])})})}
 if(any){var p=s.querySelector('[data-ak-asof]');p.querySelector('time').setAttribute('datetime',j.asOf);p.querySelector('time').textContent=fmt(j.asOf);p.hidden=false;s.querySelector('[data-ak-disc]').hidden=false}
-var pm=j.promo,nw=Date.now();if(pm&&pm.text&&nw>=Date.parse(pm.from)&&nw<=Date.parse(pm.to)&&(!pm.paths||new RegExp(pm.paths).test(location.pathname))){var pe=s.querySelector('[data-ak-promo]');if(pe){pe.textContent=pm.text;pe.hidden=false}}
-s.classList.add('is-live')}).catch(function(){});
+var pm=j.promo,nw=Date.now(),pe=s.querySelector('[data-ak-promo]'),pc=pm&&pm.cta,inW=function(o){return o&&nw>=Date.parse(o.from)&&nw<=Date.parse(o.to)};if(pe&&pm&&!window.__akpm&&(!pm.paths||new RegExp(pm.paths).test(location.pathname))&&!ak_has(pm.skip)){if(inW(pc)&&/^\\/go\\/[a-z]/.test(pc.href)){var pa=document.createElement('a');pa.href=pc.href;pa.rel='sponsored nofollow noopener';if(pc.ev){pa.setAttribute('data-event-from',pc.ev);pa.setAttribute('data-from',pc.ev)}pa.textContent=pc.text;pa.style.cssText='display:block;padding:0 9px;line-height:24px;color:inherit;text-decoration:underline;text-underline-offset:2px';pe.textContent='';pe.style.padding='0';pe.appendChild(pa);pe.hidden=false;window.__akpm=1}else if(pm.text&&inW(pm)){pe.textContent=pm.text;pe.hidden=false;window.__akpm=1}}
+s.classList.add('is-live')}).catch(off);
 var x=s.querySelector('[data-ak-close]');if(x)x.addEventListener('click',function(){try{sessionStorage.setItem('akx','1')}catch(e){}h.setAttribute('data-akv','v2x')});
 if(!s.getAttribute('data-carousel'))return;var tr=s.querySelector('.ak-ad-track'),dots=[].slice.call(s.querySelectorAll('.ak-ad-dots span')),i=0;
-function cur(){var w=cards[0].getBoundingClientRect().width||1;return Math.round(tr.scrollLeft/w)}
+function vc(){return cards.filter(function(c){return !c.hidden})}function cur(){var c0=vc()[0],w=(c0&&c0.getBoundingClientRect().width)||1;return Math.round(tr.scrollLeft/w)}
 tr.addEventListener('scroll',function(){var k=cur();if(k!==i){i=k;dots.forEach(function(d,n){d.className=n===k?'on':''})}},{passive:true});
 if(sv==='v4'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var paused=0;['pointerdown','focusin','mouseenter','touchstart'].forEach(function(e){s.addEventListener(e,function(){paused=1},{passive:true})});
-var timer=setInterval(function(){if(paused||document.hidden)return;var k=(cur()+1)%cards.length;tr.scrollTo({left:k*cards[0].getBoundingClientRect().width,behavior:'smooth'})},6000);
+var timer=setInterval(function(){var v2=vc();if(paused||document.hidden||v2.length<2)return;var k=(cur()+1)%v2.length;tr.scrollTo({left:k*v2[0].getBoundingClientRect().width,behavior:'smooth'})},6000);
 if('IntersectionObserver'in window)new IntersectionObserver(function(e){paused=e[0].isIntersecting?paused:1}).observe(s)})})();`;
 
 // Scoped under .ak-ad. Fixed heights per variant (--ak-ad-h*) => zero layout shift whether or not the API answers.
@@ -501,6 +518,10 @@ html[data-akv=v1] .ak-ad-v1,html[data-akv=v2] .ak-ad-v2,html[data-akv=v3] .ak-ad
 .ak-ad-v1:not(.ak-duo) .ak-ad-why,.ak-ad-v1:not(.ak-duo) .ak-ad-price{height:22px;line-height:22px;-webkit-line-clamp:1}
 .ak-ad-v1.ak-duo .ak-ad-title{height:2.5em}
 .ak-ad-v1.ak-duo .ak-ad-price{height:20px}
+.ak-ad[hidden],.ak-ad [hidden]{display:none!important}
+.ak-duo.ak-one .ak-ad-link{flex-direction:row;align-items:center}
+.ak-duo.ak-one .ak-ad-img{width:96px;height:132px;flex:none}
+.ak-duo.ak-one .ak-ad-why{display:-webkit-box}
 .ak-ad-v1 .ak-ad-link,.ak-ad-v2 .ak-ad-link{height:106px}
 .ak-ad-v1 .ak-ad-img,.ak-ad-v2 .ak-ad-img{width:86px;height:86px}
 .ak-ad-v1 .ak-ad-why,.ak-ad-v2 .ak-ad-why{-webkit-line-clamp:1}

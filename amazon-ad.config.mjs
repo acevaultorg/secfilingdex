@@ -14,7 +14,6 @@ export default {
     "top": true,
     "mid": true,
     "midMove": true,
-    "match": "^/$|^/learn/|^/faq/$|^/research-tools/$",
     "headline": "{why}",
     "midHeadline": "{why}"
   },
