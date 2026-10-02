@@ -75,6 +75,9 @@ export function SiteFooter({ books = false }: { books?: boolean }) {
           </Link>
         </p>
       </div>
+      <p className="max-w-6xl mx-auto px-6 mt-4 text-caption">
+        Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.
+      </p>
     </footer>
     </>
   );
