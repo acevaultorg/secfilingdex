@@ -50,3 +50,29 @@ build:
     expire_in: 1 day
   only:
     - main
+
+# Manual CI deploy (2026-10-03): build + kit inject + guards + upload on GitLab's runner (the Mac uplink measured
+# ~60 KB/s). rg-freeze-guard's register exists only on the Macs: run `node ~/.claude/bin/rg-freeze-guard.mjs --site
+# secfilingdex.com` locally first and play this job only when it passes. No IndexNow (kit/template deploys).
+deploy:
+  stage: build
+  image: node:24-bookworm-slim
+  allow_failure: true
+  timeout: 2h
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends git ca-certificates
+  script:
+    - npm ci --no-audit --no-fund --cache .npm --prefer-offline
+    - npm run build
+    - test -f out/index.html
+    - node kit/amazon-ad-inject.mjs out amazon-ad.config.mjs
+    - node scripts/amazon-tracking-guard.mjs
+    - test -n "$CLOUDFLARE_API_TOKEN" && test -n "$CLOUDFLARE_ACCOUNT_ID"
+    - |
+      set -o pipefail
+      npx --yes wrangler@4 pages deploy out --project-name secfilingdex --branch main --commit-dirty=true 2>&1 | tee /tmp/deploy.log
+      grep -q "Deployment complete" /tmp/deploy.log
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      when: manual

@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 b979a6fa1514), Amili Kit v1.1.1 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 e9833a78f682), Amili Kit v1.2.2 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -93,14 +93,18 @@ export function parseItem(it) {
   const avail = bb?.availability?.type;
   // IN_STOCK_SCARCE ("Only 5 left in stock") IS in stock: excluding it hid ~2 of 3 prices on fitmylens (2026-09-28;
   // same rule as fitmylens amz-worker/index.mjs parseItem).
-  if (!bb || (avail && avail !== 'IN_STOCK' && avail !== 'IN_STOCK_SCARCE')) return null;
+  const buyable = !!bb && !(avail && avail !== 'IN_STOCK' && avail !== 'IN_STOCK_SCARCE');
   const img = it.images?.primary?.large || it.images?.primary?.medium;
-  const price = bb.price?.money?.displayAmount;
+  const price = buyable ? bb.price?.money?.displayAmount : null;
+  const image = img?.url && /^https:\/\/m\.media-amazon\.com\//.test(img.url) ? { url: img.url, w: img.width || 500, h: img.height || 500 } : null;
+  // No NEW in-stock buy box: the product still has a photo (a page shows it), but never a price (Paulo 2026-10-02: a carrier row with
+  // no photo reads broken). The ad needs image AND price, so it still drops such an item; product media shows the image only.
+  if (!buyable && !image) return null;
   return {
     title: it.itemInfo?.title?.displayValue || '',
     brand: it.itemInfo?.byLineInfo?.brand?.displayValue || '',
-    img: img?.url && /^https:\/\/m\.media-amazon\.com\//.test(img.url) ? { url: img.url, w: img.width || 500, h: img.height || 500 } : null,
-    price: price && !bb.violatesMAP ? price : null,
+    img: image,
+    price: buyable && price && !bb.violatesMAP ? price : null,
   };
 }
 
