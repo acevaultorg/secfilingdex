@@ -1,0 +1,10 @@
+{
+  "outDir": "out",
+  "label": "Search SecFilingDex",
+  "placeholder": "Search filings, companies, forms…",
+  "suggest": ["10-K", "8-K", "13F", "S-1", "insider"],
+  "ga4": true,
+  "clarity": true,
+  "skip": ["/go/", "/embed/", "/api/"],
+  "max": 60000
+}

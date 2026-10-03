@@ -67,6 +67,7 @@ deploy:
     - npm run build
     - test -f out/index.html
     - node kit/amazon-ad-inject.mjs out amazon-ad.config.mjs
+    - node kit/search-inject.mjs amili-search.config.json
     - node scripts/amazon-tracking-guard.mjs
     - test -n "$CLOUDFLARE_API_TOKEN" && test -n "$CLOUDFLARE_ACCOUNT_ID"
     - |
