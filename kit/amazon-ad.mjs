@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 60f35c501fbd), Amili Kit v1.4.2 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 24101245c3dd), Amili Kit v1.4.3 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -223,10 +223,10 @@ export function renderBillboard(cfg) {
   const at = cfg.placement === 'mid' ? 'mid' : 'top';
   const label = t.billboard || 'Sponsored · Amazon affiliate link';
   const from = `ad-bb-${at}`;
-  // cfg.variants (A/B/C test inside the same box, Paulo muns4xlwo86z4b): up to 6 products, most relevant first, each
+  // cfg.variants (A/B/C test inside the same box, Paulo muns4xlwo86z4b): up to 5 products (his "slider with 5"), most relevant first, each
   // with its own headline (cfg.products: [{...product, bbHead}]). A shows the first, B one at a time with arrows,
   // C a row of several. Without cfg.variants: the single-product billboard, unchanged.
-  const list = cfg.variants ? [p, ...(cfg.products || []).filter((x) => x.asin !== p.asin)].slice(0, 6) : [p];
+  const list = cfg.variants ? [p, ...(cfg.products || []).filter((x) => x.asin !== p.asin)].slice(0, 5) : [p];
   const heads = list.map((x, i) => String(i === 0 ? head : (x.bbHead || x.headline || x.why || '')).trim());
   for (const hh of heads) if (EMOJI.test(hh) || /\d(\.\d)?\s*(stars?|\u2605)|\$\s?\d|\u20ac\s?\d|reviews?\b|prime\b|% off|\bdeal/i.test(hh)) throw new Error(`Amili Kit billboard: headline may not claim prices, stars, deals or Prime: ${hh}`);
   const nav = cfg.variants && list.length > 1
@@ -264,8 +264,8 @@ export const BB_JS = `(function(){var h=document.documentElement,v=h.getAttribut
 if(window.AK_BB_IMP_URL&&'IntersectionObserver'in window){var sent=0,io=new IntersectionObserver(function(es){if(sent||!es[0].isIntersecting)return;sent=1;io.disconnect();try{navigator.sendBeacon(window.AK_BB_IMP_URL+(window.AK_BB_IMP_URL.indexOf('?')<0?'?':'&')+'slot='+(s.classList.contains('ak-bill-mid')?'mid':'top')+'&v='+v)}catch(e){}},{threshold:.5});io.observe(s)}
 if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr)return;
 function vis(){return [].filter.call(tr.children,function(li){return li.offsetWidth>0})}
-function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.ceil(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;cnt.hidden=n<=1;pv.disabled=k<=1;nx.disabled=k>=n}
-[pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*tr.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
+function upd(){var w=tr.clientWidth||1,m=Math.max(0,tr.scrollWidth-w),end=tr.scrollLeft>=m-2,n=m<=2?1:1+Math.ceil((m-2)/w),k=end?n:Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=c[1]?c[1].offsetLeft-c[0].offsetLeft:((c[0]&&c[0].offsetWidth)||w);n=c.length;k=end?n:Math.min(n,Math.round(tr.scrollLeft/(cw||w))+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;cnt.hidden=n<=1;pv.disabled=k<=1;nx.disabled=k>=n}
+[pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var c=vis(),st=v==='b'&&c[1]?c[1].offsetLeft-c[0].offsetLeft:tr.clientWidth;tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*st,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
 tr.addEventListener('scroll',function(){upd()},{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
 
 export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band);overflow:hidden}
@@ -354,7 +354,13 @@ html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:300px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-nav{top:101px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
 .ak-bb-prev{left:6px}.ak-bb-next{right:6px}
-.ak-ad.ak-on.ak-bill-nophone{display:none}}`;
+.ak-ad.ak-on.ak-bill-nophone{display:none}}
+/* 1.4.3 (card muvm2ypj1hik2l): arrows never cover a title, price or photo. Wide screens: outside the card, in the grey band.
+   Phones: no arrows; the next product peeks in from the right (B) / a third tile peeks (C) and the track swipes. */
+@media (min-width:68rem){html[data-akbb] .ak-bill .ak-bb-stage{overflow:visible}html[data-akbb] .ak-bb-var .ak-bb-prev{left:-58px}html[data-akbb] .ak-bb-var .ak-bb-next{right:-58px}}
+@media (max-width:47.99rem){html[data-akbb] .ak-bb-var .ak-bb-nav{display:none!important}
+html[data-akbb=b] .ak-bb-var .ak-ad-track{gap:8px}html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 88%}
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 20px)/2.3)}}`;
 
 export function validateAdConfig(cfg) {
   const errs = [];
