@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 4eed72b3534e), Amili Kit v1.8.0 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 3eeb6a228e91), Amili Kit v1.8.1 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -457,7 +457,9 @@ var n=navigator,sb=n.sendBeacon;if(!sb)return;n.sendBeacon=function(u,d){try{if(
 // ---------- the learning billboard (1.7.0; Paulo muwy9tuernrlcz on muns6byerlla0c, spec card munrxm3hl6fcby) ----------
 // Which products a billboard shows, and in which order, inside whatever A/B/C layout the visitor got (the layout test is
 // untouched: LEARN_JS only reorders the cards already in the box and never changes the variant, the hrefs or sub=).
-//  1. FIT: a product the page itself links to (its own book, its own product) stays first, in the page's order.
+//  1. FIT: the FIRST product the page itself links to (its subject: the book a book page is about) stays first. Only
+//     the first: a book page also links a shelf of other books, and those must stay learnable (1.8.1, measured live on
+//     readstacks: with every linked book counted as fit, all 5 cards were 'f' and nothing was learned).
 //  2. LEARN: the rest are ranked by their click rate on THIS site, smoothed toward the site's own rate (a product with
 //     no data starts at the site average, so it is neither buried nor promoted), from /ad-stats.json (the fleet
 //     collector, human clicks / human views, 28 days). In 12% of page views the first learned slot shows another
@@ -554,7 +556,7 @@ function tg(li){return (li.getAttribute('data-ak-tags')||'').split(',').filter(B
 // NO REPEATS: views of a product by this visitor without a click (localStorage "akseen", same consent rule, 7 days)
 function sn(){var o={},d=Date.now()/864e5;try{o=JSON.parse(localStorage.getItem('akseen')||'{}')||{}}catch(e){}for(var a in o)if(!o[a]||d-o[a][1]>7)delete o[a];return o}
 function snw(f){if(!ok()){try{localStorage.removeItem('akseen')}catch(e){}return}var o=sn();f(o,+(Date.now()/864e5).toFixed(3));try{localStorage.setItem('akseen',JSON.stringify(o))}catch(e){}}
-function own(){var m=document.querySelector('main')||document.body,o={};[].forEach.call(m.querySelectorAll('a[href]'),function(a){if(a.closest('.ak-ad'))return;var x=ak_asin(a.getAttribute('href')||'');if(x)o[x]=1});return o}
+function own(){var m=document.querySelector('main')||document.body,o={},L=m.querySelectorAll('a[href]');for(var i=0;i<L.length;i++){if(L[i].closest('.ak-ad'))continue;var x=ak_asin(L[i].getAttribute('href')||'');if(x){o[x]=1;break}}return o}
 function send(s,e,l){if(!l.length||(e==='i'&&!W))return;try{navigator.sendBeacon(U+'/ad?s='+encodeURIComponent(H)+'&e='+e+'&f='+s.__akPos+'&ii='+l.join(',')+(e==='i'&&W>1?'&w='+W:'')+AG)}catch(x){}}
 function order(s,st,it){var tr=s.querySelector('.ak-ad-track');if(!tr)return;var lis=[].slice.call(tr.children),O=own(),I={},iv=ok()?rd():{},SN=ok()?sn():{},by={},now=Date.now();it=it||{};for(var t in iv)I[t]=iv[t]/3;
 lis.forEach(function(li){by[li.getAttribute('data-asin')]=li});var r=ak_learn(lis.map(function(li){var a=li.getAttribute('data-asin');var dl=it[a]&&it[a].deal;return {a:a,fit:O[a]?1:0,tags:tg(li),deal:dl&&it[a].price&&!(dl.end&&Date.parse(dl.end)<now)?1:0,seen:SN[a]?SN[a][0]:0}}),st,{eps:${LEARN_EPS},m:${LEARN_PRIOR},boost:${LEARN_BOOST},deal:${LEARN_DEAL},rep:${LEARN_REPEAT},interest:I},Math.random);if(r.length>1&&LEAD[r[0].a]&&r[0].k!=='f'&&!O[r[1].a]){var t0=r[0];r[0]=r[1];r[1]=t0}if(r[0])LEAD[r[0].a]=1;r.forEach(function(x,i){var li=by[x.a];li.setAttribute('data-ak-k',x.k+Math.min(i,5)+(x.f||''));tr.appendChild(li)});tr.scrollLeft=0}
