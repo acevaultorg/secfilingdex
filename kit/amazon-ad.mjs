@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 80156428cbbc), Amili Kit v1.7.0 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 8c228a628047), Amili Kit v1.7.1 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -100,15 +100,25 @@ export function parseItem(it) {
   // No NEW in-stock buy box: the product still has a photo (a page shows it), but never a price (Paulo 2026-10-02: a carrier row with
   // no photo reads broken). The ad needs image AND price, so it still drops such an item; product media shows the image only.
   if (!buyable && !image) return null;
+  // LIVE DEAL (1.7.1, Paulo muwzj00m5enmx6): only an Amazon deal the API itself declares (offersV2 dealDetails), never a
+  // "saving" against list price (probe 2026-10-06: 5 of 5 secfilingdex books showed 39-59% off list, so that would boost
+  // everything). Boost in the learning billboard while it runs. Label: Amazon's own badge text, and only for a deal open
+  // to everyone (accessType ALL) whose badge does not say Prime (rule 2 above: no Prime claims; a PRIME_EXCLUSIVE price may
+  // not be the visitor's price), e.g. "Limited time deal". A Prime-only deal is boosted, never labelled.
+  const dd = buyable && bb.dealDetails && typeof bb.dealDetails === 'object' ? bb.dealDetails : null;
+  const rawBadge = dd && typeof dd.badge === 'string' ? dd.badge.replace(/[^A-Za-z0-9 %'-]/g, '').trim().slice(0, 32) : '';
+  const badge = dd && dd.accessType === 'ALL' && !/prime/i.test(rawBadge) ? rawBadge : '';
+  const deal = dd ? { b: badge || null, end: dd.endTime ? String(dd.endTime).slice(0, 30) : null } : null;
   return {
     title: it.itemInfo?.title?.displayValue || '',
     brand: it.itemInfo?.byLineInfo?.brand?.displayValue || '',
     img: image,
     price: buyable && price && !bb.violatesMAP ? price : null,
+    ...(deal && price && !bb.violatesMAP ? { deal } : {}),
   };
 }
 
-export const API_RESOURCES = ['itemInfo.title', 'itemInfo.byLineInfo', 'images.primary.large', 'offersV2.listings.price', 'offersV2.listings.isBuyBoxWinner', 'offersV2.listings.condition', 'offersV2.listings.availability'];
+export const API_RESOURCES = ['itemInfo.title', 'itemInfo.byLineInfo', 'images.primary.large', 'offersV2.listings.price', 'offersV2.listings.isBuyBoxWinner', 'offersV2.listings.condition', 'offersV2.listings.availability', 'offersV2.listings.dealDetails'];
 
 // Cloudflare Pages Function factory for GET /amz/items?a=ASIN1,ASIN2 (<=10, allow-listed).
 // Needs Pages secrets CREATORS_API_CREDENTIAL_ID + CREATORS_API_SECRET. Rate limits: one getItems call per distinct
@@ -126,7 +136,7 @@ export function makeItemsHandler({ tag, allow, marketplace = 'www.amazon.com', f
     const json = (body, ttl) => new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': `public, max-age=${Math.min(ttl, 600)}`, 'x-robots-tag': 'noindex' } });
     if (!asins.length || !tag) return json({ ok: false, reason: !tag ? 'no-tag' : 'no-asins' }, 300);
     const c = cache === undefined ? (globalThis.caches && globalThis.caches.default) : cache;
-    const key = new Request(`${url.origin}/amz/items?a=${asins.join(',')}&v=2`); // v=2: 2026-09-28 IN_STOCK_SCARCE fix, invalidates cached responses
+    const key = new Request(`${url.origin}/amz/items?a=${asins.join(',')}&v=3`); // v=3: 2026-10-06 deal fields; v=2: 2026-09-28 IN_STOCK_SCARCE fix (each bump invalidates cached responses)
     if (c) { const hit = await c.match(key); if (hit) return hit; }
     let body;
     let ttl = CACHE_TTL_S;
@@ -271,7 +281,8 @@ function upd(){var w=tr.clientWidth||1,m=Math.max(0,tr.scrollWidth-w),end=tr.scr
 [pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();var c=vis(),st=v==='b'&&c[1]?c[1].offsetLeft-c[0].offsetLeft:tr.clientWidth;tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*st,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
 tr.addEventListener('scroll',function(){upd()},{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
 
-export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band);overflow:hidden}
+export const BILLBOARD_CSS = `.ak-bill .ak-ad-img{position:relative}.ak-bill .ak-deal{position:absolute;left:6px;top:6px;max-width:calc(100% - 12px);padding:2px 7px;border-radius:4px;background:#cc0c39;color:#fff;font:700 11px/16px system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band);overflow:hidden}
 .ak-bill-in{max-width:970px;margin:0 auto;position:relative}
 .ak-bb-stage{position:relative;min-width:0;overflow:hidden}
 .ak-bb-rowh,.ak-bb-nav,.ak-bb-count{display:none}
@@ -460,6 +471,16 @@ var n=navigator,sb=n.sendBeacon;if(!sb)return;n.sendBeacon=function(u,d){try{if(
 //  4. COUNTRY: unchanged and on purpose: links go to amazon.com, which Amazon Global Earning (2026-08-10) redirects to a
 //     UK or Canadian visitor's own store with the tag kept. Direct amazon.co.uk links stay off: no fleet tag is linked
 //     there (Creators API refused every tag, 2026-10-02), so a direct link would lose the click .com keeps.
+//  5. ORDERS (1.7.1, Paulo muwzj00m5enmx6 "kan het nog beter?"): when the collector serves reconciled per-product order
+//     counts (items[ASIN][2] + the site's orders-per-click st.ob), a product's click rate is scaled by its own smoothed
+//     orders/click (20 clicks of prior), i.e. ranked by expected orders per view. Today it serves none: Amazon per-ASIN
+//     order rows are under the 2026-09-14 reporting-regime launch hold (rules/amazon-reporting-regime.md), so ranking
+//     is by clicks. A suppressed / "Others" row must reach this as absent (UNKNOWN), never as 0 orders.
+//  6. LIVE DEALS: an Amazon deal the API declares (offersV2 dealDetails, never a saving vs list price) gives +50% while it
+//     lasts; a deal open to everyone shows Amazon's own badge on the photo (never one that says Prime). Nothing else.
+//  7. NO REPEATS: a product this visitor saw 3 times in 7 days without clicking moves behind every other learned
+//     product, so the next-best rotates in (localStorage "akseen", same consent rule as interest; cleared for that product on a click).
+// Kind flags on data-ak-k after the tile: d = deal-boosted, s = stepped back for repeats (both reach the read).
 // The track is put back at its start after the reorder: scroll-snap would otherwise keep the card that WAS first in
 // view and hide the new first card one step to the left (measured in the browser check, layouts B and C).
 // MEASUREMENT: each card gets data-ak-k = kind + tile (f page-own, e exploit, x explore, n no stats yet, r replacement);
@@ -472,6 +493,8 @@ export const LEARN_DEFAULT = false;
 export const LEARN_EPS = 0.12;
 export const LEARN_PRIOR = 100; // impressions of weight given to the site's own rate
 export const LEARN_BOOST = 0.6;
+export const LEARN_DEAL = 0.5;   // an Amazon deal declared by the API (dealDetails): +50% while it lasts
+export const LEARN_REPEAT = 3;   // views of one product by one visitor without a click before it moves behind the others
 export const LEARN_URL = 'https://fleet.promptprio.com';
 // The consent bar's own "should we ask?" zones (consent/consent.mjs ASK_ZONES; a test asserts they are identical).
 export const ASK_ZONES_SRC = '^(Europe\\/|Atlantic\\/(Reykjavik|Faroe|Canary|Madeira|Azores|Jan_Mayen)|Arctic\\/Longyearbyen|Africa\\/Ceuta|Asia\\/(Nicosia|Famagusta)|Indian\\/(Reunion|Mayotte)|America\\/(Guadeloupe|Martinique|Cayenne|St_Barthelemy|Marigot|Los_Angeles))';
@@ -480,18 +503,26 @@ export const ASK_ZONES_SRC = '^(Europe\\/|Atlantic\\/(Reykjavik|Faroe|Canary|Mad
 // tests run the same function. c = [{a: ASIN, fit: 0|1, tags: []}] in the server's order; st = /ad-stats.json or null;
 // o = {eps, m, boost, interest: {tag: 0..1}}; rnd = () => [0,1). Returns [{a, k}] in display order.
 export function ak_learn(c, st, o, rnd) {
+  // c[i] = {a, fit, tags, deal: 0|1, seen: views of this product by this visitor without a click (own browser)}
   var out = [], i, k, own = [], rest = [];
   for (i = 0; i < c.length; i++) (c[i].fit ? own : rest).push(c[i]);
   for (i = 0; i < own.length; i++) out.push({ a: own[i].a, k: 'f' });
   if (!st || !st.items) { for (i = 0; i < rest.length; i++) out.push({ a: rest[i].a, k: 'n' }); return out; }
   var base = Math.min(0.2, Math.max(0.002, Number(st.base) || 0.01)), m = o.m > 0 ? o.m : 100, I = o.interest || {};
-  var sc = [];
+  // ob = the site's orders per click, ONLY when the collector has reconciled per-product order rows (st.ob); then a
+  // product's rate is scaled by its own smoothed orders/click relative to the site (20 clicks of prior weight).
+  var ob = Number(st.ob) > 0 ? Number(st.ob) : 0, sc = [];
   for (i = 0; i < rest.length; i++) {
-    var x = rest[i], s = st.items[x.a] || [0, 0], t = x.tags || [], lift = 0;
+    var x = rest[i], s = st.items[x.a] || [0, 0], t = x.tags || [], lift = 0, fl = '';
     for (k = 0; k < t.length; k++) lift = Math.max(lift, Number(I[t[k]]) || 0);
-    sc.push({ a: x.a, n: Number(s[0]) || 0, v: ((Number(s[1]) || 0) + m * base) / ((Number(s[0]) || 0) + m) * (1 + (o.boost || 0) * Math.min(1, lift)), r: i });
+    var n = Number(s[0]) || 0, cl = Number(s[1]) || 0, v = (cl + m * base) / (n + m);
+    if (ob && s.length > 2 && s[2] != null) v = v * (((Number(s[2]) || 0) + 20 * ob) / (cl + 20)) / ob;
+    v = v * (1 + (o.boost || 0) * Math.min(1, lift));
+    if (x.deal) { v = v * (1 + (o.deal == null ? 0.5 : o.deal)); fl += 'd'; }
+    var st0 = (x.seen || 0) >= (o.rep || 3) ? 1 : 0; if (st0) fl += 's';
+    sc.push({ a: x.a, n: n, v: v, r: i, f: fl, s: st0 });
   }
-  sc.sort(function (p, q) { return q.v - p.v || p.r - q.r; });
+  sc.sort(function (p, q) { return p.s - q.s || q.v - p.v || p.r - q.r; });
   if (sc.length > 1 && rnd() < (o.eps == null ? 0.12 : o.eps)) {
     var pool = sc.slice(1), w = [], tot = 0;
     // explore pick: weighted by an optimistic estimate (smoothed rate + 2 standard errors, cubed), so the product that
@@ -499,13 +530,13 @@ export function ak_learn(c, st, o, rnd) {
     for (i = 0; i < pool.length; i++) { var u0 = pool[i].v + 2 * Math.sqrt(pool[i].v / (pool[i].n + m)); w.push(u0 * u0 * u0); tot += w[i]; }
     var u = rnd() * tot;
     for (k = 0; k < pool.length - 1; k++) { u -= w[k]; if (u < 0) break; }
-    out.push({ a: pool[k].a, k: 'x' });
+    out.push({ a: pool[k].a, k: 'x', f: pool[k].f });
     sc.splice(k + 1, 1);
-    for (i = 1; i < sc.length; i++) out.push({ a: sc[i].a, k: 'e' });
-    out.splice(own.length + 1, 0, { a: sc[0].a, k: 'e' });
+    for (i = 1; i < sc.length; i++) out.push({ a: sc[i].a, k: 'e', f: sc[i].f });
+    out.splice(own.length + 1, 0, { a: sc[0].a, k: 'e', f: sc[0].f });
     return out;
   }
-  for (i = 0; i < sc.length; i++) out.push({ a: sc[i].a, k: 'e' });
+  for (i = 0; i < sc.length; i++) out.push({ a: sc[i].a, k: 'e', f: sc[i].f });
   return out;
 }
 
@@ -517,16 +548,19 @@ function ok(){try{var c=JSON.parse(localStorage.getItem('ak-consent')||'null');i
 function rd(){var o={},r={},d=Date.now()/864e5;try{o=JSON.parse(localStorage.getItem('akint')||'{}')||{}}catch(e){}for(var t in o){var q=o[t];if(q&&q.length===2){var x=q[0]*Math.pow(.5,(d-q[1])/HL);if(x>.05)r[t]=Math.min(5,x)}}return r}
 function bump(tags){if(!tags.length||!ok())return;var r=rd(),d=+(Date.now()/864e5).toFixed(3),o={};tags.forEach(function(t){r[t]=Math.min(5,(r[t]||0)+1)});Object.keys(r).sort(function(a,b){return r[b]-r[a]}).slice(0,24).forEach(function(t){o[t]=[+r[t].toFixed(3),d]});try{localStorage.setItem('akint',JSON.stringify(o))}catch(e){}}
 function tg(li){return (li.getAttribute('data-ak-tags')||'').split(',').filter(Boolean)}
+// NO REPEATS: views of a product by this visitor without a click (localStorage "akseen", same consent rule, 7 days)
+function sn(){var o={},d=Date.now()/864e5;try{o=JSON.parse(localStorage.getItem('akseen')||'{}')||{}}catch(e){}for(var a in o)if(!o[a]||d-o[a][1]>7)delete o[a];return o}
+function snw(f){if(!ok()){try{localStorage.removeItem('akseen')}catch(e){}return}var o=sn();f(o,+(Date.now()/864e5).toFixed(3));try{localStorage.setItem('akseen',JSON.stringify(o))}catch(e){}}
 function own(){var m=document.querySelector('main')||document.body,o={};[].forEach.call(m.querySelectorAll('a[href]'),function(a){if(a.closest('.ak-ad'))return;var x=ak_asin(a.getAttribute('href')||'');if(x)o[x]=1});return o}
 function send(s,e,l){if(!l.length||(e==='i'&&!W))return;try{navigator.sendBeacon(U+'/ad?s='+encodeURIComponent(H)+'&e='+e+'&f='+s.__akPos+'&ii='+l.join(',')+(e==='i'&&W>1?'&w='+W:'')+AG)}catch(x){}}
-function order(s,st){var tr=s.querySelector('.ak-ad-track');if(!tr)return;var lis=[].slice.call(tr.children),O=own(),I={},iv=ok()?rd():{},by={};for(var t in iv)I[t]=iv[t]/3;
-lis.forEach(function(li){by[li.getAttribute('data-asin')]=li});ak_learn(lis.map(function(li){var a=li.getAttribute('data-asin');return {a:a,fit:O[a]?1:0,tags:tg(li)}}),st,{eps:${LEARN_EPS},m:${LEARN_PRIOR},boost:${LEARN_BOOST},interest:I},Math.random).forEach(function(x,i){var li=by[x.a];li.setAttribute('data-ak-k',x.k+Math.min(i,5));tr.appendChild(li)});tr.scrollLeft=0}
+function order(s,st,it){var tr=s.querySelector('.ak-ad-track');if(!tr)return;var lis=[].slice.call(tr.children),O=own(),I={},iv=ok()?rd():{},SN=ok()?sn():{},by={},now=Date.now();it=it||{};for(var t in iv)I[t]=iv[t]/3;
+lis.forEach(function(li){by[li.getAttribute('data-asin')]=li});ak_learn(lis.map(function(li){var a=li.getAttribute('data-asin');var dl=it[a]&&it[a].deal;return {a:a,fit:O[a]?1:0,tags:tg(li),deal:dl&&it[a].price&&!(dl.end&&Date.parse(dl.end)<now)?1:0,seen:SN[a]?SN[a][0]:0}}),st,{eps:${LEARN_EPS},m:${LEARN_PRIOR},boost:${LEARN_BOOST},deal:${LEARN_DEAL},rep:${LEARN_REPEAT},interest:I},Math.random).forEach(function(x,i){var li=by[x.a];li.setAttribute('data-ak-k',x.k+Math.min(i,5)+(x.f||''));tr.appendChild(li)});tr.scrollLeft=0}
 function vis(s){var tr=s.querySelector('.ak-ad-track'),L=tr.scrollLeft,R=L+tr.clientWidth;return [].filter.call(tr.children,function(li){var c=li.offsetLeft+li.offsetWidth/2;return !li.hidden&&li.offsetWidth>0&&c>=L-1&&c<=R+1})}
-function live(s){if(s.__akObs)return;s.__akObs=1;var seen={},on=0,tm,tr=s.querySelector('.ak-ad-track');function look(){if(!on)return;var l=[];vis(s).forEach(function(li){var a=li.getAttribute('data-asin');if(seen[a])return;seen[a]=1;l.push(a+'.'+(li.getAttribute('data-ak-k')||'n0'))});send(s,'i',l)}
+function live(s){if(s.__akObs)return;s.__akObs=1;var seen={},on=0,tm,tr=s.querySelector('.ak-ad-track');function look(){if(!on)return;var l=[];vis(s).forEach(function(li){var a=li.getAttribute('data-asin');if(seen[a])return;seen[a]=1;l.push(a+'.'+(li.getAttribute('data-ak-k')||'n0'))});send(s,'i',l);if(l.length)snw(function(o,d){l.forEach(function(x){var a=x.split('.')[0];o[a]=[(o[a]?o[a][0]:0)+1,d]})})}
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){on=1;look()}},{threshold:.5});io.observe(s)}tr.addEventListener('scroll',function(){clearTimeout(tm);tm=setTimeout(look,400)},{passive:true})}
-function clk(s,e){if(!e.isTrusted||(e.type==='auxclick'&&e.button!==1))return;var a=e.target&&e.target.closest&&e.target.closest('a.ak-ad-link'),li=a&&a.closest('.ak-ad-card');if(!li)return;send(s,'c',[li.getAttribute('data-asin')+'.'+(li.getAttribute('data-ak-k')||'n0')]);bump(tg(li))}
+function clk(s,e){if(!e.isTrusted||(e.type==='auxclick'&&e.button!==1))return;var a=e.target&&e.target.closest&&e.target.closest('a.ak-ad-link'),li=a&&a.closest('.ak-ad-card');if(!li)return;var a0=li.getAttribute('data-asin');send(s,'c',[a0+'.'+(li.getAttribute('data-ak-k')||'n0')]);bump(tg(li));snw(function(o){delete o[a0]})}
 var got=new Promise(function(res){var t=setTimeout(function(){res(null)},900);fetch(U+'/ad-stats.json?site='+encodeURIComponent(H),{credentials:'omit'}).then(function(r){return r.ok?r.json():null}).then(function(j){clearTimeout(t);res(j&&j.items?j:null)},function(){clearTimeout(t);res(null)})}).then(function(j){var r=j&&j.rate>0&&j.rate<=1?j.rate:1;W=Math.random()<r?Math.round(1/r):0;return j});
-ss.forEach(function(s){s.__akPos=(s.classList.contains('ak-bill-mid')?'ad-bb-mid':'ad-bb-top')+'-'+v;s.__akWait=got.then(function(j){try{order(s,j)}catch(e){}});s.__akLive=function(){live(s)};s.addEventListener('click',function(e){clk(s,e)},true);s.addEventListener('auxclick',function(e){clk(s,e)},true)})})();`;
+ss.forEach(function(s){s.__akPos=(s.classList.contains('ak-bill-mid')?'ad-bb-mid':'ad-bb-top')+'-'+v;s.__akOrder=function(items){return got.then(function(j){try{order(s,j,items&&items.items)}catch(e){}})};s.__akLive=function(){live(s)};s.addEventListener('click',function(e){clk(s,e)},true);s.addEventListener('auxclick',function(e){clk(s,e)},true)})})();`;
 
 export const AD_JS = `(function(){try{var mv=document.querySelector('[data-ak-move="after-main"]');if(mv){var go=function(){var m=document.querySelector('main');if(m&&m.parentNode&&m.getBoundingClientRect().bottom>innerHeight)m.parentNode.insertBefore(mv,m.nextSibling)};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',function(){setTimeout(go,0)})}}catch(e){}})();
 (function(){${RANK_JS}function scan(){var h=document.documentElement,v=h.getAttribute('data-akv');var slots=[].slice.call(document.querySelectorAll('.ak-ad.ak-on'+(v?',.ak-ad[data-v="'+v+'"]':'')));slots=slots.filter(function(s){return !s.__akAdReady});if(!slots.length)return;
@@ -546,12 +580,12 @@ function fmt(iso){var d=new Date(iso);return d.toLocaleString([],{day:'numeric',
 function fill(c,a,it){var k0=c.getAttribute('data-ak-k');if(k0&&c.getAttribute('data-asin')!==a)c.setAttribute('data-ak-k','r'+k0.charAt(1));c.setAttribute('data-asin',a);var l=c.querySelector('a');l.setAttribute('data-asin',a);l.href=l.getAttribute('href').replace(/a=[A-Z0-9]{10}/,'a='+a);
 if(it.img){var im=new Image();im.alt='';im.width=it.img.w;im.height=it.img.h;im.decoding='async';im.referrerPolicy='no-referrer';im.src=it.img.url;var b=c.querySelector('[data-ak-img]');b.textContent='';b.appendChild(im);c.classList.add('has-img')}
 if(it.title)c.querySelector('[data-ak-title]').textContent=it.title;if(it.brand)c.querySelector('[data-ak-brand]').textContent=it.brand;
-if(it.price){ak_price(c.querySelector('[data-ak-price]'),it.price);c.classList.add('has-price')}ak_cta(c,!!it.price);var wy=c.querySelector('.ak-ad-why');if(wy)wy.textContent=(M[a]&&M[a][1])||''}
+if(it.price){ak_price(c.querySelector('[data-ak-price]'),it.price);c.classList.add('has-price')}var ib=c.querySelector('[data-ak-img]'),od=ib&&ib.querySelector('.ak-deal');if(od)od.remove();if(ib&&it.img&&it.price&&it.deal&&it.deal.b&&!(it.deal.end&&Date.parse(it.deal.end)<Date.now())){var dl=document.createElement('span');dl.className='ak-deal';dl.textContent=it.deal.b;ib.appendChild(dl)}ak_cta(c,!!it.price);var wy=c.querySelector('.ak-ad-why');if(wy)wy.textContent=(M[a]&&M[a][1])||''}
 var SW=' the and for with from your you our this that book books edition new set pack ';function ak_tok(x){return String(x||'').toLowerCase().replace(/['\u2019]s(?![a-z])/g,'').split(/[^a-z0-9]+/).filter(function(w){return (w.length>2||/[0-9]/.test(w))&&SW.indexOf(' '+w+' ')<0})}
 function ak_same(n,t){var x=ak_tok(n),y=' '+ak_tok(t).join(' ')+' ';if(!x.length||!t)return 1;for(var i=0;i<x.length;i++)if(y.indexOf(' '+x[i]+' ')>=0)return 1;return 0}
 var M={};cards.forEach(function(c){var q=c.querySelector('[data-ak-title]'),wy=c.querySelector('.ak-ad-why');M[c.getAttribute('data-asin')]=[q?q.textContent:'',wy?wy.textContent:'']});try{var SP=JSON.parse(s.getAttribute('data-sp')||'{}');for(var k0 in SP)if(!M[k0])M[k0]=SP[k0]}catch(e){}
 function off(){if(sv==='bb'){s.hidden=true;s.classList.add('ak-gone');return}s.classList.add('is-off');if(s.classList.contains('ak-duo'))cards.forEach(function(c){var i=c.querySelector('.ak-ad-img'),w=c.querySelector('.ak-ad-why');if(i)i.style.display='none';if(w)w.style.display='-webkit-box'})}
-fetch(s.getAttribute('data-api')+'?a='+want.slice().sort().join(','),{credentials:'omit'}).then(function(r){return r.json()}).then(function(j){return s.__akWait?s.__akWait.then(function(){cards.sort(function(x,y){return x.compareDocumentPosition(y)&2?1:-1});return j},function(){return j}):j}).then(function(j){
+fetch(s.getAttribute('data-api')+'?a='+want.slice().sort().join(','),{credentials:'omit'}).then(function(r){return r.json()}).then(function(j){return s.__akOrder?s.__akOrder(j).then(function(){cards.sort(function(x,y){return x.compareDocumentPosition(y)&2?1:-1});return j},function(){return j}):j}).then(function(j){
 if(!j||!j.ok||!j.asOf||Date.now()-Date.parse(j.asOf)>${MAX_AGE_MS}){off();return}var items=j.items||{},any=0;
 var pool=want.filter(function(a){var it=items[a];return it&&it.img&&it.price&&ak_same(M[a]&&M[a][0],it.title)});
 var fx=!!s.getAttribute('data-fixed'),own=cards.map(function(c,k){return fx?c.getAttribute('data-asin'):pool[k]}),got=[],used={};
