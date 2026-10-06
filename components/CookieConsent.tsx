@@ -93,7 +93,7 @@ export function CookieConsent() {
       role="dialog"
       aria-labelledby="consent-title"
       aria-describedby="consent-body"
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80"
+      className="sticky top-0 inset-x-0 z-50 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80"
     >
       <div className="max-w-6xl mx-auto px-5 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1 min-w-0">

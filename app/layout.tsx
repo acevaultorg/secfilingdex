@@ -238,12 +238,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="llms" type="text/plain" href="/llms.txt" />
       </head>
       <body className="font-sans antialiased">
+        {/* Keep the consent surface in document flow while it is open. A fixed
+            bottom sheet covered the homepage search and lower content on phones
+            before a visitor had a chance to choose. */}
+        <CookieConsent />
         {children}
         {/* Always mounted (2026-09-28): ClarityTags holds the ONLY affiliate click handler (GA4
             amazon_click + the fleet beacon). Gated on CLARITY_ID, which is unset, it never mounted, so
             no Amazon click was counted anywhere. Its Clarity calls are guarded, so it is safe without Clarity. */}
         <ClarityTags />
-        <CookieConsent />
       </body>
     </html>
   );
