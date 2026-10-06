@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 2fbf1cb1bec5), Amili Kit v1.4.5 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 9703aa5099f3), Amili Kit v1.5.1 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -292,7 +292,7 @@ html[data-akbb=c] .ak-bb-var .ak-ad-body{padding:0;gap:2px;justify-content:flex-
 html[data-akbb=c] .ak-bb-var .ak-bill-h,html[data-akbb=c] .ak-bb-var .ak-ad-cta{display:none}
 html[data-akbb=c] .ak-bb-var .ak-bill-line{display:flex;flex-direction:column-reverse;height:auto;white-space:normal;gap:2px}
 html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:13px;line-height:17px;height:34px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ak-ad-fg)}
-html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-brand{font-size:12px;font-weight:400;color:var(--ak-ad-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:15px}
+html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-brand{max-width:none;font-size:12px;font-weight:400;color:var(--ak-ad-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:15px}
 html[data-akbb=c] .ak-bb-var .ak-bill-buy{margin:0;position:static;flex-direction:row}
 html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-track{display:block;overflow:visible}
@@ -305,8 +305,8 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-body{gap:10px;justify-content:center}
 .ak-bill-h{font:700 30px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.01em;color:var(--ak-ad-fg);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ak-bill-line{display:flex;gap:6px;min-width:0;font-size:14px;color:var(--ak-ad-muted);white-space:nowrap}
-.ak-bill-line .ak-ad-brand{flex:0 0 auto;font-size:14px;font-weight:600;color:var(--ak-ad-fg)}
-.ak-bill-line .ak-ad-title{display:block;min-width:0;font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ak-bill-line .ak-ad-brand{flex:0 1 auto;min-width:0;max-width:60%;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:600;color:var(--ak-ad-fg)}
+.ak-bill-line .ak-ad-title{display:block;flex:1 1 auto;min-width:0;font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ak-bill-buy{display:flex;align-items:center;gap:18px;margin-top:6px}
 .ak-bill .ak-ad-price{font-size:28px;line-height:1;white-space:nowrap}
 .ak-bill .ak-ad-cta{margin:0;padding:0 24px;min-height:48px;display:inline-flex;align-items:center;border-radius:6px;font-size:16px;font-weight:700}
