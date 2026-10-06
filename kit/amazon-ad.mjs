@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 0c2ad5c91a7c), Amili Kit v1.4.4 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 2fbf1cb1bec5), Amili Kit v1.4.5 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -358,8 +358,11 @@ html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
 /* 1.4.3 (card muvm2ypj1hik2l): arrows never cover a title, price or photo. Wide screens: outside the card, in the grey band.
    Phones: no arrows; the next product peeks in from the right (B) / a third tile peeks (C) and the track swipes. */
 @media (min-width:68rem){html[data-akbb] .ak-bill-top .ak-bb-stage{overflow:visible}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-prev{left:-58px}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-next{right:-58px}}
-/* mid sits on the page's own background (dark on dark sites): its row heading takes the page text colour */
-html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-rowh{color:inherit}
+/* mid sits on the page's own background (dark on dark sites): its row heading and counter use the band label grey (#727272, readable on white and on dark) */
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-rowh,html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bb-count{color:#727272}
+/* B on wide screens where the arrows sit inside the card: reserve a gutter so the next arrow never covers the product line */
+@media (min-width:48rem){html[data-akbb=b] .ak-bill-mid.ak-bb-var .ak-ad-link{padding-right:64px}}
+@media (min-width:48rem) and (max-width:67.99rem){html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-ad-link{padding-right:64px}}
 @media (max-width:47.99rem){html[data-akbb] .ak-bb-var .ak-bb-nav{display:none!important}
 html[data-akbb=b] .ak-bb-var .ak-ad-track{gap:8px}html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 88%}
 html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 20px)/2.3)}}`;
