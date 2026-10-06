@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 50c221a490d1), Amili Kit v1.7.1 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 e780b8ac15ea), Amili Kit v1.8.0 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — build-output injector (fleet rollout 2026-09-28, Paulo thought mulitb3a2bhmcs: "at least 20 sites").
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs. Sites carry a synced copy at kit/amazon-ad-inject.mjs.
 //
@@ -155,8 +155,17 @@ function billboardFor(html, urlPath, cfg) {
 // Learning billboard (1.7.0): LEARN_JS runs BEFORE AD_JS (AD_JS waits for its order before filling). On for a site
 // with billboard.learn: true, or for every billboard with A/B/C cards once LEARN_DEFAULT flips (after the 10-20 read).
 export const learnOn = (cfg) => !!(cfg.billboard && cfg.billboard.variant && (cfg.billboard.learn ?? LEARN_DEFAULT));
+// 1.8.0 (Paulo muwzl94eayvh9m "doe de beste implementatie op alle relevante sites"): with LEARN_DEFAULT on, a billboard
+// with no variant becomes the 4-up row (layout C, Paulo 10-02 "i like this layout with 4") so the learner has products
+// to order. An explicit variant ('random' = the A/B/C test on secfilingdex + readstacks) or learn: false is kept as is.
+export function learnDefaults(cfg) {
+  const b = cfg && cfg.billboard;
+  if (!b || b.variant || !(b.learn ?? LEARN_DEFAULT)) return cfg;
+  return { ...cfg, billboard: { ...b, variant: 'auto' } };
+}
 
 export function injectHtml(html, urlPath, cfg) {
+  cfg = learnDefaults(cfg);
   const base = stripAd(html);
   const skip = [...DEFAULT_SKIP, ...(cfg.skip || [])].map((s) => new RegExp(s));
   if (skip.some((re) => re.test(urlPath))) return { html: base, injected: false, why: 'skip' };
@@ -281,6 +290,7 @@ export function servedAllowlist(out, files) {
 }
 
 export function injectDir(outDir, cfg) {
+  cfg = learnDefaults(cfg);
   const errs = cfg.variant === 'none' ? validatePool(cfg.catalog).filter((e) => e !== 'empty pool') : validatePool(cfg.products);
   if (errs.length) throw new Error(`amazon-ad-inject: ${errs.join('; ')}`);
   if (cfg.variant === 'none' && !(cfg.topCards || []).length && !cfg.billboard) throw new Error('amazon-ad-inject: variant none needs topCards');
