@@ -22,3 +22,12 @@ export function renderAd(cfg: AkAdConfig): string;
 export function renderAdSlots(cfg: Omit<AkAdConfig, 'variant'>, opts?: { hostTag?: string }): { top: string; sticky: string; inContent: string; between: string };
 export function makeItemsHandler(opts: { tag: string; allow: string[]; marketplace?: string; fetchImpl?: typeof fetch; cache?: unknown }): (ctx: { request: Request; env?: Record<string, string>; waitUntil?: (p: Promise<unknown>) => void }) => Promise<Response>;
 export function makeGateHandler(opts: { tag: string; allow: string[]; host?: string }): (ctx: { request: Request }) => Response;
+// Learning billboard (1.7.0)
+export const LEARN_DEFAULT: boolean;
+export const LEARN_EPS: number;
+export const LEARN_PRIOR: number;
+export const LEARN_BOOST: number;
+export const LEARN_URL: string;
+export const ASK_ZONES_SRC: string;
+export const LEARN_JS: string;
+export function ak_learn(c: { a: string; fit?: 0 | 1; tags?: string[] }[], st: { items: Record<string, [number, number]>; base?: number | null } | null, o: { eps?: number; m?: number; boost?: number; interest?: Record<string, number> }, rnd: () => number): { a: string; k: 'f' | 'e' | 'x' | 'n' }[];

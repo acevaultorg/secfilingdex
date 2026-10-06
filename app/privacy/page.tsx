@@ -62,6 +62,14 @@ export default function PrivacyPage() {
                 <strong className="text-text">Aggregated usage data:</strong>{" "}
                 page views, sessions, broad geographic region, and device class.
               </li>
+              <li>
+                <strong className="text-text">The Amazon book box:</strong>{" "}
+                it remembers, in your own browser only, which of its layouts you
+                were shown, and it counts anonymously which books in it are seen
+                and clicked (no identifier, no page address, your IP address is
+                not stored) so the books readers pick most come first. Nothing
+                about it is sent to Amazon.
+              </li>
             </ul>
             <p className="mt-3">
               We do not require account registration. We do not collect names,

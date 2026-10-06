@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 64e039228ed9), Amili Kit v1.5.1 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 50c221a490d1), Amili Kit v1.7.0 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — build-output injector (fleet rollout 2026-09-28, Paulo thought mulitb3a2bhmcs: "at least 20 sites").
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs. Sites carry a synced copy at kit/amazon-ad-inject.mjs.
 //
@@ -19,7 +19,7 @@ import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { renderAd, renderBillboard, pickProducts, AD_CSS, AD_JS, BILLBOARD_CSS, validatePool, BEACON_I_JS, bbHeadJs, BB_JS } from './amazon-ad.mjs';
+import { renderAd, renderBillboard, pickProducts, AD_CSS, AD_JS, BILLBOARD_CSS, validatePool, BEACON_I_JS, bbHeadJs, BB_JS, LEARN_JS, LEARN_DEFAULT } from './amazon-ad.mjs';
 
 export const GATE = '/go/amzad';
 export const API = '/amz/items';
@@ -152,6 +152,10 @@ function billboardFor(html, urlPath, cfg) {
   return { top: b.top ? mk('top', order[0], b.headline, order.slice(1, 6)) : null, mid: b.mid && order[1] ? mk('mid', order[1], b.midHeadline || b.headline, order.slice(2, 7)) : null };
 }
 
+// Learning billboard (1.7.0): LEARN_JS runs BEFORE AD_JS (AD_JS waits for its order before filling). On for a site
+// with billboard.learn: true, or for every billboard with A/B/C cards once LEARN_DEFAULT flips (after the 10-20 read).
+export const learnOn = (cfg) => !!(cfg.billboard && cfg.billboard.variant && (cfg.billboard.learn ?? LEARN_DEFAULT));
+
 export function injectHtml(html, urlPath, cfg) {
   const base = stripAd(html);
   const skip = [...DEFAULT_SKIP, ...(cfg.skip || [])].map((s) => new RegExp(s));
@@ -227,7 +231,7 @@ export function injectHtml(html, urlPath, cfg) {
   if (bottom && !cfg.slotMove) h = h.replace(/<html\b/i, `<html data-akv="${cfg.variant}"`);
   h = h.replace(/<\/head>/i, `${cA}<script>${MINT_JS}</script><script>${BEACON_I_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${bbHeadJs(cfg.billboard.variant)}</script>` : ''}${cfg._ext ? `<link rel="stylesheet" href="${cfg._ext.css}">` : `<style>${AD_CSS}\n${SLOT_CSS}${cfg.billboard ? '\n' + BILLBOARD_CSS : ''}</style>`}${cB}</head>`);
   const bi = h.toLowerCase().lastIndexOf('</body>');
-  h = h.slice(0, bi) + (cfg._ext ? `${jA}<script src="${cfg._ext.js}" defer></script>${jB}` : `${jA}<script>${AD_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${BB_JS}</script>` : ''}${jB}`) + h.slice(bi);
+  h = h.slice(0, bi) + (cfg._ext ? `${jA}<script src="${cfg._ext.js}" defer></script>${jB}` : `${jA}${learnOn(cfg) && bb ? `<script>${LEARN_JS}</script>` : ''}<script>${AD_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${BB_JS}</script>` : ''}${jB}`) + h.slice(bi);
   return { html: h, injected: true, top: topAt >= 0, bb: !!(bb && (bb.top || bb.mid)) };
 }
 
@@ -287,7 +291,7 @@ export function injectDir(outDir, cfg) {
   // scripts (gesture mint, beacon, billboard variant) stay inline. cfg.inline: true keeps the old inline form.
   if (!cfg.inline && !cfg._ext) {
     const css = `${AD_CSS}\n${SLOT_CSS}${cfg.billboard ? '\n' + BILLBOARD_CSS : ''}`;
-    const js = `${AD_JS}\n${cfg.billboard && cfg.billboard.variant ? BB_JS : ''}`;
+    const js = `${learnOn(cfg) ? LEARN_JS + '\n' : ''}${AD_JS}\n${cfg.billboard && cfg.billboard.variant ? BB_JS : ''}`;
     const v = (x) => crypto.createHash('sha256').update(x).digest('hex').slice(0, 10);
     fs.writeFileSync(path.join(outDir, 'kit-ad.css'), css);
     fs.writeFileSync(path.join(outDir, 'kit-ad.js'), js);
