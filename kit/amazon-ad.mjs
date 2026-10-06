@@ -245,7 +245,7 @@ export function renderBillboard(cfg) {
 // A/B/C assignment (inline in <head>, before first paint), from billboard.variant: 'a'|'b'|'c' fixes one, 'auto' = a
 // uniform random pick kept in localStorage "akbb". ?ak_variant=a|b|c always forces one for viewing (not stored). Sets <html data-akbb>, which the CSS reads, so the right layout paints first.
 // 2026-10-02 (Paulo mur0isfs7o5ex8 "i like this layout with 4"): 'auto' now means the 4-up row (c) for everyone; 'random' keeps the old uniform A/B/C pick.
-export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])\b/)||[])[1],v=q||${mode === 'random' ? 'null' : `'${/^[abc]$/.test(mode) ? mode : 'c'}'`};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
+export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])(?:&|$)/)||[])[1],v=q||${mode === 'random' ? 'null' : `'${/^[abc]$/.test(mode) ? mode : 'c'}'`};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
 // Body: puts the variant into every billboard link's click position (data-event-from/data-from/data-affiliate
 // "ad-bb-top" -> "ad-bb-top-b"), so the fleet /c beacon records slot x variant with no collector change; runs the
 // B and C arrows and the "1 of 5" / "Page 1 of 3" counter. Never auto-rotates. Impressions: only when the page sets
@@ -256,20 +256,20 @@ export const BB_JS = `(function(){var h=document.documentElement,v=h.getAttribut
 if(window.AK_BB_IMP_URL&&'IntersectionObserver'in window){var sent=0,io=new IntersectionObserver(function(es){if(sent||!es[0].isIntersecting)return;sent=1;io.disconnect();try{navigator.sendBeacon(window.AK_BB_IMP_URL+(window.AK_BB_IMP_URL.indexOf('?')<0?'?':'&')+'slot='+(s.classList.contains('ak-bill-mid')?'mid':'top')+'&v='+v)}catch(e){}},{threshold:.5});io.observe(s)}
 if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr)return;
 function vis(){return [].filter.call(tr.children,function(li){return li.offsetWidth>0})}
-function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.round(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;cnt.hidden=n<=1;pv.disabled=k<=1;nx.disabled=k>=n}
+function upd(){var w=tr.clientWidth||1,n=Math.max(1,Math.ceil(tr.scrollWidth/w)),k=Math.min(n,Math.round(tr.scrollLeft/w)+1);if(v==='b'){var c=vis(),cw=(c[0]&&c[0].offsetWidth)||w;n=c.length;k=Math.min(n,Math.round(tr.scrollLeft/cw)+1);cnt.textContent=k+' of '+n}else cnt.textContent='Page '+k+' of '+n;cnt.hidden=n<=1;pv.disabled=k<=1;nx.disabled=k>=n}
 [pv,nx].forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();tr.scrollBy({left:(+b.getAttribute('data-ak-bbnav'))*tr.clientWidth,behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'})})});
 tr.addEventListener('scroll',function(){upd()},{passive:true});addEventListener('resize',upd);new MutationObserver(upd).observe(tr,{subtree:true,attributes:true,attributeFilter:['class']});upd()})})();`;
 
-export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band)}
+export const BILLBOARD_CSS = `.ak-bill{display:block;--ak-bill-band:#f2f2f2;background:var(--ak-bill-band);overflow:hidden}
 .ak-bill-in{max-width:970px;margin:0 auto;position:relative}
-.ak-bb-stage{position:relative}
+.ak-bb-stage{position:relative;min-width:0;overflow:hidden}
 .ak-bb-rowh,.ak-bb-nav,.ak-bb-count{display:none}
 html:not([data-akbb=b]):not([data-akbb=c]) .ak-bb-var .ak-ad-card:not(:first-child){display:none}
 html[data-akbb=b] .ak-bb-var .ak-ad-track,html[data-akbb=c] .ak-bb-var .ak-ad-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
 html[data-akbb=b] .ak-bb-var .ak-ad-track::-webkit-scrollbar,html[data-akbb=c] .ak-bb-var .ak-ad-track::-webkit-scrollbar{display:none}
 html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 100%;scroll-snap-align:start}
 html[data-akbb=b] .ak-bb-var .ak-bb-nav,html[data-akbb=c] .ak-bb-var .ak-bb-nav{display:flex;position:absolute;z-index:2;top:50%;margin-top:-22px;width:44px;height:44px;border-radius:50%;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg);color:var(--ak-ad-fg);align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.18);padding:0}
-.ak-bb-prev{left:-14px}.ak-bb-next{right:-14px}
+.ak-bb-prev{left:8px}.ak-bb-next{right:8px}
 html[data-akbb] .ak-bb-var .ak-bb-nav[disabled]{opacity:0;pointer-events:none}
 html[data-akbb=b] .ak-bb-var .ak-bb-count,html[data-akbb=c] .ak-bb-var .ak-bb-count{display:inline;font-size:12px;font-weight:600;color:var(--ak-ad-fg)}
 html[data-akbb=c] .ak-bb-var .ak-bb-rowh{display:block;margin:0;height:30px;line-height:30px;font:700 17px/30px Georgia,"Times New Roman",serif;color:var(--ak-ad-fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -345,7 +345,7 @@ html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:39px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:300px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-nav{top:101px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
-.ak-bb-prev{left:-6px}.ak-bb-next{right:-6px}
+.ak-bb-prev{left:6px}.ak-bb-next{right:6px}
 .ak-ad.ak-on.ak-bill-nophone{display:none}}`;
 
 export function validateAdConfig(cfg) {
