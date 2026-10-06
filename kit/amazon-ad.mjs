@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 24101245c3dd), Amili Kit v1.4.3 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 0c2ad5c91a7c), Amili Kit v1.4.4 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -357,7 +357,9 @@ html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
 .ak-ad.ak-on.ak-bill-nophone{display:none}}
 /* 1.4.3 (card muvm2ypj1hik2l): arrows never cover a title, price or photo. Wide screens: outside the card, in the grey band.
    Phones: no arrows; the next product peeks in from the right (B) / a third tile peeks (C) and the track swipes. */
-@media (min-width:68rem){html[data-akbb] .ak-bill .ak-bb-stage{overflow:visible}html[data-akbb] .ak-bb-var .ak-bb-prev{left:-58px}html[data-akbb] .ak-bb-var .ak-bb-next{right:-58px}}
+@media (min-width:68rem){html[data-akbb] .ak-bill-top .ak-bb-stage{overflow:visible}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-prev{left:-58px}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-next{right:-58px}}
+/* mid sits on the page's own background (dark on dark sites): its row heading takes the page text colour */
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-rowh{color:inherit}
 @media (max-width:47.99rem){html[data-akbb] .ak-bb-var .ak-bb-nav{display:none!important}
 html[data-akbb=b] .ak-bb-var .ak-ad-track{gap:8px}html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 88%}
 html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 20px)/2.3)}}`;
