@@ -1,15 +1,16 @@
-export type AkVariant = 'v1' | 'v2' | 'v3' | 'v4' | 'v5';
+export type AkVariant = 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6';
 export interface AkProduct { asin: string; name: string; why: string; tags?: string[]; onlyTagged?: boolean; w?: number }
-export interface AkAdConfig { variant: AkVariant; products: AkProduct[]; disclosure: string; page?: string; api?: string; gate?: string; lang?: 'en' | 'nl'; labels?: Record<string, string>; n?: number }
+export interface AkAdConfig { variant: AkVariant; products: AkProduct[]; disclosure: string; page?: string; api?: string; gate?: string; lang?: 'en' | 'nl'; labels?: Record<string, string>; n?: number; heading?: string; on?: boolean; fixed?: boolean; duo?: boolean }
 export const VARIANTS: AkVariant[];
 export const CACHE_TTL_S: number;
 export const MAX_AGE_MS: number;
 export const DISCLAIMER: string;
 export const API_RESOURCES: string[];
 export const AD_CSS: string;
-export const AD_JS: string;
+export const AD_JS: string; // browser exposes window.akAdScan() for React navigation
 export const AD_HEAD_JS: string;
 export const RANK_JS: string;
+export const BEACON_I_JS: string;
 export function hash32(s: string): number;
 export function utcDay(d?: Date): string;
 export function candidatesFor(pool: AkProduct[], tags?: string[]): AkProduct[];

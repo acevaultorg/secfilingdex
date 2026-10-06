@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 6a1527c13b43), Amili Kit v1.2.4 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 60f35c501fbd), Amili Kit v1.4.2 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -184,10 +184,15 @@ const INFO_SVG = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="t
 const X_SVG = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
 
 function card(p, i, cfg, t) {
-  const href = `${cfg.gate || '/go/p'}?a=${p.asin}`;
+  // sub=<slot> rides the SAME href data-event-from already carried as a DOM attribute (card
+  // muqrf8bicwkxd2, 2026-10-04): the gate Worker only ever saw a bare /go/p?a=ASIN navigation, so
+  // its own f= fallback ('ad-v5') fired on every click regardless of slot. The slug is already
+  // sanitised the same way server-side (fleet.promptprio.com/c, 40-char slug cap); no new surface.
+  const from = `ad-${cfg.variant}`;
+  const href = `${cfg.gate || '/go/p'}?a=${p.asin}&sub=${encodeURIComponent(from)}`;
   // data-ak-* slots are filled by AD_JS from the live API; until then (or forever, without data) the card is typographic.
   return `<li class="ak-ad-card" data-asin="${p.asin}" data-i="${i}">`
-    + `<a class="ak-ad-link" href="${esc(href)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="ad-${cfg.variant}" data-asin="${p.asin}">`
+    + `<a class="ak-ad-link" href="${esc(href)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="${from}" data-asin="${p.asin}">`
     + '<span class="ak-ad-img" data-ak-img></span>'
     + '<span class="ak-ad-body">'
     + `<span class="ak-ad-brand" data-ak-brand></span>`
@@ -227,8 +232,9 @@ export function renderBillboard(cfg) {
   const nav = cfg.variants && list.length > 1
     ? `<p class="ak-bb-rowh">${esc(t.rowHeading || 'Picked for readers of this page')}</p><button type="button" class="ak-bb-nav ak-bb-prev" data-ak-bbnav="-1" aria-label="${esc(t.prev)}" disabled>${CHEV_L}</button><button type="button" class="ak-bb-nav ak-bb-next" data-ak-bbnav="1" aria-label="${esc(t.next)}">${CHEV_R}</button>`
     : '';
+  // sub=<slot> on the href too (card muqrf8bicwkxd2, 2026-10-04) — see the same note in card() above.
   const card = (x, i) => `<li class="ak-ad-card" data-asin="${x.asin}" data-i="${i}">`
-    + `<a class="ak-ad-link" href="${esc(`${cfg.gate || '/go/p'}?a=${x.asin}`)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="${from}" data-asin="${x.asin}">`
+    + `<a class="ak-ad-link" href="${esc(`${cfg.gate || '/go/p'}?a=${x.asin}&sub=${encodeURIComponent(from)}`)}" rel="sponsored nofollow noopener" target="_blank" data-event-from="${from}" data-asin="${x.asin}">`
     + `<span class="ak-ad-img" data-ak-img><span class="ak-bill-ph">${esc(x.name)}</span></span>`
     + `<span class="ak-ad-body"><span class="ak-bill-h">${esc(heads[i])}</span>`
     + `<span class="ak-bill-line"><span class="ak-ad-brand" data-ak-brand></span><span class="ak-ad-title" data-ak-title>${esc(x.name)}</span></span>`
@@ -245,6 +251,8 @@ export function renderBillboard(cfg) {
 // A/B/C assignment (inline in <head>, before first paint), from billboard.variant: 'a'|'b'|'c' fixes one, 'auto' = a
 // uniform random pick kept in localStorage "akbb". ?ak_variant=a|b|c always forces one for viewing (not stored). Sets <html data-akbb>, which the CSS reads, so the right layout paints first.
 // 2026-10-02 (Paulo mur0isfs7o5ex8 "i like this layout with 4"): 'auto' now means the 4-up row (c) for everyone; 'random' keeps the old uniform A/B/C pick.
+// 2026-10-06 (Paulo muns4xlwo86z4b "ab testing", card muvm2ypj1hik2l): secfilingdex + readstacks run 'random' = the fair A/B/C split (1/3 each,
+// sticky per browser in localStorage akbb). The variant also rides the gate href (sub=ad-bb-top-b), so /go/ clicks carry slot x variant.
 export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.search.match(/[?&]ak_variant=([abc])(?:&|$)/)||[])[1],v=q||${mode === 'random' ? 'null' : `'${/^[abc]$/.test(mode) ? mode : 'c'}'`};if(!v){try{v=localStorage.getItem('akbb')}catch(e){}if(!/^[abc]$/.test(v||'')){v='abc'.charAt(Math.floor(Math.random()*3));try{localStorage.setItem('akbb',v)}catch(e){}}}document.documentElement.setAttribute('data-akbb',v)}catch(e){}})();`;
 // Body: puts the variant into every billboard link's click position (data-event-from/data-from/data-affiliate
 // "ad-bb-top" -> "ad-bb-top-b"), so the fleet /c beacon records slot x variant with no collector change; runs the
@@ -252,7 +260,7 @@ export const bbHeadJs = (mode = 'auto') => `(function(){try{var q=(location.sear
 // window.AK_BB_IMP_URL (the /c collector counts unknown events as Amazon clicks, so none are sent there).
 export const BB_JS = `(function(){var h=document.documentElement,v=h.getAttribute('data-akbb')||'a';
 [].forEach.call(document.querySelectorAll('.ak-bb-var'),function(s){
-[].forEach.call(s.querySelectorAll('a.ak-ad-link'),function(a){['data-event-from','data-from','data-affiliate'].forEach(function(k){var x=a.getAttribute(k);if(x&&/^ad-bb-(top|mid)$/.test(x))a.setAttribute(k,x+'-'+v)})});
+[].forEach.call(s.querySelectorAll('a.ak-ad-link'),function(a){['data-event-from','data-from','data-affiliate'].forEach(function(k){var x=a.getAttribute(k);if(x&&/^ad-bb-(top|mid)$/.test(x))a.setAttribute(k,x+'-'+v)});var hr=a.getAttribute('href');if(hr&&/[?&]sub=ad-bb-(top|mid)(?=&|$)/.test(hr))a.setAttribute('href',hr.replace(/([?&]sub=ad-bb-(?:top|mid))(?=&|$)/,'$1-'+v))});
 if(window.AK_BB_IMP_URL&&'IntersectionObserver'in window){var sent=0,io=new IntersectionObserver(function(es){if(sent||!es[0].isIntersecting)return;sent=1;io.disconnect();try{navigator.sendBeacon(window.AK_BB_IMP_URL+(window.AK_BB_IMP_URL.indexOf('?')<0?'?':'&')+'slot='+(s.classList.contains('ak-bill-mid')?'mid':'top')+'&v='+v)}catch(e){}},{threshold:.5});io.observe(s)}
 if(v==='a')return;var tr=s.querySelector('.ak-ad-track'),cnt=s.querySelector('.ak-bb-count'),pv=s.querySelector('.ak-bb-prev'),nx=s.querySelector('.ak-bb-next');if(!tr)return;
 function vis(){return [].filter.call(tr.children,function(li){return li.offsetWidth>0})}
@@ -360,14 +368,14 @@ export function validateAdConfig(cfg) {
 }
 
 // One slot. cfg = { variant, products (ranked candidates, first n shown), disclosure, api='/amz/items', gate='/go/p',
-// lang='en', labels, n (cards per slot; v4 default 3, v1/v2 default 5 as a one-at-a-time carousel, v3/v5 default 1),
+// lang='en', labels, n (cards per slot; v4 default 3, v1 default 5 as a one-at-a-time carousel, v2 default 1, v3/v5 default 1),
 // candidates (extra ASINs the browser may fall back to when one is not buyable) }.
 export function renderAd(cfg) {
   const errs = validateAdConfig(cfg);
   if (errs.length) throw new Error(`Amili Kit amazon-ad: ${errs.join('; ')}`);
   const t = { ...(L[cfg.lang] || L.en), ...(cfg.labels || {}) };
   const v = cfg.variant;
-  const n = v === 'v6' ? 2 : cfg.n || { v1: 5, v2: 5, v3: 1, v4: 3, v5: 1 }[v];
+  const n = v === 'v6' ? 2 : cfg.n || { v1: 5, v2: 1, v3: 1, v4: 3, v5: 1 }[v];
   const shown = cfg.products.slice(0, Math.max(n, 1));
   const spare = cfg.products.slice(shown.length).map((p) => p.asin);
   // data-sp: each spare's own name + benefit line, so a spare that fills a card never keeps another product's blurb,
@@ -376,13 +384,13 @@ export function renderAd(cfg) {
   // cfg.duo: two products side by side (a comparison page's two items), never a carousel.
   const carousel = !cfg.duo && (v === 'v1' || v === 'v2' || v === 'v4') && shown.length > 1;
   const dots = carousel && v !== 'v4' ? `<div class="ak-ad-dots" aria-hidden="true">${shown.map((_, i) => `<span${i ? '' : ' class="on"'}></span>`).join('')}</div>` : '';
-  const info = `<details class="ak-ad-info"><summary aria-label="${esc(t.sponsored)}: ${esc(t.info)}">${esc(t.sponsored)} ${INFO_SVG}</summary><div class="ak-ad-pop"><p>${esc(cfg.disclosure)}</p><p class="ak-ad-disc" data-ak-disc hidden>${esc(DISCLAIMER)}</p></div></details>`;
+  const info = `<details class="ak-ad-info"><summary aria-label="${esc(t.sponsored)}: ${esc(t.info)}">${v === 'v2' ? '' : esc(t.sponsored)} ${INFO_SVG}</summary><div class="ak-ad-pop"><p>${esc(cfg.disclosure)}</p><p class="ak-ad-disc" data-ak-disc hidden>${esc(DISCLAIMER)}</p></div></details>`;
   const close = v === 'v2' ? `<button type="button" class="ak-ad-x" data-ak-close aria-label="${esc(t.close)}">${X_SVG}</button>` : '';
   const asOf = `<p class="ak-ad-asof" data-ak-asof hidden>${esc(t.asOf)} <time></time></p>`;
   const w = cfg.products.filter((p) => p.w && p.w !== 1).map((p) => `${p.asin}:${Number(p.w)}`).join(',');
   // cfg.on: always shown, whatever variant the page's A/B assigned (a page's fixed top card beside its own slot).
   // cfg.fixed: show products in the given order (the page's own items, best first) instead of the daily rotation.
-  return `<aside class="ak-ad ak-ad-${v}${cfg.on ? ' ak-on' : ''}${cfg.duo ? ' ak-duo' : ''}" data-v="${v}"${cfg.fixed ? ' data-fixed="1"' : ''} data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}"${w ? ` data-w="${w}"` : ''} data-spare="${spare.join(',')}"${sp ? ` data-sp="${esc(sp)}"` : ''}${carousel ? ' data-carousel="1"' : ''} aria-label="${esc(t.sponsored)}">`
+  return `<aside class="ak-ad ak-ad-${v}${v === 'v2' ? ' ak-ad-v5' : ''}${cfg.on ? ' ak-on' : ''}${cfg.duo ? ' ak-duo' : ''}" data-v="${v}"${cfg.fixed ? ' data-fixed="1"' : ''} data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}"${w ? ` data-w="${w}"` : ''} data-spare="${spare.join(',')}"${sp ? ` data-sp="${esc(sp)}"` : ''}${carousel ? ' data-carousel="1"' : ''} aria-label="${esc(t.sponsored)}">`
     + `<div class="ak-ad-in"><p class="ak-ad-promo" data-ak-promo hidden></p>${close}${v === 'v6' ? `<div class="ak-ad-hd"><p class="ak-ad-h">${esc(cfg.heading)}</p><button type="button" class="ak-ad-more" data-ak-more aria-label="${esc(t.moreLabel)}" hidden>${esc(t.more)}<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` : ''}<ul class="ak-ad-track" role="list">${shown.map((p, i) => card(p, i, cfg, t)).join('')}</ul>`
     + `<div class="ak-ad-foot">${dots}${asOf}${info}</div></div></aside>`;
 }
@@ -401,7 +409,7 @@ export function renderAdSlots(cfg, { hostTag = 'div' } = {}) {
 // Inline in <head>, before any CSS paints: assigns the visitor's variant. Keep it tiny.
 // AD_HEAD_JS also carries the Kit 3 gesture-cookie mint (identical to gesture-gate.mjs MINT_JS): the gate above needs it,
 // and <head> is the one place guaranteed to run before the first click.
-export const AD_HEAD_JS = `(function(){function m(e){try{if(!e.isTrusted)return;if(e.type==='auxclick'&&e.button!==1)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||a.host!==location.host||a.pathname.indexOf('/go/')!==0)return;document.cookie='cc_g='+Date.now().toString(36)+'; Path=/go/; Max-Age=600; SameSite=Lax; Secure'}catch(x){}}try{document.addEventListener('click',m,true);document.addEventListener('auxclick',m,true)}catch(x){}})();(function(){try{var V=['v1','v2','v3','v4','v5'],q=(location.search.match(/[?&]akv=(v[1-5]|off)/)||[])[1],v;if(q)v=q;else{try{v=localStorage.getItem('akv')}catch(e){}if(V.indexOf(v)<0){v=V[Math.floor(Math.random()*V.length)];try{localStorage.setItem('akv',v)}catch(e){}}}try{if(v==='v2'&&sessionStorage.getItem('akx'))v='v2x'}catch(e){}document.documentElement.setAttribute('data-akv',v)}catch(e){}})();`;
+export const AD_HEAD_JS = `(function(){function m(e){try{if(!e.isTrusted)return;if(e.type==='auxclick'&&e.button!==1)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||a.host!==location.host||a.pathname.indexOf('/go/')!==0)return;document.cookie='cc_g='+Date.now().toString(36)+'; Path=/go/; Max-Age=600; SameSite=Lax; Secure'}catch(x){}}try{document.addEventListener('click',m,true);document.addEventListener('auxclick',m,true)}catch(x){}})();(function(){try{var V=['v1','v2','v3','v4','v5'],q=(location.search.match(/[?&]akv=(v[1-5]|off)/)||[])[1],v;if(q)v=q;else{try{v=localStorage.getItem('akv')}catch(e){}if(V.indexOf(v)<0){v=V[Math.floor(Math.random()*V.length)];try{localStorage.setItem('akv',v)}catch(e){}}}try{if(v==='v2'&&(localStorage.getItem('akx')||sessionStorage.getItem('akx')))v='v2x'}catch(e){}document.documentElement.setAttribute('data-akv',v)}catch(e){}})();`;
 
 // The browser half of pickProducts (same hash, same key), so a static page still rotates every UTC day.
 // ak_rank(page, day, asins, weights) -> asins in today's order. footer test asserts it matches pickProducts.
@@ -422,10 +430,11 @@ window.addEventListener('click',pick,true);window.addEventListener('auxclick',fu
 var n=navigator,sb=n.sendBeacon;if(!sb)return;n.sendBeacon=function(u,d){try{if(cur&&typeof u==='string'&&/^https:\/\/fleet\.promptprio\.com\/c\?/.test(u)&&!/[?&]i=/.test(u))u+='&i='+cur}catch(x){}return sb.call(n,u,d)}})();`;
 
 export const AD_JS = `(function(){try{var mv=document.querySelector('[data-ak-move="after-main"]');if(mv){var go=function(){var m=document.querySelector('main');if(m&&m.parentNode&&m.getBoundingClientRect().bottom>innerHeight)m.parentNode.insertBefore(mv,m.nextSibling)};if(document.readyState==='complete')setTimeout(go,0);else addEventListener('load',function(){setTimeout(go,0)})}}catch(e){}})();
-(function(){${RANK_JS}var h=document.documentElement,v=h.getAttribute('data-akv');var slots=[].slice.call(document.querySelectorAll('.ak-ad.ak-on'+(v?',.ak-ad[data-v="'+v+'"]':'')));if(!slots.length)return;
-var akd=0;window.addEventListener('click',function(){akd=(window.dataLayer||[]).length},true);
-window.addEventListener('click',function(e){try{if(!e.isTrusted||window.__FLEET_AGENT__||!window.gtag)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||!a.closest('.ak-ad'))return;var u=new URL(a.href,location.href);if(u.host!==location.host||u.pathname!=='/go/amzad')return;var dl=window.dataLayer||[];for(var k=akd;k<dl.length;k++){var q=dl[k];if(q&&q[0]==='event'&&q[1]==='amazon_click')return}gtag('event','amazon_click',{page:location.pathname,asin:u.searchParams.get('a')||'',dest:'amili-ad',cta_position:'amili-ad'})}catch(x){}});
-slots.forEach(function(s){var sv=s.getAttribute('data-v');
+(function(){${RANK_JS}function scan(){var h=document.documentElement,v=h.getAttribute('data-akv');var slots=[].slice.call(document.querySelectorAll('.ak-ad.ak-on'+(v?',.ak-ad[data-v="'+v+'"]':'')));slots=slots.filter(function(s){return !s.__akAdReady});if(!slots.length)return;
+if(!window.__akAdClick){window.__akAdClick=1;var akd=0;window.addEventListener('click',function(){akd=(window.dataLayer||[]).length},true);
+window.addEventListener('click',function(e){try{if(!e.isTrusted||window.__FLEET_AGENT__||!window.gtag)return;var a=e.target&&e.target.closest&&e.target.closest('a[href]');if(!a||!a.closest('.ak-ad'))return;var u=new URL(a.href,location.href);if(u.host!==location.host||u.pathname!=='/go/amzad')return;var dl=window.dataLayer||[];for(var k=akd;k<dl.length;k++){var q=dl[k];if(q&&q[0]==='event'&&q[1]==='amazon_click')return}gtag('event','amazon_click',{page:location.pathname,asin:u.searchParams.get('a')||'',dest:'amili-ad',cta_position:'amili-ad'})}catch(x){}});}
+slots.forEach(function(s){s.__akAdReady=1;var sv=s.getAttribute('data-v');
+if(sv==='v2'){var frame=0;function reveal(){frame=0;var hero=document.querySelector('[data-buybar-hero],#buy-bar-hero,main h1,h1'),travel=document.documentElement.scrollHeight-innerHeight;var past=hero?hero.getBoundingClientRect().bottom<=56:travel>0&&scrollY/travel>=0.35;s.toggleAttribute('data-ak-ready',past)}function schedule(){if(!frame)frame=requestAnimationFrame(reveal)}reveal();window.addEventListener('scroll',schedule,{passive:true});window.addEventListener('resize',schedule)}
 var cards=[].slice.call(s.querySelectorAll('.ak-ad-card')),spare=(s.getAttribute('data-spare')||'').split(',').filter(Boolean);
 var W={};(s.getAttribute('data-w')||'').split(',').forEach(function(x){var p=x.split(':');if(p[1])W[p[0]]=+p[1]});
 var ids=cards.map(function(c){return c.getAttribute('data-asin')}).concat(spare);var want=s.getAttribute('data-fixed')?ids:ak_rank(s.getAttribute('data-page')||'',new Date().toISOString().slice(0,10),cards.map(function(c){return c.getAttribute('data-asin')}).concat(spare),W);
@@ -456,18 +465,18 @@ var mb=s.querySelector('[data-ak-more]');if(mb&&pool.length>cards.length){mb.hid
 if(any){var p=s.querySelector('[data-ak-asof]');p.querySelector('time').setAttribute('datetime',j.asOf);p.querySelector('time').textContent=fmt(j.asOf);p.hidden=false;s.querySelector('[data-ak-disc]').hidden=false}
 var pm=j.promo,nw=Date.now(),pe=s.querySelector('[data-ak-promo]'),pc=pm&&pm.cta,inW=function(o){return o&&nw>=Date.parse(o.from)&&nw<=Date.parse(o.to)};if(pe&&pm&&!window.__akpm&&(!pm.paths||new RegExp(pm.paths).test(location.pathname))&&!ak_has(pm.skip)){if(inW(pc)&&/^\\/go\\/[a-z]/.test(pc.href)){var pa=document.createElement('a');pa.href=pc.href;pa.rel='sponsored nofollow noopener';if(pc.ev){pa.setAttribute('data-event-from',pc.ev);pa.setAttribute('data-from',pc.ev)}pa.textContent=pc.text;pa.style.cssText='display:block;padding:0 9px;line-height:24px;color:inherit;text-decoration:underline;text-underline-offset:2px';pe.textContent='';pe.style.padding='0';pe.appendChild(pa);pe.hidden=false;window.__akpm=1}else if(pm.text&&inW(pm)){pe.textContent=pm.text;pe.hidden=false;window.__akpm=1}}
 s.classList.add('is-live')}).catch(off);
-var x=s.querySelector('[data-ak-close]');if(x)x.addEventListener('click',function(){try{sessionStorage.setItem('akx','1')}catch(e){}h.setAttribute('data-akv','v2x')});
+var x=s.querySelector('[data-ak-close]');if(x)x.addEventListener('click',function(){try{localStorage.setItem('akx','1')}catch(e){}try{sessionStorage.setItem('akx','1')}catch(e){}s.hidden=true;h.setAttribute('data-akv','v2x')});
 if(!s.getAttribute('data-carousel'))return;var tr=s.querySelector('.ak-ad-track'),dots=[].slice.call(s.querySelectorAll('.ak-ad-dots span')),i=0;
 function vc(){return cards.filter(function(c){return !c.hidden})}function cur(){var c0=vc()[0],w=(c0&&c0.getBoundingClientRect().width)||1;return Math.round(tr.scrollLeft/w)}
 tr.addEventListener('scroll',function(){var k=cur();if(k!==i){i=k;dots.forEach(function(d,n){d.className=n===k?'on':''})}},{passive:true});
 if(sv==='v4'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;var paused=0;['pointerdown','focusin','mouseenter','touchstart'].forEach(function(e){s.addEventListener(e,function(){paused=1},{passive:true})});
 var timer=setInterval(function(){var v2=vc();if(paused||document.hidden||v2.length<2)return;var k=(cur()+1)%v2.length;tr.scrollTo({left:k*v2[0].getBoundingClientRect().width,behavior:'smooth'})},6000);
-if('IntersectionObserver'in window)new IntersectionObserver(function(e){paused=e[0].isIntersecting?paused:1}).observe(s)})})();`;
+if('IntersectionObserver'in window)new IntersectionObserver(function(e){paused=e[0].isIntersecting?paused:1}).observe(s)})}window.akAdScan=scan;scan()})();`;
 
 // Scoped under .ak-ad. Fixed heights per variant (--ak-ad-h*) => zero layout shift whether or not the API answers.
 // Colours: a white card like Amazon's own (the mockup), overridable with --ak-ad-bg --ak-ad-fg --ak-ad-muted
 // --ak-ad-line --ak-ad-accent --ak-ad-cta-bg --ak-ad-cta-fg --ak-ad-page (the page background behind v1).
-export const AD_CSS = `.ak-ad{display:none;--ak-ad-bg:#fff;--ak-ad-fg:#0f1111;--ak-ad-muted:#565959;--ak-ad-line:#d5d9d9;--ak-ad-cta-bg:#ffd814;--ak-ad-cta-fg:#0f1111;font:14px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ak-ad-fg);text-align:left;box-sizing:border-box}
+export const AD_CSS = `.ak-ad{display:none;--ak-ad-bg:#fff;--ak-ad-fg:#0f1111;--ak-ad-muted:#565959;--ak-ad-line:#d5d9d9;--ak-ad-cta-bg:#ffd814;--ak-ad-cta-fg:#0f1111;font:14px/1.35 system-ui,sans-serif;color:var(--ak-ad-fg);text-align:left;box-sizing:border-box}
 .ak-ad *{box-sizing:border-box}
 .ak-host{display:none;list-style:none;margin:0;padding:0}
 html[data-akv=v1] .ak-ad-v1,html[data-akv=v2] .ak-ad-v2,html[data-akv=v3] .ak-ad-v3,html[data-akv=v4] .ak-ad-v4,html[data-akv=v5] .ak-ad-v5,html[data-akv=v6] .ak-ad-v6,html[data-akv=v6] .ak-host-v6,html:not([data-akv]) .ak-ad-v3,html[data-akv=v1] .ak-host-v1,html[data-akv=v3] .ak-host-v3,html[data-akv=v4] .ak-host-v4,html[data-akv=v5] .ak-host-v5,html:not([data-akv]) .ak-host-v3{display:block}
@@ -493,13 +502,13 @@ html[data-akv=v1] .ak-ad-v1,html[data-akv=v2] .ak-ad-v2,html[data-akv=v3] .ak-ad
 .ak-ad-dots{display:flex;gap:6px;margin-right:auto;padding-left:4px}
 .ak-ad-dots span{width:6px;height:6px;border-radius:50%;background:var(--ak-ad-line)}
 .ak-ad-dots span.on{background:var(--ak-ad-muted)}
-.ak-ad-asof{margin:0;font-size:11px;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ak-ad-asof{margin:0;font-size:11px;overflow:hidden;min-width:0}
 .ak-ad-promo{position:absolute;left:0;bottom:100%;margin:0 0 3px;padding:0 7px;border-radius:4px;background:var(--ak-ad-cta-bg);color:var(--ak-ad-cta-fg);font-size:12px;line-height:17px;font-weight:700;white-space:nowrap}
 .ak-ad-promo[hidden]{display:none}
 .ak-ad-info{position:relative}
 .ak-ad-info summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;min-height:44px;min-width:44px;justify-content:flex-end}
 .ak-ad-info summary::-webkit-details-marker{display:none}
-.ak-ad-pop{position:absolute;right:0;bottom:100%;z-index:3;width:min(20rem,80vw);padding:10px 12px;background:var(--ak-ad-bg);color:var(--ak-ad-fg);border:1px solid var(--ak-ad-line);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:12px}
+.ak-ad-pop{white-space:normal;position:absolute;right:0;bottom:100%;z-index:3;width:min(20rem,80vw);padding:10px 12px;background:var(--ak-ad-bg);color:var(--ak-ad-fg);border:1px solid var(--ak-ad-line);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.18);font-size:12px}
 .ak-ad-pop p{margin:0 0 6px}.ak-ad-pop p:last-child{margin:0}
 .ak-ad-x{position:absolute;top:-14px;right:-6px;z-index:2;width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:0;padding:0;color:var(--ak-ad-fg);cursor:pointer}
 .ak-ad-x svg{width:24px;height:24px;padding:5px;background:var(--ak-ad-bg);border:1px solid var(--ak-ad-line);border-radius:50%}
@@ -527,12 +536,13 @@ html[data-akv=v1] .ak-ad-v1,html[data-akv=v2] .ak-ad-v2,html[data-akv=v3] .ak-ad
 .ak-duo.ak-one .ak-ad-link{flex-direction:row;align-items:center}
 .ak-duo.ak-one .ak-ad-img{width:96px;height:132px;flex:none}
 .ak-duo.ak-one .ak-ad-why{display:-webkit-box}
-.ak-ad-v1 .ak-ad-link,.ak-ad-v2 .ak-ad-link{height:106px}
-.ak-ad-v1 .ak-ad-img,.ak-ad-v2 .ak-ad-img{width:86px;height:86px}
-.ak-ad-v1 .ak-ad-why,.ak-ad-v2 .ak-ad-why{-webkit-line-clamp:1}
-.ak-ad-v1 .ak-ad-cta,.ak-ad-v2 .ak-ad-cta{display:none}
-.ak-ad-v2{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--ak-ad-page,#f3f3f3);padding:14px 12px env(safe-area-inset-bottom);height:calc(var(--ak-ad-h2,156px) + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.22)}
-html[data-akv=v2] body{padding-bottom:calc(var(--ak-ad-h2,156px) + env(safe-area-inset-bottom))}
+.ak-ad-v1 .ak-ad-link{height:106px}
+.ak-ad-v1 .ak-ad-img{width:86px;height:86px}
+.ak-ad-v1 .ak-ad-why{-webkit-line-clamp:1}
+.ak-ad-v1 .ak-ad-cta{display:none}
+.ak-ad-v2:not([data-ak-ready]){display:none!important}
+
+html[data-akv=v2] body{padding-bottom:calc(var(--ak-ad-h2,76px) + env(safe-area-inset-bottom))}
 .ak-ad-v3{margin:12px 0;height:var(--ak-ad-h3,368px)}
 .ak-ad-v3 .ak-ad-link{flex-direction:column;align-items:stretch;height:328px;padding:12px}
 .ak-ad-v3 .ak-ad-img{width:100%;height:170px}
@@ -552,15 +562,15 @@ html[data-akv=v2] body{padding-bottom:calc(var(--ak-ad-h2,156px) + env(safe-area
 .ak-ad-v4 .ak-ad-cta{margin-top:auto;align-self:stretch;text-align:center;font-size:12px;padding:8px 6px;white-space:normal}
 .ak-ad-v5{margin:8px 0;height:var(--ak-ad-h5,104px)}
 .ak-ad-v5 .ak-ad-link{height:64px;padding:6px 10px;gap:10px}
-.ak-ad-v5 .ak-ad-img{width:48px;height:48px}
+.ak-ad-v5 .ak-ad-img{width:48px;height:48px;display:flex;background:#f3f3f3}
 .ak-ad-v5 .ak-ad-why,.ak-ad-v5 .ak-ad-brand{display:none}
 .ak-ad-v5 .ak-ad-body{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:10px;row-gap:3px}
 .ak-ad-v5 .ak-ad-title{grid-column:1/-1;-webkit-line-clamp:1;font-size:14px;line-height:1.25}
 .ak-ad-v5 .ak-ad-price{grid-column:1;font-size:15px;line-height:1.2}
-.ak-ad-v5 .ak-ad-cta{grid-column:2;grid-row:2;margin:0;padding:5px 12px;font-size:12.5px}
-.ak-ad-v5 .ak-ad-img{display:flex;background:#f3f3f3}
+.ak-ad-v5 .ak-ad-cta{justify-self:end;grid-column:2;grid-row:2;margin:0;padding:5px 12px;font-size:12.5px}
+
 .ak-ad-v5 .has-img .ak-ad-img{background:#fff}
-.ak-ad-v5 .ak-ad-cta{justify-self:end}
+
 .ak-p-cur,.ak-p-dec{font-size:.55em;vertical-align:.62em;line-height:0;font-weight:700}
 .ak-p-int{font-weight:700}
 .ak-p-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -582,7 +592,13 @@ html[data-akv=v2] body{padding-bottom:calc(var(--ak-ad-h2,156px) + env(safe-area
 .ak-ad-v6 .ak-ad-card:not(.has-img) .ak-ad-title{white-space:normal;height:auto;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-weight:600;font-size:15px}
 .ak-ad-v6 .ak-ad-card:not(.has-img) .ak-ad-why{order:3;-webkit-line-clamp:4}
 .ak-ad-v6 .ak-ad-card:not(.has-img) .ak-ad-cta{order:4;margin-top:8px}
-.ak-ad-v6 .ak-ad-foot{height:36px}
 @media (min-width:48rem){.ak-ad-v6 .ak-ad-img{height:170px}.ak-ad-v6 .ak-ad-link{height:244px}.ak-ad-v6{height:var(--ak-ad-h6d,328px)}}
+.ak-ad-v2{position:fixed;margin:0;left:0;right:0;bottom:0;z-index:40;background:var(--ak-ad-page,#f3f3f3);padding:6px 12px env(safe-area-inset-bottom);height:calc(var(--ak-ad-h2,76px) + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.22)}
+.ak-ad-v2 .ak-ad-in{padding-right:96px}
+.ak-ad-v2 .ak-ad-link{height:48px;padding:4px}
+.ak-ad-v2 .ak-ad-img{width:32px;height:32px}
+.ak-ad-v2 .ak-ad-foot{height:16px}
+.ak-ad-v2 .ak-ad-info{position:absolute;right:44px;top:0}
+.ak-ad-v2 .ak-ad-x{right:0;top:0}
 @media (prefers-reduced-motion:reduce){.ak-ad-track{scroll-behavior:auto}}
-@media (min-width:48rem){.ak-ad-v4 .ak-ad-card{flex:0 0 31%}.ak-ad-v4 .ak-ad-track{padding-right:0}}`;
+@media (min-width:48rem){.ak-ad-v4 .ak-ad-card{flex:0 0 31%}.ak-ad-v4 .ak-ad-track{padding-right:0}}`.replace(/\n/g, '').replace(/, /g, ',').replace(/@media /g, '@media');

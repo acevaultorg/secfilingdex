@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 46651cb43a50), Amili Kit v1.2.4 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs (sha256 64e039228ed9), Amili Kit v1.4.2 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — build-output injector (fleet rollout 2026-09-28, Paulo thought mulitb3a2bhmcs: "at least 20 sites").
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/inject.mjs. Sites carry a synced copy at kit/amazon-ad-inject.mjs.
 //
@@ -14,7 +14,7 @@
 //
 // Usage: node kit/amazon-ad-inject.mjs <outDir> [configPath=amazon-ad.config.mjs]
 // Config (default export): { site, variant, products, disclosure, placementAttrs?, skip? (regex strings on the URL path),
-//   lang?, slotStyle? }. Prints "N/M pages" and exits 1 when it injected nothing (a silent no-op must not deploy).
+//   lang?, slotStyle?, slotMove? (defer after-main placement until load for strict React hydration) }. Prints "N/M pages" and exits 1 when it injected nothing (a silent no-op must not deploy).
 import fs from 'node:fs';
 import crypto from 'node:crypto';
 import path from 'node:path';
@@ -56,6 +56,8 @@ export function pagePath(rel) {
 }
 
 function decorate(ad, cfg) {
+  // Theme tokens must live on the ad itself: its default variables shadow inherited wrapper values.
+  if (cfg.adStyle) ad = ad.replace('<aside ', '<aside style="' + String(cfg.adStyle).replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '" ');
   // hrefSuffix: extra query the site's own guards require on every /go/ href (e.g. approvedmodem's "&sub=" beacon key).
   if (cfg.hrefSuffix) ad = ad.replace(/href="(\/go\/amzad\?a=[A-Z0-9]{10})"/g, (m, h) => `href="${h}${cfg.hrefSuffix.replace(/&/g, '&amp;')}"`);
   for (const attr of cfg.placementAttrs || []) {
@@ -154,6 +156,8 @@ export function injectHtml(html, urlPath, cfg) {
   const base = stripAd(html);
   const skip = [...DEFAULT_SKIP, ...(cfg.skip || [])].map((s) => new RegExp(s));
   if (skip.some((re) => re.test(urlPath))) return { html: base, injected: false, why: 'skip' };
+  // React-owned slots render in the layout and load the browser asset after hydration.
+  if (cfg.nativeSlot) return { html: base, injected: /data-ak-native/.test(base), why: 'no-native-slot' };
   // anchor 'before-footer' (sites without <main>, e.g. stickyidea): the slot goes right before the page's last <footer>.
   let end = base.lastIndexOf('</main>');
   let endLen = '</main>'.length;
@@ -163,12 +167,12 @@ export function injectHtml(html, urlPath, cfg) {
   // variant 'none': top cards only (no end-of-content line), for sites that asked for the targeted card alone.
   const bottom = cfg.variant !== 'none';
   const products = bottom ? pickProducts(cfg.products, { page: urlPath, day: RANK_DAY, n: Infinity }) : [];
-  let ad = bottom ? decorate(renderAd({ variant: cfg.variant, heading: headingFor(urlPath, cfg), products, disclosure: cfg.disclosure, api: API, gate: GATE, page: urlPath, lang: cfg.lang || 'en', n: cfg.n }), cfg) : '';
+  let ad = bottom ? decorate(renderAd({ variant: cfg.variant, on: !!cfg.slotMove, heading: headingFor(urlPath, cfg), products, disclosure: cfg.disclosure, api: API, gate: GATE, page: urlPath, lang: cfg.lang || 'en', n: cfg.n }), cfg) : '';
   const [cA, cB] = MARK('css');
   const [sA, sB] = MARK('slot');
   const [jA, jB] = MARK('js');
-  const at = end + endLen;
-  let h = bottom ? base.slice(0, at) + `${sA}<div class="ak-slot"${cfg.slotStyle ? ` style="${cfg.slotStyle}"` : ''}>${ad}</div>${sB}` + base.slice(at) : base;
+  const at = cfg.slotMove ? base.toLowerCase().lastIndexOf('</body>') : end + endLen;
+  let h = bottom ? base.slice(0, at) + `${sA}<div class="ak-slot"${cfg.slotMove ? ' data-ak-move="after-main"' : ''}${cfg.slotStyle ? ` style="${cfg.slotStyle}"` : ''}>${ad}</div>${sB}` + base.slice(at) : base;
   const top = cfg.billboard && cfg.billboard.top && (!cfg.billboard.match || new RegExp(cfg.billboard.match).test(urlPath)) ? null : topCard(base, urlPath, cfg);
   let topAt = -1;
   if (top) {
@@ -220,7 +224,7 @@ export function injectHtml(html, urlPath, cfg) {
     }
     if (at3 >= 0) h = h.slice(0, at3) + `${mA}<div class="ak-bill-midwrap"${cfg.billboard.midMove ? ' data-ak-move="after-main"' : ''}>${bb.mid}</div>${mB}` + h.slice(at3);
   }
-  if (bottom) h = h.replace(/<html\b/i, `<html data-akv="${cfg.variant}"`);
+  if (bottom && !cfg.slotMove) h = h.replace(/<html\b/i, `<html data-akv="${cfg.variant}"`);
   h = h.replace(/<\/head>/i, `${cA}<script>${MINT_JS}</script><script>${BEACON_I_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${bbHeadJs(cfg.billboard.variant)}</script>` : ''}${cfg._ext ? `<link rel="stylesheet" href="${cfg._ext.css}">` : `<style>${AD_CSS}\n${SLOT_CSS}${cfg.billboard ? '\n' + BILLBOARD_CSS : ''}</style>`}${cB}</head>`);
   const bi = h.toLowerCase().lastIndexOf('</body>');
   h = h.slice(0, bi) + (cfg._ext ? `${jA}<script src="${cfg._ext.js}" defer></script>${jB}` : `${jA}<script>${AD_JS}</script>${cfg.billboard && cfg.billboard.variant && bb ? `<script>${BB_JS}</script>` : ''}${jB}`) + h.slice(bi);
@@ -249,6 +253,27 @@ export function stableHeaders(out, files) {
   h = h.replace(re, '\n');
   const block = `${A} (Amili Kit: stable URLs, short cache)\n` + [...have].sort().map((f) => `${f}\n  Cache-Control: public, max-age=600, must-revalidate\n`).join('') + `${B}\n`;
   fs.writeFileSync(p, (h.trimEnd() ? h.trimEnd() + '\n\n' : '') + block);
+  servedAllowlist(out, files);
+}
+
+// Advanced-mode Pages sites (1.2.6, 2026-10-03): a site that ships out/_worker.js with an exact served-files list
+// (`const SERVED = new Set([...])`, written by its build.mjs so unknown paths 404 instead of soft-404ing to the
+// homepage) 404s every file the kit adds AFTER that list was written. needwatts.com served /kit-ad.css, /kit-ad.js
+// and /kit-search.js as 404 from 2026-10-03 01:15Z (kit-rollout live verify caught it). Every kit asset is therefore
+// added to that list here. No such worker or no SERVED list = nothing to do. Idempotent.
+export function servedAllowlist(out, files) {
+  const w = path.join(out, '_worker.js');
+  if (!fs.existsSync(w)) return 0;
+  const src = fs.readFileSync(w, 'utf8');
+  const re = /const SERVED = new Set\((\[[^\n]*?\])\);/;
+  const m = src.match(re);
+  if (!m) return 0;
+  const have = new Set(JSON.parse(m[1]));
+  const before = have.size;
+  files.forEach((f) => have.add(f));
+  if (have.size === before) return 0;
+  fs.writeFileSync(w, src.replace(re, () => `const SERVED = new Set(${JSON.stringify([...have].sort())});`));
+  return have.size - before;
 }
 
 export function injectDir(outDir, cfg) {

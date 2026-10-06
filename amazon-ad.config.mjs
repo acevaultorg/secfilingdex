@@ -10,7 +10,7 @@ export default {
   ],
   "disclosure": "Paid link. As an Amazon Associate I earn from qualifying purchases. General educational reference; not investment advice.",
   "billboard": {
-    "variant": "auto",
+    "variant": "random",
     "top": true,
     "mid": true,
     "midMove": true,
