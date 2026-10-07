@@ -117,7 +117,7 @@ export default function Learn13HPage() {
           href: "https://holdlens.com/",
           label: "HoldLens: Smart-money signals across 30 tracked superinvestors",
           description:
-            "Every superinvestor in HoldLens&apos;s tracked universe is a 13H filer. The 13F filings HoldLens publishes are the only public window into what these large traders are actually doing.",
+            "Every superinvestor in HoldLens’s tracked universe is a 13H filer. The 13F filings HoldLens publishes are the only public window into what these large traders are actually doing.",
         },
       ]}
       definedTerms={[

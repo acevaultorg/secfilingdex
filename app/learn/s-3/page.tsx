@@ -198,7 +198,7 @@ export default function LearnS3Page() {
         {
           term: "Shelf registration",
           description:
-            "Pre-registration of securities for future issuance, governed by Rule 415. The registered amount sits on the &lsquo;shelf&rsquo; until the issuer pulls some down via a takedown (424B prospectus supplement). Most shelves have a 3-year life.",
+            "Pre-registration of securities for future issuance, governed by Rule 415. The registered amount sits on the ‘shelf’ until the issuer pulls some down via a takedown (424B prospectus supplement). Most shelves have a 3-year life.",
         },
         {
           term: "424B prospectus supplement",
