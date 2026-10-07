@@ -220,16 +220,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
         />
 
-        {/* Google AdSense — verification snippet. AdSense application
-            requires this loaded on every page in <head> before review.
-            ADSENSE_CLIENT env-var-conditional; fleet-default fallback. */}
-        {ADSENSE_CLIENT ? (
-          <script
-            async
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-          />
-        ) : null}
+        {/* AdSense loader OFF during hold (Paulo 2026-10-07). ads.txt stays.
+            TO RESTORE, re-add here:
+            {ADSENSE_CLIENT ? (<script async crossOrigin="anonymous" src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`} />) : null} */}
 
         {/* llms.txt advertise per `rules/bot-harvest.md` Day-1 manifest spec.
             HTML <link> + (in middleware/headers if present) HTTP Link header
