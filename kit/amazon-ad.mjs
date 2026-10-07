@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 3eeb6a228e91), Amili Kit v1.8.1 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 4933818a346c), Amili Kit v1.8.2 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -307,7 +307,8 @@ html[data-akbb=c] .ak-bb-var .ak-bill-h,html[data-akbb=c] .ak-bb-var .ak-ad-cta{
 html[data-akbb=c] .ak-bb-var .ak-bill-line{display:flex;flex-direction:column-reverse;height:auto;white-space:normal;gap:2px}
 html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:13px;line-height:17px;height:34px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;color:var(--ak-ad-fg)}
 html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-brand{max-width:none;font-size:12px;font-weight:400;color:var(--ak-ad-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;height:15px}
-html[data-akbb=c] .ak-bb-var .ak-bill-buy{margin:0;position:static;flex-direction:row}
+html[data-akbb=c] .ak-bb-var .ak-bill-buy{margin:0;position:static;display:block;min-height:22px;line-height:22px;flex:0 0 22px}
+html[data-akbb=c] .ak-bb-var .ak-ad-price{display:block;line-height:22px}
 html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-track{display:block;overflow:visible}
 .ak-bill .ak-ad-link{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:center;height:250px;padding:0 32px 0 0;border-radius:4px;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg)}
@@ -319,7 +320,7 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-body{gap:10px;justify-content:center}
 .ak-bill-h{font:700 30px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.01em;color:var(--ak-ad-fg);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .ak-bill-line{display:flex;gap:6px;min-width:0;font-size:14px;color:var(--ak-ad-muted);white-space:nowrap}
-.ak-bill-line .ak-ad-brand{flex:0 1 auto;min-width:0;max-width:60%;overflow:hidden;text-overflow:ellipsis;font-size:14px;font-weight:600;color:var(--ak-ad-fg)}
+.ak-bill-line .ak-ad-brand{flex:0 0 auto;min-width:0;max-width:60%;overflow:hidden;text-overflow:ellipsis;word-break:normal;font-size:14px;font-weight:600;color:var(--ak-ad-fg)}
 .ak-bill-line .ak-ad-title{display:block;flex:1 1 auto;min-width:0;font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ak-bill-buy{display:flex;align-items:center;gap:18px;margin-top:6px}
 .ak-bill .ak-ad-price{font-size:28px;line-height:1;white-space:nowrap}
@@ -374,12 +375,23 @@ html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
 @media (min-width:68rem){html[data-akbb] .ak-bill-top .ak-bb-stage{overflow:visible}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-prev{left:-58px}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-next{right:-58px}}
 /* mid sits on the page's own background (dark on dark sites): its row heading and counter use the band label grey (#727272, readable on white and on dark) */
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-rowh,html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bb-count{color:#727272}
+/* Mid billboards sit on the host page rather than the white product cards. Inherit the host colour so
+   labels, counters and freshness text remain readable on both the light and dark site themes. */
+.ak-bill-mid{color:inherit}
+.ak-bill-mid .ak-bill-lab,.ak-bill-mid .ak-bb-rowh,.ak-bill-mid .ak-bb-count,.ak-bill-mid .ak-ad-asof{color:inherit}
+html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bill-lab,html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bb-rowh,html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bb-count,html[data-akbb] .ak-bill-mid.ak-bb-var .ak-ad-asof{color:inherit}
 /* B on wide screens where the arrows sit inside the card: reserve a gutter so the next arrow never covers the product line */
 @media (min-width:48rem){html[data-akbb=b] .ak-bill-mid.ak-bb-var .ak-ad-link{padding-right:64px}}
 @media (min-width:48rem) and (max-width:67.99rem){html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-ad-link{padding-right:64px}}
 @media (max-width:47.99rem){html[data-akbb] .ak-bb-var .ak-bb-nav{display:none!important}
 html[data-akbb=b] .ak-bb-var .ak-ad-track{gap:8px}html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 88%}
-html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 20px)/2.3)}}`;
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 20px)/2.3)}
+html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-bill-h{font-size:15px;line-height:1.2;letter-spacing:-.02em;height:2.4em;max-height:2.4em;-webkit-line-clamp:2}
+html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal}
+html[data-akbb=c] .ak-bb-var .ak-bill-buy{height:20px;min-height:20px;line-height:20px;flex-basis:20px}
+html[data-akbb=c] .ak-bb-var .ak-bill-buy .ak-ad-price{line-height:20px}}
+`;
 
 export function validateAdConfig(cfg) {
   const errs = [];
