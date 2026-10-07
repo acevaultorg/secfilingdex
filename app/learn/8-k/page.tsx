@@ -101,8 +101,8 @@ function ItemTable({ rows }: { rows: Item[] }) {
       <table className="w-full text-body-sm">
         <thead>
           <tr className="border-b border-border text-left text-dim">
-            <th className="px-3 py-2 font-medium">Item</th>
-            <th className="px-3 py-2 font-medium">What it reports · when due</th>
+            <th scope="col" className="px-3 py-2 font-medium">Item</th>
+            <th scope="col" className="px-3 py-2 font-medium">What it reports · when due</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-border">
@@ -136,6 +136,7 @@ export default function Learn8KPage() {
   return (
     <LearnArticle
       slug="8-k"
+      dateModified="2026-10-07"
       title="What is an 8-K filing?"
       tldr="An 8-K is the SEC current report — used to disclose material events that arise between periodic filings. Generally due within four business days of the triggering event."
       livePreview={{
@@ -179,7 +180,7 @@ export default function Learn8KPage() {
               <ItemTable rows={TRACKED.map((code) => ITEM_BY_CODE[code])} />
               <details className="rounded-card border border-border px-3 py-2">
                 <summary className="cursor-pointer py-2 font-medium text-text">
-                  Show all 33 items, by section
+                  Show all 33 items by section (the 10 above included)
                 </summary>
                 <div className="space-y-4 pb-2 pt-2">
                   {SECTIONS.map((sec) => (
