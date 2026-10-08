@@ -93,23 +93,22 @@ export function CookieConsent() {
       role="dialog"
       aria-labelledby="consent-title"
       aria-describedby="consent-body"
-      className="sticky top-0 inset-x-0 z-50 border-b border-border bg-bg/95 backdrop-blur supports-[backdrop-filter]:bg-bg/80"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-bg/95 shadow-float backdrop-blur supports-[backdrop-filter]:bg-bg/90"
     >
-      <div className="max-w-6xl mx-auto px-5 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
         <div className="flex-1 min-w-0">
-          <p id="consent-title" className="text-eyebrow text-brand mb-1.5">
+          <p id="consent-title" className="text-eyebrow text-brand inline mr-2">
             Cookies
           </p>
-          <p id="consent-body" className="text-body-sm text-muted">
+          <p id="consent-body" className="text-caption sm:text-body-sm text-muted inline">
             {/* Do not re-add a "cookieless Cloudflare Web Analytics" claim here:
                 the CF beacon is not injected on this site (no
                 NEXT_PUBLIC_CF_BEACON_TOKEN — verify with
                 `curl -s https://secfilingdex.com/ | grep -c cloudflareinsights`).
                 This banner is on every page, so a service named here that does
                 not run is the most-seen false statement on the site. */}
-            No analytics cookies are set until you accept. With your permission
-            we enable Google Analytics + Microsoft Clarity (heatmaps + session
-            insights) to improve the product.{" "}
+            Analytics cookies stay off until you accept. Google Analytics and
+            Microsoft Clarity help us improve SecFilingDex.{" "}
             <a
               href="/privacy/"
               className="underline decoration-border hover:decoration-text hover:text-text transition-colors"
@@ -119,18 +118,18 @@ export function CookieConsent() {
             .
           </p>
         </div>
-        <div className="flex gap-3 shrink-0">
+        <div className="flex gap-2 shrink-0">
           <button
             type="button"
             onClick={() => decide("denied")}
-            className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn border border-border text-muted hover:text-text hover:border-border-bright transition-colors"
+            className="inline-flex items-center justify-center min-h-[40px] px-3 sm:px-5 py-2 rounded-btn border border-border text-sm text-muted hover:text-text hover:border-border-bright transition-colors"
           >
             Reject
           </button>
           <button
             type="button"
             onClick={() => decide("granted")}
-            className="inline-flex items-center justify-center min-h-[44px] px-5 py-3 rounded-btn bg-brand text-text font-medium hover:shadow-brand-glow-sm transition-all"
+            className="inline-flex items-center justify-center min-h-[40px] px-3 sm:px-5 py-2 rounded-btn bg-brand text-sm text-text font-medium hover:shadow-brand-glow-sm transition-all"
           >
             Accept
           </button>
