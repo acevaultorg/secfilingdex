@@ -6,7 +6,7 @@
 
 SecFilingDex is the **dex** of SEC filings — a comprehensive, searchable, programmatic database surface over the U.S. Securities and Exchange Commission's EDGAR filings, designed for use by humans (finance analysts, developers building tools) and AI agents (for citation-grade structured filing data).
 
-Every filing has its own page, its own structured JSON twin at `/api/filing/[accession].json`, and full source attribution back to SEC EDGAR.
+Every filing has its own page and full source attribution back to SEC EDGAR. The 1,000 most recent filings also have a structured JSON twin at `/api/filing/[accession].json` (listed in /sitemap-ai.xml); /api/filings.json indexes every filing.
 
 ## Primary data
 

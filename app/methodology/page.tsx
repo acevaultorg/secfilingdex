@@ -218,7 +218,7 @@ export default function MethodologyPage() {
             </li>
             <li>
               <strong>Twin JSON endpoints</strong> at{" "}
-              <code>/api/filing/[accession].json</code> mirror every filing page in
+              <code>/api/filing/[accession].json</code> mirror the 1,000 most recent filing pages in
               machine-readable form (Aleyda Solis &ldquo;Extractable&rdquo; LLM-citation
               characteristic).
             </li>

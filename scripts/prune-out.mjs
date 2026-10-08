@@ -83,5 +83,21 @@ for (const k of ['/robots.txt', '/ads.txt']) {
     console.error(`[prune-out] FAIL: ${k} was deleted`); bad++;
   }
 }
+// No deployed page (or the /api/filings.json index) may link a twin this prune removed: every such link is
+// a crawler 404. Bingbot spent 26% of its secfilingdex requests on 404s, many of them these (card
+// mv032y8ycjh0if). lib/filings.ts hasPublishedTwin() is the render-side rule; this is its mechanical check.
+const TWIN_REF = /\/api\/filing\/([0-9]{10}-[0-9]{2}-[0-9]{6})\.json/g;
+const twinExists = new Map();
+let dangling = 0, danglingFirst = '', scanned = 0;
+for (const f of after) {
+  if (!f.endsWith('.html') && f !== join(OUT, 'api', 'filings.json')) continue;
+  scanned++;
+  for (const m of readFileSync(f, 'utf8').matchAll(TWIN_REF)) {
+    if (!twinExists.has(m[1])) twinExists.set(m[1], existsSync(join(OUT, 'api', 'filing', `${m[1]}.json`)));
+    if (!twinExists.get(m[1])) { dangling++; danglingFirst ||= `${relative(OUT, f)} -> ${m[0]}`; }
+  }
+}
+console.log(`[prune-out] twin links checked   : ${scanned} files, ${twinExists.size} distinct twins referenced`);
+if (dangling) { console.error(`[prune-out] FAIL: ${dangling} links to a pruned twin (e.g. ${danglingFirst})`); bad++; }
 if (bad) process.exit(1);
-console.log('[prune-out] OK — under cap, html unchanged, 0 advertised-JSON 404s');
+console.log('[prune-out] OK — under cap, html unchanged, 0 advertised-JSON 404s, 0 links to pruned twins');

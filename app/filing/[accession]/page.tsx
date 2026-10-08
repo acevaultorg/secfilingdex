@@ -8,6 +8,7 @@ import {
   loadAllFilings,
   loadFilingByAccession,
   loadFilingsByCik,
+  hasPublishedTwin,
 } from "@/lib/filings";
 import { formTypeToSlug } from "@/lib/types";
 import { sicCodeToName } from "@/lib/sic";
@@ -137,6 +138,7 @@ export default async function FilingPage({
     },
   };
 
+  const hasTwin = hasPublishedTwin(record.accessionNumber);
   // Schema.org Dataset — for bot/LLM citation of the structured filing data
   const datasetSchema = {
     "@context": "https://schema.org",
@@ -153,11 +155,16 @@ export default async function FilingPage({
     publisher: { "@type": "Organization", name: "SecFilingDex" },
     license: "https://www.usa.gov/government-works",
     isAccessibleForFree: true,
-    distribution: {
-      "@type": "DataDownload",
-      encodingFormat: "application/json",
-      contentUrl: `${SITE_URL}/api/filing/${record.accessionNumber}.json`,
-    },
+    // Only declare the JSON twin when it is deployed (older twins are pruned for the file cap).
+    ...(hasTwin
+      ? {
+          distribution: {
+            "@type": "DataDownload",
+            encodingFormat: "application/json",
+            contentUrl: `${SITE_URL}/api/filing/${record.accessionNumber}.json`,
+          },
+        }
+      : {}),
   };
 
   return (
@@ -386,17 +393,19 @@ export default async function FilingPage({
                 EDGAR · {filerName} ({record.cik}) ↗
               </Link>
             </div>
-            <div>
-              <p className="text-body-sm text-muted mb-2">
-                Machine-readable JSON twin (LLM-citation friendly)
-              </p>
-              <Link
-                href={`/api/filing/${record.accessionNumber}.json`}
-                className="font-mono text-data-cell text-brand hover:underline break-all"
-              >
-                /api/filing/{record.accessionNumber}.json
-              </Link>
-            </div>
+            {hasTwin && (
+              <div>
+                <p className="text-body-sm text-muted mb-2">
+                  Machine-readable JSON twin (LLM-citation friendly)
+                </p>
+                <Link
+                  href={`/api/filing/${record.accessionNumber}.json`}
+                  className="font-mono text-data-cell text-brand hover:underline break-all"
+                >
+                  /api/filing/{record.accessionNumber}.json
+                </Link>
+              </div>
+            )}
           </div>
         </section>
 

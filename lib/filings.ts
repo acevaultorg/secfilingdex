@@ -53,6 +53,18 @@ export function loadAllFilings(): FilingRecord[] {
   return _cache;
 }
 
+// JSON twins exist only for the TWIN_CAP most recent filings. scripts/prune-out.mjs deletes every
+// /api/filing/<id>.json that sitemap-ai.xml does not advertise (Cloudflare Pages' 20,000-file cap), and
+// scripts/generate-sitemap-ai.mjs advertises filings.slice(0, 1000) of this same newest-first order.
+// Linking a pruned twin sent Bingbot to a 404 on every older filing page (card mv032y8ycjh0if), so pages
+// link a twin only when this says it is published; prune-out asserts no page links a missing twin.
+export const TWIN_CAP = 1000;
+let _twins: Set<string> | null = null;
+export function hasPublishedTwin(accession: string): boolean {
+  if (!_twins) _twins = new Set(loadAllFilings().slice(0, TWIN_CAP).map((f) => f.accessionNumber));
+  return _twins.has(accession);
+}
+
 export function loadFilingByAccession(accession: string): FilingRecord | null {
   const normalized = accession; // assume already-normalized canonical form
   const all = loadAllFilings();

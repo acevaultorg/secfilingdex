@@ -104,8 +104,9 @@ const FAQS: QA[] = [
     q: "Do you have an API?",
     a: (
       <>
-        Yes &mdash; every filing page has a machine-readable JSON twin at{" "}
-        <code>/api/filing/[accession].json</code>. Filer pages have JSON twins at{" "}
+        Yes &mdash; the 1,000 most recent filings each have a machine-readable JSON twin at{" "}
+        <code>/api/filing/[accession].json</code>, and <code>/api/filings.json</code> lists every
+        filing. Filer pages have JSON twins at{" "}
         <code>/api/filer/[cik].json</code>. Industry pages at{" "}
         <code>/api/industry/[sicCode].json</code>. No authentication required;
         no rate limits beyond reasonable courtesy (please don&rsquo;t crawl us

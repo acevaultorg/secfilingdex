@@ -105,14 +105,16 @@ function main(): void {
     count: filings.length,
     license: "U.S. government works are public domain (17 U.S.C. § 105). Editorial annotations CC-BY-4.0.",
     source: "SEC EDGAR",
-    filings: filings.map((r) => ({
+    // json_url only for the 1,000 most recent filings: older twins are pruned for the Pages file cap
+    // (scripts/prune-out.mjs, lib/filings.ts TWIN_CAP). A listed-but-pruned URL is a crawler 404.
+    filings: filings.map((r, i) => ({
       accession_number: r.accessionNumber,
       cik: r.cik,
       filer_name: r.filerName,
       form_type: r.formType,
       filed_at: r.filedAt,
       url: `${SITE_URL}/filing/${r.accessionNumber}/`,
-      json_url: `${SITE_URL}/api/filing/${r.accessionNumber}.json`,
+      json_url: i < 1000 ? `${SITE_URL}/api/filing/${r.accessionNumber}.json` : null,
     })),
   };
   writeFileSync(
