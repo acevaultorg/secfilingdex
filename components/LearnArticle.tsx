@@ -14,6 +14,14 @@ import {
 const SITE_URL = "https://secfilingdex.com";
 const DEFAULT_ARTICLE_DATE = "2026-05-01";
 
+function learnBreadcrumbLabel(title: string, slug: string): string {
+  // The article title is the canonical, human-facing form name (for example,
+  // "What is a 10-K filing?"). Keep the breadcrumb tied to that source so a
+  // route slug such as "10-k" cannot leak lowercase copy into the UI.
+  const filingTitle = title.match(/^What is (?:a|an) (.+?) filing\?$/i)?.[1];
+  return filingTitle ?? (title.split(":", 1)[0].trim() || slug);
+}
+
 export type LearnSection = {
   heading: string;
   body: React.ReactNode;
@@ -85,6 +93,7 @@ export function LearnArticle({
   const today = dateModified ?? DEFAULT_ARTICLE_DATE;
   const url = `${SITE_URL}/learn/${slug}/`;
   const earlyBookHref = contextualBookHref(slug);
+  const breadcrumbLabel = learnBreadcrumbLabel(title, slug);
 
   const articleSchema = {
     "@context": "https://schema.org",
@@ -147,7 +156,7 @@ export function LearnArticle({
           <Link href="/learn/" className="hover:text-text transition-colors">
             Learn
           </Link>{" "}
-          / {slug}
+          / {breadcrumbLabel}
         </p>
         <h1 className="text-display-2 mb-3">{title}</h1>
         <p className="text-body text-muted mb-2">{tldr}</p>
