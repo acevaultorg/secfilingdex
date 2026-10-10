@@ -43,10 +43,12 @@ Allow: /
 
 User-agent: Googlebot
 Allow: /
+Disallow: /go/
 
 # Standard search
 User-agent: *
 Allow: /
+Disallow: /go/
 
 Sitemap: https://secfilingdex.com/sitemap.xml
 Sitemap: https://secfilingdex.com/sitemap-ai.xml
