@@ -144,7 +144,12 @@ export default function IndustryIndex() {
             All industries · sorted by filing count
           </p>
           <div className="rounded-card-lg border border-border bg-panel/40 overflow-hidden">
-            <ul className="divide-y divide-border">
+            <ul
+              className="divide-y divide-border"
+              {...(industries.length > 12
+                ? { "data-ak-lf": "industries", "data-ak-lf-label": "industries", "data-ak-lf-phone": "8", "data-ak-lf-wide": "14", "data-ak-lf-placeholder": "Find an industry (e.g. software, banks)" }
+                : {})}
+            >
               {industries.map((ind) => (
                 <li key={ind.sic}>
                   <Link

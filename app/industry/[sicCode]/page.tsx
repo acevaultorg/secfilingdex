@@ -210,7 +210,12 @@ export default async function IndustryPage({
             Filers in this industry · {filers.length} indexed
           </p>
           <div className="rounded-card-lg border border-border bg-panel/40 overflow-hidden">
-            <ul className="divide-y divide-border">
+            <ul
+              className="divide-y divide-border"
+              {...(filers.length > 12
+                ? { "data-ak-lf": "industry-filers", "data-ak-lf-label": "filers", "data-ak-lf-phone": "8", "data-ak-lf-wide": "14", "data-ak-lf-placeholder": "Find a company or ticker" }
+                : {})}
+            >
               {filers.map((filer) => (
                 <li key={filer.cik}>
                   <Link
