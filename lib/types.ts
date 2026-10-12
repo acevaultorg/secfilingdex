@@ -36,6 +36,7 @@ export type FormType =
   | "20-F"
   | "20-F/A"
   | "6-K"
+  | "6-K/A"
   | "11-K"
   | "424B1"
   | "424B2"
@@ -196,6 +197,14 @@ export const FORM_TYPE_CATALOG: FormTypeInfo[] = [
     shortName: "Foreign event",
     definition:
       "Material disclosure filed by foreign private issuers as required by their home country.",
+    cadence: "Event-driven",
+    audience: "both",
+  },
+  {
+    code: "6-K/A",
+    shortName: "Foreign event (amended)",
+    definition:
+      "Amendment to a Form 6-K: a foreign private issuer corrects or adds to a report it already furnished.",
     cadence: "Event-driven",
     audience: "both",
   },
