@@ -14,6 +14,8 @@ export const BEACON_I_JS: string;
 export function hash32(s: string): number;
 export function utcDay(d?: Date): string;
 export function candidatesFor(pool: AkProduct[], tags?: string[]): AkProduct[];
+export function eligibleProducts(pool: AkProduct[], excludeAsins?: string[]): AkProduct[];
+export function validateExcluded(pool: AkProduct[], excludeAsins?: string[]): string[];
 export function pickProducts(pool: AkProduct[], opts?: { page?: string; tags?: string[]; day?: string; n?: number; weights?: Record<string, number> }): AkProduct[];
 export function validatePool(pool: AkProduct[]): string[];
 export function validateAdConfig(cfg: AkAdConfig): string[];

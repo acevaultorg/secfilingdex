@@ -1,4 +1,4 @@
-// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 4933818a346c), Amili Kit v1.8.2 — do not edit here; re-run sync.sh.
+// VENDORED from VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs (sha256 817709ea00ce), Amili Kit v1.16.7 — do not edit here; re-run sync.sh.
 // Amili Kit Amazon ad — @fleet/kit component (Paulo 2026-09-28, thoughts mulhnwfs777u4h / mulhp9n4orh4wp /
 // mulhpjvefhn5bn / mulhuj4lgb2vz1: "amili kit amazon affiliate template", 5 variants, carousel, Amazon's product API).
 // CANONICAL: VAULT-Fleet/tooling/fleet-kit/amazon-ad/amazon-ad.mjs. Sites carry a synced copy at kit/amazon-ad.mjs
@@ -12,7 +12,8 @@
 //     customerReviews for 48 of 48 creator-gear products (probe 2026-09-28) and exposes no Prime/delivery resource,
 //     and those figures may not come from anywhere else. There is no code path that prints them.
 //  3. With no API data (error, no tag, no JS, a bot) the card is typographic: our own short name + our own benefit
-//     line + "See it on Amazon". No image, no price. No brand logos, ever.
+//     line + "See it on Amazon". No image, no price. No brand logos, ever. The small-space
+//     "Available at Amazon" trust treatment is typeset text only; never recreate Amazon artwork.
 //  4. "Sponsored" + an info button with the affiliate disclosure on every variant. Links are the site's own
 //     /go/p gate (makeGateHandler) with rel="sponsored nofollow noopener"; the tag lives only in the Function.
 //  5. Every slot has a fixed height (no layout shift); the sticky one pads the page so it covers nothing and can be
@@ -38,8 +39,8 @@ const EMOJI = /\p{Extended_Pictographic}/u;
 export const DISCLAIMER = 'Product prices and availability are accurate as of the date/time indicated and are subject to change. Any price and availability information displayed on Amazon.com at the time of purchase will apply to the purchase of this product.';
 
 const L = {
-  en: { more: 'More', moreLabel: 'Show more products', sponsored: 'Sponsored', cta: 'See price on Amazon', ctaLive: 'View on Amazon', asOf: 'Price as of', details: 'Details', close: 'Close ad', info: 'About this ad', prev: 'Previous product', next: 'Next product', slide: 'Product' },
-  nl: { more: 'Meer', moreLabel: 'Meer producten', sponsored: 'Gesponsord', cta: 'Bekijk prijs op Amazon', ctaLive: 'Bekijk op Amazon', asOf: 'Prijs per', details: 'Details', close: 'Advertentie sluiten', info: 'Over deze advertentie', prev: 'Vorig product', next: 'Volgend product', slide: 'Product' },
+  en: { more: 'More', moreLabel: 'Show more products', sponsored: 'Sponsored', available: 'Available at Amazon', cta: 'See price on Amazon', ctaLive: 'View on Amazon', asOf: 'Price as of', details: 'Details', close: 'Close ad', info: 'About this ad', prev: 'Previous product', next: 'Next product', slide: 'Product' },
+  nl: { more: 'Meer', moreLabel: 'Meer producten', sponsored: 'Gesponsord', available: 'Available at Amazon', cta: 'Bekijk prijs op Amazon', ctaLive: 'Bekijk op Amazon', asOf: 'Prijs per', details: 'Details', close: 'Advertentie sluiten', info: 'Over deze advertentie', prev: 'Vorig product', next: 'Volgend product', slide: 'Product' },
 };
 
 const esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -56,6 +57,26 @@ export function candidatesFor(pool, tags = []) {
   const want = new Set(tags.map((t) => String(t).toLowerCase()));
   const hit = pool.filter((p) => (p.tags || []).some((t) => want.has(String(t).toLowerCase())));
   return hit.length ? hit : pool.filter((p) => !p.onlyTagged);
+}
+
+// Site pools may carry a small, explicit list of identities that are known unavailable at the current check.
+// Keep API-blind identities out of this list: an unknown is not proof of unavailability.
+export function eligibleProducts(pool, excludeAsins = []) {
+  const excluded = new Set(excludeAsins || []);
+  return (pool || []).filter((p) => p && !excluded.has(p.asin));
+}
+
+export function validateExcluded(pool, excludeAsins = []) {
+  const errs = [];
+  const known = new Set((pool || []).map((p) => p?.asin));
+  const seen = new Set();
+  for (const asin of excludeAsins || []) {
+    if (!ASIN_RE.test(asin || '')) errs.push(`bad excluded asin: ${JSON.stringify(asin)}`);
+    if (seen.has(asin)) errs.push(`duplicate excluded asin ${asin}`);
+    if (!known.has(asin)) errs.push(`excluded asin ${asin} is not in the pool`);
+    seen.add(asin);
+  }
+  return errs;
 }
 
 export function pickProducts(pool, { page = '', tags = [], day = utcDay(), n = 1, weights = {} } = {}) {
@@ -176,13 +197,21 @@ export function makeGateHandler({ tag, allow, host = 'www.amazon.com', requireGe
     const home = () => Response.redirect(url.origin + '/', 302);
     const mode = request.headers.get('sec-fetch-mode');
     const site = request.headers.get('sec-fetch-site');
-    if (mode !== 'navigate' || (site !== 'same-origin' && site !== 'same-site')) return home();
+    // SAFARI / iOS FIX 2026-10-12 (card mv5060keqxv8w2): WebKit sends Sec-Fetch-Site: none (+ Dest: document) for a link
+    // opened in a new tab/window — every target=_blank buy link and every iPhone tap — so requiring same-origin bounced
+    // every Safari/iOS click home on every enrolled site (Playwright WebKit, live, 2026-10-12: 16 of 16 sites). WebKit
+    // does send the Lax cc_g cookie on that navigation (measured locally). So `none` is accepted only for a top-level
+    // document navigation AND only with a fresh gesture cookie, even on a GESTURE_EXEMPT site: a harvested href fetched
+    // or opened by a crawler carries no cookie and still goes home.
+    const strong = site === 'same-origin' || site === 'same-site';
+    const weak = site === 'none' && request.headers.get('sec-fetch-dest') === 'document';
+    if (mode !== 'navigate' || !(strong || weak)) return home();
     // GESTURE COOKIE (Kit 3, tooling/fleet-kit/gesture-gate; fleet card mulpb75brknoih, 2026-09-28): Sec-Fetch-* alone is
     // a header any HTTP client can set (affiliate-gate-probe.sh opened this gate with it). AD_HEAD_JS mints cc_g on a
     // trusted click on a /go/ link; without a fresh one (<10 min) the click bounces home. Same check as gesture-gate.mjs.
     const g = (request.headers.get('cookie') || '').match(/(?:^|;\s*)cc_g=([0-9a-z]{6,12})(?:;|$)/);
     const gt = g ? parseInt(g[1], 36) : NaN, now = Date.now();
-    if (requireGesture && !(Number.isFinite(gt) && gt <= now + 60000 && now - gt < 600000)) return home();
+    if ((requireGesture || weak) && !(Number.isFinite(gt) && gt <= now + 60000 && now - gt < 600000)) return home();
     const a = (url.searchParams.get('a') || '').toUpperCase();
     if (!tag || !ASIN_RE.test(a) || !allowed.has(a)) return home();
     return new Response(null, { status: 302, headers: { Location: `https://${host}/dp/${a}/?tag=${encodeURIComponent(tag)}&linkCode=ogi&th=1&psc=1`, 'cache-control': 'no-store', 'x-robots-tag': 'noindex, nofollow' } });
@@ -256,7 +285,7 @@ export function renderBillboard(cfg) {
   return `<aside class="ak-ad ak-on ak-bill ak-bill-${at}${nav ? ' ak-bb-var' : ''}" data-v="bb" data-fixed="1" data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}" data-spare="" aria-label="${esc(label)}">`
     + `<div class="ak-bill-in">${at === 'mid' ? `<p class="ak-bill-lab">${esc(label)}</p>` : ''}`
     + `<div class="ak-bb-stage">${nav}<ul class="ak-ad-track" role="list">${list.map(card).join('')}</ul></div>`
-    + `<div class="ak-ad-foot">${at === 'top' ? `<span class="ak-bill-lab">${esc(label)}</span>` : ''}${nav ? '<span class="ak-bb-count" aria-live="polite"></span>' : ''}<p class="ak-ad-asof" data-ak-asof hidden>${esc(t.asOf)} <time></time></p>`
+    + `<div class="ak-ad-foot">${at === 'top' ? `<span class="ak-bill-lab">${esc(label)}</span>` : ''}${nav ? '<span class="ak-bb-count" aria-live="polite"></span>' : ''}<span class="ak-ad-asof ak-ad-available" data-ak-trust="available">${esc(t.available)}</span><p class="ak-ad-asof" data-ak-asof hidden>${esc(t.asOf)} <time></time></p>`
     + `<details class="ak-ad-info"><summary aria-label="${esc(t.info)}">${INFO_SVG}</summary><div class="ak-ad-pop"><p>${esc(cfg.disclosure)}</p><p class="ak-ad-disc" data-ak-disc hidden>${esc(DISCLAIMER)}</p></div></details></div>`
     + `</div></aside>`;
 }
@@ -286,7 +315,7 @@ export const BILLBOARD_CSS = `.ak-bill .ak-ad-img{position:relative}.ak-bill .ak
 .ak-bill-in{max-width:970px;margin:0 auto;position:relative}
 .ak-bb-stage{position:relative;min-width:0;overflow:hidden}
 .ak-bb-rowh,.ak-bb-nav,.ak-bb-count{display:none}
-html:not([data-akbb=b]):not([data-akbb=c]) .ak-bb-var .ak-ad-card:not(:first-child){display:none}
+html:not([data-akbb=b]):not([data-akbb=c]) .ak-bb-var .ak-ad-card:not(.ak-gone)~.ak-ad-card{display:none}
 html[data-akbb=b] .ak-bb-var .ak-ad-track,html[data-akbb=c] .ak-bb-var .ak-ad-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain}
 html[data-akbb=b] .ak-bb-var .ak-ad-track::-webkit-scrollbar,html[data-akbb=c] .ak-bb-var .ak-ad-track::-webkit-scrollbar{display:none}
 html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 100%;scroll-snap-align:start}
@@ -312,8 +341,10 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{display:block;line-height:22px}
 html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-track{display:block;overflow:visible}
 .ak-bill .ak-ad-link{display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px;align-items:center;height:250px;padding:0 32px 0 0;border-radius:4px;border:1px solid var(--ak-ad-line);background:var(--ak-ad-bg)}
-.ak-bill .ak-ad-img{display:flex;width:300px;height:248px;border-radius:3px 0 0 3px;background:#f7f7f7}
-.ak-bill .has-img .ak-ad-img{background:#fff}
+/* The image area is part of the card, not a separate placeholder tile. In particular, a fixed
+   light slate here looks like a missing image on dark sites. */
+.ak-bill .ak-ad-img{display:flex;width:300px;height:248px;border-radius:3px 0 0 3px;background:var(--ak-ad-bg)}
+.ak-bill .has-img .ak-ad-img{background:var(--ak-ad-bg)}
 .ak-bill .ak-ad-img img{padding:14px}
 .ak-bill-ph{padding:18px;font:600 20px/1.25 Georgia,"Times New Roman",serif;color:var(--ak-ad-muted);text-align:center}
 .ak-bill .has-img .ak-bill-ph{display:none}
@@ -328,6 +359,8 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill .ak-ad-foot{height:30px;justify-content:space-between}
 .ak-bill-lab{font:600 11px/1 system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;text-transform:uppercase;color:#727272}
 .ak-bill-top{padding:14px 16px 0;height:300px;border-bottom:1px solid #e2e2e2}
+/* 1.9.2: a top band placed inside main (static homepage, after the intro) breathes: it no longer touches the next paragraph. */
+main .ak-bill-top{margin:18px 0 24px;border-bottom:0;border-radius:6px}
 .ak-bill-midwrap{padding:0 16px;clear:both}
 .ak-bill-mid{--ak-bill-band:transparent;margin:40px auto;padding:0;height:302px;max-width:970px}
 .ak-bill-mid .ak-bill-lab{display:block;text-align:center;margin:0 0 10px}
@@ -358,20 +391,27 @@ html[data-akbb=c] .ak-bb-var .ak-ad-price{font-size:19px;height:22px}
 .ak-bill-top .ak-bill-lab{order:1;flex:1 1 70%;line-height:20px}.ak-bill-top .ak-bb-count{order:3;flex:0 0 auto;line-height:18px}.ak-bill-top .ak-ad-info{order:2}.ak-bill-top .ak-ad-info summary{min-height:24px}
 .ak-bill-top .ak-ad-asof{order:4;flex:1 1 auto;line-height:18px;overflow:visible}
 .ak-bill-mid{height:382px;margin:28px auto}
-html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 10px)/2)}
+/* Layout C is deliberately four-up at every viewport. On phones the cards become narrow
+   compact tiles; keeping four in the viewport is the point of this layout, and the fixed
+   band height below prevents it from pushing the page's first content below the fold. */
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 30px)/4)}
 html[data-akbb=c] .ak-bb-var .ak-bb-rowh{font-size:15px;height:24px;line-height:24px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-link{height:158px;padding:6px;gap:2px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:62px}
-html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:30px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-link{grid-template-columns:1fr;grid-template-rows:52px 1fr;height:142px;padding:5px;gap:2px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:52px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-brand{display:none}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-price{font-size:17px;height:20px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-buy{left:5px;right:5px;bottom:5px}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bb-nav{top:39px}
-html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:300px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{grid-template-columns:1fr;grid-template-rows:100px 1fr;height:216px;padding:5px;gap:2px}
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-nav{top:101px}
-html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:170px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:100px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bill-line .ak-ad-brand{display:none}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ak-bb-prev{left:6px}.ak-bb-next{right:6px}
 .ak-ad.ak-on.ak-bill-nophone{display:none}}
 /* 1.4.3 (card muvm2ypj1hik2l): arrows never cover a title, price or photo. Wide screens: outside the card, in the grey band.
-   Phones: no arrows; the next product peeks in from the right (B) / a third tile peeks (C) and the track swipes. */
+   Phones: no arrows; B keeps a swipeable peek while C shows four compact tiles and the track swipes. */
 @media (min-width:68rem){html[data-akbb] .ak-bill-top .ak-bb-stage{overflow:visible}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-prev{left:-58px}html[data-akbb] .ak-bill-top.ak-bb-var .ak-bb-next{right:-58px}}
 /* mid sits on the page's own background (dark on dark sites): its row heading and counter use the band label grey (#727272, readable on white and on dark) */
 html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bb-rowh,html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bb-count{color:#727272}
@@ -385,12 +425,23 @@ html[data-akbb] .ak-bill-mid.ak-bb-var .ak-bill-lab,html[data-akbb] .ak-bill-mid
 @media (min-width:48rem) and (max-width:67.99rem){html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-ad-link{padding-right:64px}}
 @media (max-width:47.99rem){html[data-akbb] .ak-bb-var .ak-bb-nav{display:none!important}
 html[data-akbb=b] .ak-bb-var .ak-ad-track{gap:8px}html[data-akbb=b] .ak-bb-var .ak-ad-card{flex:0 0 88%}
-html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 20px)/2.3)}
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 30px)/4)}
 html[data-akbb=b] .ak-bill-top.ak-bb-var .ak-bill-h{font-size:15px;line-height:1.2;letter-spacing:-.02em;height:2.4em;max-height:2.4em;-webkit-line-clamp:2}
 html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal}
 html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title{font-size:12px;line-height:15px;height:15px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal}
 html[data-akbb=c] .ak-bb-var .ak-bill-buy{height:20px;min-height:20px;line-height:20px;flex-basis:20px}
-html[data-akbb=c] .ak-bb-var .ak-bill-buy .ak-ad-price{line-height:20px}}
+html[data-akbb=c] .ak-bb-var .ak-bill-buy .ak-ad-price{line-height:20px}
+/* 1.9.0 phones (Paulo 2026-10-11): layout C is a swipe row of ~2.4 readable tiles, not four squeezed ones: two-line names,
+   no red deal badge (it truncated to "Limite..."), a taller photo box. */
+html[data-akbb=c] .ak-bb-var .ak-ad-card{flex:0 0 calc((100% - 10px)/2.4)}
+html[data-akbb=c] .ak-bb-var .ak-deal{display:none}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-link{grid-template-rows:84px 1fr;height:168px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-ad-img{height:84px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-link{height:236px;grid-template-rows:110px 1fr}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-ad-img{height:110px}
+html[data-akbb=c] .ak-bill-top.ak-bb-var .ak-bill-line .ak-ad-title,html[data-akbb=c] .ak-bill-mid.ak-bb-var .ak-bill-line .ak-ad-title,html[data-akbb=c] .ak-bb-var .ak-bill-line .ak-ad-title{font-size:12.5px;line-height:16px;height:32px;white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-overflow:clip}
+html[data-akbb=c] .ak-bill-top.ak-bb-var{height:268px}
+html[data-akbb=c] .ak-bill-mid.ak-bb-var{height:auto}}
 `;
 
 export function validateAdConfig(cfg) {
@@ -429,7 +480,7 @@ export function renderAd(cfg) {
   // cfg.fixed: show products in the given order (the page's own items, best first) instead of the daily rotation.
   return `<aside class="ak-ad ak-ad-${v}${v === 'v2' ? ' ak-ad-v5' : ''}${cfg.on ? ' ak-on' : ''}${cfg.duo ? ' ak-duo' : ''}" data-v="${v}"${cfg.fixed ? ' data-fixed="1"' : ''} data-api="${esc(cfg.api || '/amz/items')}" data-page="${esc(cfg.page || '')}"${w ? ` data-w="${w}"` : ''} data-spare="${spare.join(',')}"${sp ? ` data-sp="${esc(sp)}"` : ''}${carousel ? ' data-carousel="1"' : ''} aria-label="${esc(t.sponsored)}">`
     + `<div class="ak-ad-in"><p class="ak-ad-promo" data-ak-promo hidden></p>${close}${v === 'v6' ? `<div class="ak-ad-hd"><p class="ak-ad-h">${esc(cfg.heading)}</p><button type="button" class="ak-ad-more" data-ak-more aria-label="${esc(t.moreLabel)}" hidden>${esc(t.more)}<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" focusable="false"><path d="M6 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>` : ''}<ul class="ak-ad-track" role="list">${shown.map((p, i) => card(p, i, cfg, t)).join('')}</ul>`
-    + `<div class="ak-ad-foot">${dots}${asOf}${info}</div></div></aside>`;
+    + `<div class="ak-ad-foot">${dots}<span class="ak-ad-asof ak-ad-available" data-ak-trust="available">${esc(t.available)}</span>${asOf}${info}</div></div></aside>`;
 }
 
 // All five slots for one page, keyed by placement, so a site drops each at its own spot:
@@ -460,8 +511,12 @@ export const RANK_JS = `function ak_h(s){var h=0x811c9dc5;for(var i=0;i<s.length
 // Amazon link also carries i=<ASIN>, whichever script sends it (this kit's pages or the site's own amazon-track code).
 // A window capture listener runs before any document-level tracker and remembers the ASIN of the clicked link; the
 // sendBeacon wrapper appends &i= to a fleet /c URL sent during that same click. The ASIN is parsed, never guessed:
-// /go/...?a=ASIN, /go/b/ISBN10, /go/p/ASIN, /dp/ASIN, /gp/product/ASIN (also inside a u= param). No match: no i=.
-export const ASIN_OF_JS = String.raw`function ak_asin(h){try{var u=new URL(h,location.href),c=[u.pathname],q=u.searchParams.get('u'),a=u.searchParams.get('a');if(u.pathname.indexOf('/go/')===0&&a&&/^[A-Z0-9]{10}$/.test(a))return a;if(q){try{c.push(new URL(q).pathname)}catch(e){}}for(var i=0;i<c.length;i++){var m=/\/(?:go\/b|go\/p|dp|gp\/product)\/([A-Z0-9]{10})(?:\/|$)/.exec(c[i]);if(m)return m[1]}}catch(e){}return ''}`;
+// Local product routes are /go/p?a=ASIN, /go/amzad?a=ASIN, /go/p/ASIN, /go/b/ISBN10,
+// and /go/a?u=<Amazon product URL>. Direct product paths are accepted only on the two
+// canonical US/GB/CA marketplace hosts declared by the country component. No match: no i=.
+export const ASIN_OF_JS = String.raw`function ak_amazon_host(h){return /^(?:www\.)?amazon\.(?:com|co\.uk|ca)$/.test(h)}
+function ak_amazon_product(h){try{var u=new URL(h),m=/^\/(?:dp|gp\/product)\/([A-Z0-9]{10})\/?$/.exec(u.pathname);return u.protocol==='https:'&&!u.port&&!u.username&&!u.password&&ak_amazon_host(u.hostname)&&m?m[1]:''}catch(e){return ''}}
+function ak_asin(h){try{var b=new URL(location.href),u=new URL(h,b),p=u.pathname,a=u.searchParams.get('a'),q=u.searchParams.get('u');if(u.origin===b.origin&&!u.username&&!u.password){if((p==='/go/p'||p==='/go/amzad')&&u.searchParams.getAll('a').length===1&&/^[A-Z0-9]{10}$/.test(a||''))return a;var m=/^\/go\/(?:p|b)\/([A-Z0-9]{10})\/?$/.exec(p);if(m)return m[1];return p==='/go/a'&&u.searchParams.getAll('u').length===1&&q?ak_amazon_product(q):''}return ak_amazon_product(h)}catch(e){}return ''}`;
 export const BEACON_I_JS = '(function(){if(window.__akI)return;window.__akI=1;' + ASIN_OF_JS + String.raw`var cur='';function pick(e){var a=e.target&&e.target.closest&&e.target.closest('a[href]');cur=a?ak_asin(a.getAttribute('href')):'';if(cur)setTimeout(function(){cur=''},0)}
 window.addEventListener('click',pick,true);window.addEventListener('auxclick',function(e){if(e.button===1)pick(e)},true);
 var n=navigator,sb=n.sendBeacon;if(!sb)return;n.sendBeacon=function(u,d){try{if(cur&&typeof u==='string'&&/^https:\/\/fleet\.promptprio\.com\/c\?/.test(u)&&!/[?&]i=/.test(u))u+='&i='+cur}catch(x){}return sb.call(n,u,d)}})();`;
@@ -681,6 +736,7 @@ html[data-akv=v1] .ak-ad-v1,html[data-akv=v2] .ak-ad-v2,html[data-akv=v3] .ak-ad
 .ak-ad-v1:not(.ak-duo) .ak-ad-title{height:2.5em;line-height:1.25}
 .ak-ad-v1:not(.ak-duo) .ak-ad-why,.ak-ad-v1:not(.ak-duo) .ak-ad-price{height:22px;line-height:22px;-webkit-line-clamp:1}
 .ak-ad-v1.ak-duo .ak-ad-title{height:2.5em}
+@media (max-width:26.24rem){.ak-ad-v1:not(.ak-duo){height:calc(var(--ak-ad-h1,150px) + 24px)}.ak-ad-v1:not(.ak-duo) .ak-ad-foot{height:60px;flex-wrap:wrap;align-content:center;row-gap:0}}
 .ak-ad-v1.ak-duo .ak-ad-price{height:20px}
 .ak-ad[hidden],.ak-ad [hidden]{display:none!important}
 .ak-duo.ak-one .ak-ad-link{flex-direction:row;align-items:center}
@@ -743,6 +799,7 @@ html[data-akv=v2] body{padding-bottom:calc(var(--ak-ad-h2,76px) + env(safe-area-
 .ak-ad-v6 .ak-ad-card:not(.has-img) .ak-ad-why{order:3;-webkit-line-clamp:4}
 .ak-ad-v6 .ak-ad-card:not(.has-img) .ak-ad-cta{order:4;margin-top:8px}
 @media (min-width:48rem){.ak-ad-v6 .ak-ad-img{height:170px}.ak-ad-v6 .ak-ad-link{height:244px}.ak-ad-v6{height:var(--ak-ad-h6d,328px)}}
+@media (max-width:24.3rem){.ak-ad-v6{height:calc(var(--ak-ad-h6,308px) + 24px)}.ak-ad-v6 .ak-ad-foot{height:60px;flex-wrap:wrap;align-content:center;row-gap:0}}
 .ak-ad-v2{position:fixed;margin:0;left:0;right:0;bottom:0;z-index:40;background:var(--ak-ad-page,#f3f3f3);padding:6px 12px env(safe-area-inset-bottom);height:calc(var(--ak-ad-h2,76px) + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.22)}
 .ak-ad-v2 .ak-ad-in{padding-right:96px}
 .ak-ad-v2 .ak-ad-link{height:48px;padding:4px}

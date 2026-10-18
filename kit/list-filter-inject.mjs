@@ -4,6 +4,8 @@
 //
 //   node kit/list-filter-inject.mjs out            (run after the build, before the upload; idempotent)
 //
+// ⚠ This rewrite mode is for pages that are NOT hydrated by React (static HTML sites). On a Next/React page a build-time
+// rewrite is discarded at hydration (#418): use prepareFilter() in the template and `--assets` below.
 // The template marks the list element and, optionally, each item:
 //   <ul data-ak-lf="games" data-ak-lf-label="games" data-ak-lf-phone="8" data-ak-lf-wide="16"
 //       data-ak-lf-placeholder="Find a game" data-ak-lf-facets="Players,Weight">         <- the list (ul, ol, div, section, table)
@@ -12,6 +14,7 @@
 // Every item stays in the HTML. The page gets the (small) CSS and the script once.
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { renderFilterFold, listFilterCss, LIST_FILTER_JS } from './list-filter.mjs';
 
@@ -134,9 +137,36 @@ function walk(dir, files = []) {
   return files;
 }
 
+// --assets mode, for React/Next sites (the template renders the list with prepareFilter(); see list-filter.mjs):
+// nothing in the HTML is rewritten. The kit CSS and script go to hashed files in outDir and every page links them
+// (every page, so a list reached by soft navigation is wired too). Counts = the fold counts the site's lists use.
+export function injectAssetsHtml(html, cssHref, jsHref) {
+  if (html.includes('data-ak-lf-asset')) return html;
+  html = html.replace(/<\/head>/i, `<link rel="stylesheet" href="${cssHref}" data-ak-lf-asset></head>`);
+  return html.replace(/<\/body>/i, `<script defer src="${jsHref}" data-ak-lf-asset></script></body>`);
+}
+export function collectCounts(html, counts = new Set()) {
+  if (!/class="ak-lf[ "]/.test(html)) return counts;
+  for (const m of html.matchAll(/class="ak-lf[ "][^>]*?data-p="(\d+)"[^>]*?data-w="(\d+)"/g)) { counts.add(+m[1]); counts.add(+m[2]); }
+  return counts;
+}
+
 if (process.argv[1] && fileURLToPath(import.meta.url) === path.resolve(process.argv[1])) {
   const dir = process.argv[2];
   if (!dir || !fs.existsSync(dir)) { console.error('usage: node list-filter-inject.mjs <outDir>'); process.exit(2); }
+  if (process.argv.includes('--assets')) {
+    const files = walk(dir); const counts = new Set(); const hit = [];
+    for (const f of files) { const h = fs.readFileSync(f, 'utf8'); if (h.includes('class="ak-lf')) { collectCounts(h, counts); hit.push(f); } }
+    if (!hit.length) { console.log('list-filter-inject --assets: no kit lists on any page; nothing to do'); process.exit(0); }
+    const css = listFilterCss([...counts].sort((a, b) => a - b));
+    const hash = (x) => crypto.createHash('sha1').update(x).digest('hex').slice(0, 8);
+    const cssName = `/kit-list-filter.${hash(css)}.css`, jsName = `/kit-list-filter.${hash(LIST_FILTER_JS)}.js`;
+    fs.writeFileSync(path.join(dir, cssName), css); fs.writeFileSync(path.join(dir, jsName), LIST_FILTER_JS);
+    let n = 0;
+    for (const f of files) { const h = fs.readFileSync(f, 'utf8'); const r = injectAssetsHtml(h, cssName, jsName); if (r !== h) { fs.writeFileSync(f, r); n++; } }
+    console.log(`list-filter-inject --assets: ${hit.length} page(s) with lists (fold counts ${[...counts].join(',')}), assets linked on ${n} page(s)`);
+    process.exit(0);
+  }
   let pages = 0, lists = 0;
   for (const f of walk(dir)) {
     const h = fs.readFileSync(f, 'utf8');

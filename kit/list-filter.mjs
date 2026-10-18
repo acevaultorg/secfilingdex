@@ -1,4 +1,4 @@
-// VENDORED Amili Kit v1.13.0 (list-filter.mjs sha256 04a44cdd5f5a) from VAULT-Fleet/tooling/fleet-kit/list-filter/list-filter.mjs — do not edit here; re-run sync.sh.
+// VENDORED Amili Kit v1.16.7 (list-filter.mjs sha256 6b3f032e857f) from VAULT-Fleet/tooling/fleet-kit/list-filter/list-filter.mjs — do not edit here; re-run sync.sh.
 // Amili Kit: list-filter — a long list becomes a filter bar (text search + a few facet chips) over a list folded to one
 // phone screen with "Show all N". Every item stays in the HTML (SEO, no-JS, print). Paulo 2026-10-12 (card mv4zvbdfnnb44i,
 // "one massive compare list without filters"; espressospecdb /compare/ finder is the reference, rule #66 ONE SCREEN PER SECTION).
@@ -31,6 +31,26 @@ function tagFirst(html, attrs) {
   return String(html).replace(/^(\s*<[a-zA-Z][a-zA-Z0-9]*)/, `$1 ${attrs}`);
 }
 
+function buildFacets(items, defs) {
+  return (defs || []).map((fc) => {
+    const counts = new Map();
+    for (const it of items) { const v = it.f && it.f[fc.key]; if (v != null && v !== '') counts.set(String(v), (counts.get(String(v)) || 0) + 1); }
+    let vals = fc.values ? fc.values.filter((v) => counts.has(String(v))).map(String) : [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([v]) => v);
+    vals = vals.slice(0, Math.max(2, +fc.max || 6));
+    return { key: fc.key, label: fc.label || fc.key, vals, counts };
+  }).filter((fc) => fc.vals.length >= 2);
+}
+function barMarkup(id, ph, listId, facets) {
+  const chips = facets.map((fc) => `<div class="ak-lf-facet" role="group" aria-label="${esc(fc.label)}" data-k="${esc(fc.key)}"><span class="ak-lf-fl">${esc(fc.label)}</span>`
+    + fc.vals.map((v) => `<button type="button" class="ak-lf-chip" data-v="${esc(fkey(fc.key, v))}" aria-pressed="false">${esc(v)}</button>`).join('') + '</div>').join('');
+  return `<div class="ak-lf-bar"><input type="search" class="ak-lf-q" id="ak-lf-${id}-q" autocomplete="off" enterkeyhint="search" placeholder="${ph}" aria-label="${ph}" aria-controls="${listId}">${chips}</div>`;
+}
+function itemAttrs(it, facets) {
+  const q = normQ(it.q != null ? it.q : plain(it.html));
+  const f = Object.entries(it.f || {}).filter(([k]) => facets.some((fc) => fc.key === k)).map(([k, v]) => fkey(k, v)).join(' ');
+  return f ? { 'data-q': q, 'data-f': f } : { 'data-q': q };
+}
+
 export function renderFilterFold(o = {}) {
   if (!/^[a-z][a-z0-9-]*$/.test(o.id || '')) throw new Error('Amili Kit list-filter: id (lowercase, a-z0-9-) is required');
   const tag = /^[a-z][a-z0-9]*$/.test(o.tag || '') ? o.tag : 'ul';
@@ -42,17 +62,9 @@ export function renderFilterFold(o = {}) {
   const n = items.length;
   const phone = Math.max(1, +o.phone || 6), wide = Math.max(phone, +o.wide || 12);
   const what = o.label ? ' ' + esc(o.label) : '';
-  const facets = (o.facets || []).map((fc) => {
-    const counts = new Map();
-    for (const it of items) { const v = it.f && it.f[fc.key]; if (v != null && v !== '') counts.set(String(v), (counts.get(String(v)) || 0) + 1); }
-    let vals = fc.values ? fc.values.filter((v) => counts.has(String(v))).map(String) : [...counts.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)).map(([v]) => v);
-    vals = vals.slice(0, Math.max(2, +fc.max || 6));
-    return { key: fc.key, label: fc.label || fc.key, vals, counts };
-  }).filter((fc) => fc.vals.length >= 2);
+  const facets = buildFacets(items, o.facets);
   const body = items.map((it) => {
-    const q = normQ(it.q != null ? it.q : plain(it.html));
-    const f = Object.entries(it.f || {}).filter(([k]) => facets.some((fc) => fc.key === k)).map(([k, v]) => fkey(k, v)).join(' ');
-    const attrs = `data-q="${esc(q)}"${f ? ` data-f="${esc(f)}"` : ''}`;
+    const attrs = Object.entries(itemAttrs(it, facets)).map(([k, v]) => `${k}="${esc(v)}"`).join(' ');
     if (raw) return tagFirst(it.html, attrs);
     return `<${li} class="ak-lf-it" ${attrs}>${it.html}</${li}>`;
   });
@@ -62,15 +74,42 @@ export function renderFilterFold(o = {}) {
   const list = isTable
     ? `<div class="ak-lf-twrap${o.tableWrap ? ' ' + esc(o.tableWrap) : ''}"><table class="ak-lf-tbl${cls}" id="${listId}"${listAttrs}><thead>${o.head || ''}</thead><tbody>${body.join('')}</tbody></table></div>`
     : `<${tag} class="ak-lf-flist${cls}" id="${listId}"${listAttrs}>${body.join('')}</${tag}>`;
-  const chips = facets.map((fc) => `<div class="ak-lf-facet" role="group" aria-label="${esc(fc.label)}" data-k="${esc(fc.key)}"><span class="ak-lf-fl">${esc(fc.label)}</span>`
-    + fc.vals.map((v) => `<button type="button" class="ak-lf-chip" data-v="${esc(fkey(fc.key, v))}" aria-pressed="false">${esc(v)}</button>`).join('') + '</div>').join('');
-  const bar = n > 1 && o.filter !== false ? `<div class="ak-lf-bar"><input type="search" class="ak-lf-q" id="ak-lf-${o.id}-q" autocomplete="off" enterkeyhint="search" placeholder="${esc(o.placeholder || 'Filter' + (o.label ? ' ' + o.label : ''))}" aria-label="${esc(o.placeholder || 'Filter' + (o.label ? ' ' + o.label : ''))}" aria-controls="${listId}">${chips}</div>`
+  const bar = n > 1 && o.filter !== false ? barMarkup(o.id, esc(o.placeholder || 'Filter' + (o.label ? ' ' + o.label : '')), listId, facets)
     + `<p class="ak-lf-status" role="status" aria-live="polite" hidden></p>` : '';
   const cb = foldOn ? `<input type="checkbox" class="ak-lf-cb" id="ak-lf-${o.id}-cb" aria-controls="${listId}">` : '';
   const btn = foldOn ? `<label class="ak-lf-btn${n <= wide ? ' ak-lf-ponly' : ''}" for="ak-lf-${o.id}-cb"><span class="ak-lf-more">Show all ${n}${what}</span><span class="ak-lf-less">Show less</span></label>` : '';
   const none = `<p class="ak-lf-none" hidden>No${what || ' items'} match. <button type="button" class="ak-lf-reset">Clear the filter</button></p>`;
   const foldAttrs = foldOn ? ` style="--ak-lf-p:${phone};--ak-lf-w:${wide}" data-p="${phone}" data-w="${wide}"` : '';
   return `<div class="ak-lf${foldOn ? '' : ' ak-lf-nofold'}" id="ak-lf-${o.id}" data-total="${n}" data-label="${esc(o.label || 'items')}"${foldAttrs}>${bar}${none}${cb}${list}${btn}</div>`;
+}
+
+// ---- React / Next sites: the template renders the parts itself (no HTML rewriting after the build) -------------------
+// A hydrated page must not be rewritten by a build step (React discards what it did not render, #418). So the template
+// calls prepareFilter() and renders: <div {...wrap}> <div dangerouslySetInnerHTML={{__html: barHtml}}/> <input {...cb}/>
+// <ul {...list}>{items.map((x, i) => <li {...item[i]}>…</li>)}</ul> <label {...btn}><span className="ak-lf-more">{more}</span>
+// <span className="ak-lf-less">Show less</span></label> </div>. barHtml is the same string on server and client, so it
+// hydrates cleanly; the script only adds listeners / [hidden] after hydration. Put list.className after your own classes.
+export function prepareFilter(o = {}) {
+  if (!/^[a-z][a-z0-9-]*$/.test(o.id || '')) throw new Error('Amili Kit list-filter: id (lowercase, a-z0-9-) is required');
+  const items = o.items || [];
+  const n = items.length;
+  const phone = Math.max(1, +o.phone || 6), wide = Math.max(phone, +o.wide || 12);
+  const what = o.label ? ' ' + esc(o.label) : '';
+  const facets = buildFacets(items, o.facets);
+  const foldOn = n > phone;
+  const ph = esc(o.placeholder || 'Filter' + (o.label ? ' ' + o.label : ''));
+  const barHtml = (n > 1 && o.filter !== false ? barMarkup(o.id, ph, `ak-lf-${o.id}-list`, facets) + '<p class="ak-lf-status" role="status" aria-live="polite" hidden></p>' : '')
+    + `<p class="ak-lf-none" hidden>No${what || ' items'} match. <button type="button" class="ak-lf-reset">Clear the filter</button></p>`;
+  return {
+    foldOn, total: n,
+    wrap: { className: 'ak-lf' + (foldOn ? '' : ' ak-lf-nofold'), id: `ak-lf-${o.id}`, 'data-total': String(n), 'data-label': o.label || 'items', ...(foldOn ? { 'data-p': String(phone), 'data-w': String(wide) } : {}) },
+    barHtml,
+    cb: { type: 'checkbox', className: 'ak-lf-cb', id: `ak-lf-${o.id}-cb`, 'aria-controls': `ak-lf-${o.id}-list` },
+    list: { className: 'ak-lf-flist', id: `ak-lf-${o.id}-list` },
+    btn: { className: 'ak-lf-btn' + (n <= wide ? ' ak-lf-ponly' : ''), htmlFor: `ak-lf-${o.id}-cb` },
+    more: `Show all ${n}${o.label ? ' ' + o.label : ''}`,
+    item: items.map((it) => itemAttrs(it, facets)),
+  };
 }
 
 const N = Array.from({ length: 30 }, (_, i) => i + 1);
@@ -110,6 +149,8 @@ ${ns.map((k) => `@media (min-width:641px){.ak-lf[data-w="${k}"] .ak-lf-cb:not(:c
 export const LIST_FILTER_CSS = listFilterCss(N);
 
 // Plain ES5: runs in the page. One pass per .ak-lf; the fold stays CSS, the filter only toggles [hidden].
+// On a Next/React page it waits until React has hydrated (a write earlier is a #418 mismatch that discards it) and keeps
+// watching, so a list that arrives by soft navigation is wired too.
 export const LIST_FILTER_JS = `(function(){function norm(s){s=String(s||"").toLowerCase();try{s=s.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"")}catch(e){}return s.replace(/[^a-z0-9]+/g," ").trim()}
 function init(w){var q=w.querySelector(".ak-lf-q");if(!q||w.getAttribute("data-lf"))return;w.setAttribute("data-lf","1");var list=w.querySelector(".ak-lf-flist")||w.querySelector(".ak-lf-tbl>tbody");if(!list)return;
 var rows=[].slice.call(list.children),cb=w.querySelector(".ak-lf-cb"),st=w.querySelector(".ak-lf-status"),none=w.querySelector(".ak-lf-none"),chips=[].slice.call(w.querySelectorAll(".ak-lf-chip")),total=rows.length,label=w.getAttribute("data-label")||"items",was=null;
@@ -127,6 +168,11 @@ q.addEventListener("input",run);q.addEventListener("search",run);
 chips.forEach(function(c){c.addEventListener("click",function(){var p=c.getAttribute("aria-pressed")==="true";if(!p){[].slice.call(c.parentNode.querySelectorAll(".ak-lf-chip")).forEach(function(o){o.setAttribute("aria-pressed","false")})}c.setAttribute("aria-pressed",p?"false":"true");run()})});
 var rs=w.querySelector(".ak-lf-reset");if(rs)rs.addEventListener("click",function(){q.value="";chips.forEach(function(c){c.setAttribute("aria-pressed","false")});run();q.focus()})}
 function all(){[].slice.call(document.querySelectorAll(".ak-lf")).forEach(init)}
-if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",all);else all()})();`;
+function nx(){return !!document.querySelector('script[src*="/_next/"]')}
+function hy(){var m=document.querySelector("main");if(!m)return !nx();for(var k in m){if(k.indexOf("__reactFiber")===0)return true}return !nx()}
+function when(cb,n){n=n||0;if(!nx()){cb();return}if(hy()||n>50){(typeof requestIdleCallback==="function"?requestIdleCallback:setTimeout)(cb)}else setTimeout(function(){when(cb,n+1)},100)}
+var pend=false;function again(){if(pend)return;pend=true;when(function(){pend=false;all()})}
+function start(){when(all);if(typeof MutationObserver==="function"&&document.body&&!document.__akLfObs){document.__akLfObs=1;new MutationObserver(function(ms){for(var i=0;i<ms.length;i++){if(ms[i].addedNodes&&ms[i].addedNodes.length){again();return}}}).observe(document.body,{childList:true,subtree:true})}}
+if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",start);else start()})();`;
 
 export default { name: 'list-filter', title: 'List filter (text search + facet chips over a list folded to one phone screen)', render: renderFilterFold, css: LIST_FILTER_CSS, js: LIST_FILTER_JS };
