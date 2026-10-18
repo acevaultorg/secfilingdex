@@ -20,7 +20,11 @@ const SITE_URL = "https://secfilingdex.com";
 // Home was the one route in the app with no self-canonical (every other page sets
 // `alternates.canonical`), so the trailing-slash + query-string variants of the root had
 // no declared preferred URL. Title/description stay inherited from the root layout.
+// Description trimmed 185 -> 131 chars so it is not cut in results (GSC 2026-09-18..10-18: / has
+// 2,207 impressions at position 10.9 and 1 click).
 export const metadata: Metadata = {
+  description:
+    "Look up recent SEC filings (10-K, 10-Q, 8-K, S-1, 13F, Form 4) with a plain-English explanation of each form and a link to EDGAR.",
   alternates: { canonical: `${SITE_URL}/` },
 };
 
