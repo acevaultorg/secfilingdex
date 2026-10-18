@@ -33,10 +33,15 @@ export async function generateMetadata({
   const info = formTypeInfo(formType);
   const filings = loadFilingsByFormType(formType);
   const shortName = info?.shortName ?? "SEC filing";
-  const title = `${formType} filings — ${shortName}`;
-  const description = info
-    ? `${info.definition} ${filings.length} recent ${formType} filings indexed from SEC EDGAR. Cadence: ${info.cadence}.`
-    : `${filings.length} recent ${formType} filings indexed from SEC EDGAR.`;
+  // Title <=45 chars (layout adds " · SecFilingDex" -> <=60); description <=155 so it is not cut in results.
+  const title = `Latest ${formType} filings — ${shortName}`;
+  const fullDescription = info
+    ? `${filings.length} recent ${formType} filings from SEC EDGAR. ${info.definition}`
+    : `${filings.length} recent ${formType} filings from SEC EDGAR.`;
+  const description =
+    fullDescription.length <= 155
+      ? fullDescription
+      : fullDescription.slice(0, 154).replace(/[\s,;:.-]+\S*$/, "") + "…";
   return {
     title,
     description,
