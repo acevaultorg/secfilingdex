@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { CookieConsent } from "@/components/CookieConsent";
 import { ClarityTags } from "@/components/ClarityTags";
 import "./globals.css";
 
@@ -139,6 +138,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className="dark">
       <head>
+        {/* ONE consent UI (2026-10-23, Paulo mvk45xtzoqe3pk): the Amili Kit bar (kit/consent-inject.mjs, run by the deploy) is
+            the site's only consent UI; the old React CookieConsent bar is retired because a first visitor at 390 saw both.
+            This carries a choice made in the old bar (localStorage "secfdx-consent") over to the Kit bar before its deferred
+            script runs, so a visitor who already answered is not asked again. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var o=localStorage.getItem('secfdx-consent');if(o&&!localStorage.getItem('ak-consent')){var a=o==='granted';localStorage.setItem('ak-consent',JSON.stringify({v:a?'granted':'denied',a:a,c:a,ads:false,src:'secfdx',t:Date.now()}))}}catch(e){}`,
+          }}
+        />
         {/* Cloudflare Web Analytics (privacy-first; only when CF token present) */}
         {CF_BEACON_TOKEN && (
           <script
@@ -193,7 +201,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Microsoft Clarity — heatmaps, session recordings, dead/rage click detection.
             Loads only when CLARITY_ID is present. Consent Mode integration:
             on first load Clarity calls itself with `consent` defaulted via setup;
-            CookieConsent component upgrades cookies on Accept (window.clarity('consent', true)).
+            the Amili Kit consent bar upgrades cookies on Accept (window.clarity('consent', true)).
             Privacy: Clarity auto-masks form-input values + can be configured to mask additional
             selectors via dashboard. Operator setup: clarity.microsoft.com/projects → grab tag. */}
         {CLARITY_ID && (
@@ -231,9 +239,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="llms" type="text/plain" href="/llms.txt" />
       </head>
       <body className="font-sans antialiased">
-        {/* Keep consent compact and fixed to the bottom so it does not push the
-            first content screen down behind the Amazon strip and site header. */}
-        <CookieConsent />
         {children}
         {/* Always mounted (2026-09-28): ClarityTags holds the ONLY affiliate click handler (GA4
             amazon_click + the fleet beacon). Gated on CLARITY_ID, which is unset, it never mounted, so
