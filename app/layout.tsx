@@ -115,16 +115,19 @@ const siteSchema = {
 //   GSC — verification via metadata.verification field (operator drops token)
 //   GA4 — Consent Mode v2 defaults DENIED until cookie banner accepts
 const CF_BEACON_TOKEN = process.env.NEXT_PUBLIC_CF_BEACON_TOKEN || "";
-// Shared Fleet GA4 property; the fleet worker splits it per-site by hostName. Defaulted
-// (not just env-read) so GA4 always loads — it replaced Plausible, retired fleet-wide when
-// the subscription was cancelled 2026-06. Consumed ONLY by the Consent Mode v2 block below;
+// secfilingdex's OWN GA4 property (544417773 / G-TX3XKDDE62) — the one the fleet dashboard reads
+// (worker/index.mjs). ~~Shared Fleet property G-5BVWDL3M45~~ (superseded 2026-10-23, card mvjez9edlwiebf:
+// any build without the env var — local, kit-rollout — fell back to the shared property and the site's
+// own went dark from 2026-10-12). Defaulted (not just env-read) so GA4 always loads — it replaced
+// Plausible, retired fleet-wide 2026-06. Consumed ONLY by the Consent Mode v2 block below;
 // never hardcode a second gtag init, which would double-count and bypass the consent gate.
-const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-5BVWDL3M45";
+const GA4_ID = process.env.NEXT_PUBLIC_GA4_ID || "G-TX3XKDDE62";
 // Microsoft Clarity — heatmaps + session recordings + UX friction detection.
 // Loads only when project ID is present. Operator drops via NEXT_PUBLIC_CLARITY_ID
 // after creating the project at https://clarity.microsoft.com/projects.
 // Consent-gated: Clarity respects the cookie banner (cookie-set on Accept; cleared on Reject).
-const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID || "";
+// Public project ID (same value CI pins); defaulted so a build without the env var still loads it (2026-10-23).
+const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID || "wk6ur3vm7m";
 // Google AdSense client ID. Env-var override available for per-site
 // AdSense accounts; fleet-default is the operator's primary account
 // (same ID used on holdlens.com + readinglist.school + readminute.com +
