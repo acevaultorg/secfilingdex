@@ -12,9 +12,10 @@ export default {
   "billboard": {
     "variant": "random",
     "learn": true,
-    "top": true,
+    "top": false,
     "mid": true,
     "midMove": true,
+    "match": "^/$|^/learn/|^/faq/$|^/research-tools/$",
     "headline": "{why}",
     "midHeadline": "{why}"
   },
