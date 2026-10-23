@@ -1,12 +1,13 @@
 #!/usr/bin/env node
 // Amili Kit cookie bar — build-output injector. CANONICAL: VAULT-Fleet/tooling/fleet-kit/consent/inject.mjs
 // (sites carry kit/consent-inject.mjs + kit/consent.mjs). Run after the site's build, before its guards and deploy:
-//   node kit/consent-inject.mjs <outDir> [--privacy /privacy/] [--ads] [--ask all] [--clarity <id>|auto|none] [--lang nl] [--no-host-canon]
+//   node kit/consent-inject.mjs <outDir> [--privacy /privacy/] [--ads] [--ask all] [--clarity <id>|auto|none] [--lang nl] [--no-host-canon] [--site d] [--no-ui-check]
 // On every built page that runs Google Analytics or Clarity it adds (idempotent, inside markers, nothing else touched):
 //  1. HEAD: Consent Mode v2 defaults (denied in the EEA/UK/CH/California, applies a stored choice) — ONLY when the page has none of its own.
 //  2. the bar (hidden markup + /kit-consent.<hash>.css + /kit-consent.<hash>.js, deferred) before </body>, in the page's language,
 //     linking the site's own privacy page; Clarity's project id is read from the page's own snippet.
-//  3. a "Cookie settings" link in the footer (or at the end of the page) when the page has no data-cc="show" element.
+//  3. a "Cookie settings" link in the footer (or at the end of the page) when the page has no data-cc="show" element;
+//     on React (Next.js) pages always at the end of <body>, never inside the React-rendered footer (1.17.0, hydration).
 // Pages that already carry another kit bar (class ak-cc without our markers), a redirect page, or a page without analytics are left alone.
 // Exits 1 when a page that runs analytics ends up without the bar.
 import fs from 'node:fs';
@@ -14,6 +15,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { renderConsent, consentHead, CONSENT_CSS, CONSENT_JS, settingsLabel, langOf } from './consent.mjs';
 import { hostCanon } from './host-canon.mjs';
+import { countPages } from './consent-one-ui.mjs';
 
 const M = { body: ['<!--ak-cc-->', '<!--/ak-cc-->'], head: ['<!--ak-cch-->', '<!--/ak-cch-->'], link: ['<!--ak-ccl-->', '<!--/ak-ccl-->'] };
 const strip = (h) => Object.values(M).reduce((x, [a, b]) => x.replace(new RegExp(`${a}[\\s\\S]*?${b}`, 'g'), ''), h);
@@ -49,7 +51,12 @@ export function injectPage(html, opts) {
     link = M.link[0] + `<p style="margin:0;padding:0 12px;text-align:center;font-size:.875rem">${a}</p>` + M.link[1];
   }
   const tail = M.body[0] + `<link rel="stylesheet" href="${opts.css}">` + bar + `<script src="${opts.js}" defer></script>` + M.body[1];
-  const foot = h.lastIndexOf('</footer>');
+  // 1.17.0: never inside a React-rendered footer. On a Next.js page (App Router flight data or a __next root) a node added inside
+  // <footer> is a hydration mismatch (React #418): React throws the server HTML away and re-renders the page, and every
+  // injected kit node (ad bands, this bar) disappears with it. Measured 2026-10-22 on sourcescore, sourdoughhydration and
+  // secfilingdex: link in the footer -> #418 and 0 ad bands; the same link at the end of <body> -> no error, both bands.
+  const react = /self\.__next_f\.push|<div id="__next"|data-reactroot/.test(h);
+  const foot = react ? -1 : h.lastIndexOf('</footer>');
   if (link) h = foot > -1 && foot < at ? h.slice(0, foot) + link + h.slice(foot) : h.slice(0, h.lastIndexOf('</body>')) + link + h.slice(h.lastIndexOf('</body>'));
   const at2 = h.lastIndexOf('</body>');
   h = h.slice(0, at2) + tail + h.slice(at2);
@@ -117,4 +124,18 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   console.log(`amili consent: bar on ${r.bar}/${r.pages} pages (${r.own} already had a kit bar, ${r.none} run no analytics, ${r.other} other), ${r.hj}`);
   console.log(`amili host-canon: ${r.canon.status}${r.canon.origin ? ' -> ' + r.canon.origin : ''}`);
   if (r.missing.length) { console.error(`amili consent: analytics page without </body>: ${r.missing.slice(0, 5).join(', ')}`); process.exit(1); }
+  // 1.17.2 (Paulo mvk45xtzoqe3pk, "Los het deze keer goed op!"): ONE consent UI on a first visit, checked on the built pages
+  // served under the real domain (so Google's AdSense message loads as live). Two or more = the deploy stops here. No browser
+  // on this machine = a warning only: fleet-deploy-guard step 5 is the fail-closed gate. --no-ui-check / CONSENT_UI_SKIP opt out.
+  if (!a.includes('--no-ui-check') && !process.env.CONSENT_UI_SKIP) {
+    let site = o('--site');
+    if (!site) { try { const m = fs.readFileSync(path.join(out, 'index.html'), 'utf8').match(/<link[^>]+rel=["']canonical["'][^>]+href=["']https?:\/\/([^/"']+)/i) || fs.readFileSync(path.join(out, 'index.html'), 'utf8').match(/href=["']https?:\/\/([^/"']+)[^>]*rel=["']canonical/i); site = m && m[1]; } catch {} }
+    if (!site) console.error('amili consent-ui: no --site and no canonical on index.html; check skipped (fleet-deploy-guard still checks)');
+    else {
+      const u = await countPages({ out, site, pages: ['/'] });
+      if (u.ok) console.log(`amili consent-ui: ${u.note}`);
+      else if (u.code === 1) { console.error(`amili consent-ui: FAIL ${u.why}`); process.exit(1); }
+      else console.error(`amili consent-ui: not checked here (${u.why}); fleet-deploy-guard step 5 is the gate`);
+    }
+  }
 }
