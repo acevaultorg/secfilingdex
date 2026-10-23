@@ -1,6 +1,10 @@
 {
   "outDir": "out",
-  "placementAttrs": ["data-event-from", "data-from", "data-affiliate"],
+  "placementAttrs": [
+    "data-event-from",
+    "data-from",
+    "data-affiliate"
+  ],
   "tracker": [
     "fleet\\.promptprio\\.com/c\\?s=secfilingdex\\.com&f=\"\\+encodeURIComponent\\(\\w+\\)\\+\"&p=\"\\+",
     "getAttribute\\(\"data-affiliate\"\\)"
@@ -8,6 +12,7 @@
   "gate": "optional",
   "ungatedAllow": [],
   "skipFiles": [],
-  "minLinks": 10000,
-  "_note": "f= is the link's data-affiliate slug (amazon-research-book / amazon-book / amazon-book-cover / amazon-audible / amazon-contextual-book); the /learn shelf is raw by design (docs/AFFILIATE-ACTIVATION.md), the gate covers the research-book cohort only. /go/contextual-book is counted server-side by functions/go/contextual-book.js with f=amazon-contextual-book&p=learn-10k."
+  "minLinks": 300,
+  "_note": "f= is the link's data-affiliate slug (amazon-research-book / amazon-book / amazon-book-cover / amazon-audible / amazon-contextual-book); the /learn shelf is raw by design (docs/AFFILIATE-ACTIVATION.md), the gate covers the research-book cohort only. /go/contextual-book is counted server-side by functions/go/contextual-book.js with f=amazon-contextual-book&p=learn-10k.",
+  "_minLinksNote": "300 since 2026-10-23: the Kit billboard is limited to /, /learn/, /faq/ and /research-tools/ (pool match rule; register: no Amazon CTAs on the 2,123 /filing/ pages). The old 10000 was met only because the bands had drifted onto every page. A correct build carries ~352; 300 still refuses a blind scan."
 }
