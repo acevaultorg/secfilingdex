@@ -182,7 +182,7 @@ export function SearchClient() {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search by filer, ticker, accession, CIK, or form type…"
+          placeholder="Ticker, company, CIK or form…"
           aria-label="Search filings"
           spellCheck={false}
           autoComplete="off"
