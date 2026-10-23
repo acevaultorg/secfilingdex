@@ -1,4 +1,4 @@
-// VENDORED Amili Kit v1.17.2 (consent/one-ui.mjs sha256 5a55d037857b) — do not edit here; re-run sync.sh.
+// VENDORED Amili Kit v1.17.3 (consent/one-ui.mjs sha256 5a55d037857b) — do not edit here; re-run sync.sh.
 // consent/one-ui.mjs — Kit copy of tooling/fleet-deploy/consent-ui.mjs (kept IDENTICAL by guard drift test one-ui.test.mjs).
 // Sites carry it as kit/consent-one-ui.mjs; consent-inject runs it after injecting the bar. Original header follows.
 // consent-ui: ONE consent UI on a first visit (2026-10-22, Paulo mvk45xtzoqe3pk: "Ik heb dit al eerder gemeld. Los het deze
