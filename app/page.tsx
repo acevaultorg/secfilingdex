@@ -45,6 +45,11 @@ export default function Home() {
   const sinceYear =
     [...byYear.entries()].sort().find(([, n]) => n >= allFilings.length * 0.1)?.[0] ??
     allFilings[allFilings.length - 1]?.filedAt.slice(0, 4);
+  // Newest filed date in the corpus, stated instead of "new ones added every day": ingest is a manual
+  // `npm run fetch-edgar`, so a cadence claim can go stale; a computed date cannot (card mvkims1653lctm).
+  const newestFiled = allFilings[0]?.filedAt
+    ? new Date(allFilings[0].filedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
+    : null;
 
   // Top filers by count of indexed filings (newest-first ordering preserved)
   const filerCounts = ciks
@@ -77,7 +82,7 @@ export default function Home() {
           </h1>
           <p className="text-body-lg text-muted max-w-2xl mb-8">
             {allFilings.length.toLocaleString("en-US")} filings copied from SEC EDGAR so far,
-            most of them filed since {sinceYear}, with new ones added every day. Each page
+            most of them filed since {sinceYear}{newestFiled ? `; the newest was filed ${newestFiled}` : ""}. Each page
             says what the form is, who filed it and when, and links to the original on
             sec.gov.
           </p>

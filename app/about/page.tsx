@@ -229,7 +229,7 @@ export default function AboutPage() {
               SecFilingDex is an index of SEC filings: 10-K, 10-Q, 8-K, 13F,
               Schedule 13D/G, S-1, Form 4, DEF 14A, 20-F, 6-K and more. It holds
               a growing subset of EDGAR, mostly filings from recent years, with
-              new ones added every day. Each filing here gets its own page, its
+              new ones fetched from EDGAR in batches. Each filing here gets its own page, its
               own structured-data schema, and a machine-readable JSON copy at{" "}
               <code className="font-mono text-text">/api/[slug].json</code>. The
               full list is at{" "}
