@@ -1,4 +1,4 @@
-// VENDORED Amili Kit v1.17.3 (list-filter.mjs sha256 6b3f032e857f) from VAULT-Fleet/tooling/fleet-kit/list-filter/list-filter.mjs — do not edit here; re-run sync.sh.
+// VENDORED Amili Kit v1.17.10 (list-filter.mjs sha256 6b3f032e857f) from VAULT-Fleet/tooling/fleet-kit/list-filter/list-filter.mjs — do not edit here; re-run sync.sh.
 // Amili Kit: list-filter — a long list becomes a filter bar (text search + a few facet chips) over a list folded to one
 // phone screen with "Show all N". Every item stays in the HTML (SEO, no-JS, print). Paulo 2026-10-12 (card mv4zvbdfnnb44i,
 // "one massive compare list without filters"; espressospecdb /compare/ finder is the reference, rule #66 ONE SCREEN PER SECTION).
